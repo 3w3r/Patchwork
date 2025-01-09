@@ -9,11 +9,12 @@ The calling client will need to include a payload that has all the fields of the
 The URL for replacing a record with an `HTTP PUT` operation is as follows:
 
 ```
-               The name of the server hosting the REST API.
-              /         The name of the schema containing the table.
-             |         /              The name of the table.
-             |        |              /             The value of the primary key column from this table.
-             |        |             |             /
+             ┏━ The name of the server hosting the REST API.
+             ┃        ┏━ The name of the schema containing the table.
+             ┃        ┃             ┏━  The name of the table.
+             ┃        ┃             ┃             ┏━ The value of the primary key column
+             ┃        ┃             ┃             ┃  from this table.
+             ▼        ▼             ▼             ▼
 PUT https://{server}/{schema name}/{table name}/{primary key value}
 Content-Type: application/json
 
@@ -36,7 +37,7 @@ Let's consider an example of what the Patchwork toolkit would do when this API e
 And, let's assume that this record already exists in the database.
 
 ```json
-  { "ID":"42", "Name", "Widget", "Price":"42.42" }
+  { "ID":"42", "Name": "Widget", "Price":"42.42" }
 ```
 
 When a calling the PUT endpoint with like this operation:
@@ -45,7 +46,7 @@ When a calling the PUT endpoint with like this operation:
 PUT https://localhost/dbo/products/42
 Content-Type: application/json
 
-{ "ID":"42", "Name", "Widget Name Here", "Price":"42.99" }
+{ "ID":"42", "Name": "Widget Name Here", "Price":"42.99" }
 ```
 
 Patchwork will build this query:

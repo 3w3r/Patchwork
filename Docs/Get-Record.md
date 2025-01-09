@@ -7,12 +7,13 @@ Patchwork uses the HTTP GET operation to query a single record from the database
 The URL for accessing a record with an `HTTP GET` operation is as follows:
 
 ```
+         ┏━ The name of the server hosting the REST API.
+         ┃        ┏━ The name of the schema containing the table.
+         ┃        ┃             ┏━ The name of the table.
+         ┃        ┃             ┃            ┏━ The value of the primary key 
+         ┃        ┃             ┃            ┃  column from this table.
+         ▼        ▼             ▼            ▼
 https://{server}/{schema name}/{table name}/{primary key value}
-         |        |             |             \
-         |        |              \             The value of the primary key column from this table.
-         |         \              The name of the table.
-          \         The name of the schema containing the table.
-           The name of the server hosting the REST API.
 ```
 
 Given this URL, the Patchwork server can quickly build a query against the database to find the record by the primary key value. Here is an example:
@@ -42,7 +43,7 @@ Patchwork will build this query:
 Which would result in this response from the API:
 
 ```json
-  { "ID":"42", "Name", "Widget", "Price":"42.42" }
+  { "ID":"42", "Name": "Widget", "Price":"42.42" }
 ```
 
 ## Column Selection
@@ -57,10 +58,10 @@ Given either of these URLS:
 
 ```
     URL ->  http://localhost/dbo/products/42?include=Name,Price
-RETURNS ->{ "Name", "Widget", "Price":"42.42"  }
+RETURNS ->{ "Name": "Widget", "Price":"42.42"  }
 
     URL -> http://localhost/dbo/products/42?exclude=ID,Price
-RETURNS -> { "Name", "Widget" }
+RETURNS -> { "Name": "Widget" }
 ```
 
 Notice that the URL with the `include` returns only the listed column names while the URL with an `exclude` returns all columns except the listed ones.

@@ -9,11 +9,12 @@ The calling client will need to include a payload that has all the fields of the
 The URL for replacing a record with an `HTTP DELETE` operation is as follows:
 
 ```
-                  The name of the server hosting the REST API.
-                 /         The name of the schema containing the table.
-                |         /              The name of the table.
-                |        |              /             The value of the primary key column from this table.
-                |        |             |             /
+                ┏━ The name of the server hosting the REST API.
+                ┃        ┏━ The name of the schema containing the table.
+                ┃        ┃             ┏━ The name of the table.
+                ┃        ┃             ┃            ┏━ The value of the primary key 
+                ┃        ┃             ┃            ┃  column from this table.
+                ▼        ▼             ▼            ▼
 DELETE https://{server}/{schema name}/{table name}/{primary key value}
 ```
 
@@ -30,7 +31,7 @@ When a DELETE operation happens, there are a few things that the Patchwork toolk
 As am example, let's consider that a product record exists with this JSON representation:
 
 ```json
-  { "ID":"42", "Name", "Widget", "Price":"42.42" }
+  { "ID":"42", "Name": "Widget", "Price":"42.42" }
 ```
 
 When a client calls this endpoint:
