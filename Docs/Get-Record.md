@@ -2,13 +2,17 @@
 
 Patchwork uses the HTTP GET operation to query a single record from the database by that record's primary key.
 
+## URL Segments
+
+The URL for accessing a record with an `HTTP GET` operation is as follows:
+
 ```
 https://{server}/{schema name}/{table name}/{primary key value}
-            |           |            |               \
-            |           |             \               The value of the primary key column from this table.
-            |            \             The name of the table.
-             \            The name of the schema containing the table.
-              The name of the server hosting the REST API.
+         |        |             |             \
+         |        |              \             The value of the primary key column from this table.
+         |         \              The name of the table.
+          \         The name of the schema containing the table.
+           The name of the server hosting the REST API.
 ```
 
 Given this URL, the Patchwork server can quickly build a query against the database to find the record by the primary key value. Here is an example:
