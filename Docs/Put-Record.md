@@ -45,9 +45,7 @@ When a calling the PUT endpoint with like this operation:
 PUT https://localhost/dbo/products/42
 Content-Type: application/json
 
-{ 
-  "ID":"42", "Name", "Widget Name Here", "Price":"42.99"
-}
+{ "ID":"42", "Name", "Widget Name Here", "Price":"42.99" }
 ```
 
 Patchwork will build this query:
@@ -58,10 +56,10 @@ Patchwork will build this query:
   WHERE ID = 42
 ```
 
-This would then result in an `HTTP 204: No Content`
+This would then result in an `HTTP 204: No Content`.
 
 ## Generating a JSON-PATCH for this change
-One of the unique features of the Patchwork system is that all changes are logged as events in the `Patchwork_Event_Log` table. Since a PUT operation creates a data change, the system will create a JSON-PATCH document representing that change automatically and persist it into the log automatically so we know what changes happened.
+One of the unique features of the Patchwork system is that all changes are logged as events in the `Patchwork_Event_Log` table. Since a PUT operation creates a data change, the system will create a JSON-PATCH document representing that change automatically and persist it into the log automatically so we know what changes happened. 
 
 For this, Patchwork uses [JsonPatch.net](https://docs.json-everything.net/patch/basics/) to manage patch documents. The basic idea of this operation is that Patchwork will open the existing database record from before the PUT operation and create a patch document using the `CreatePatch()` method. Here is a snippet of code that shows how that would work for the example above.
 
@@ -78,6 +76,15 @@ JsonPatch patch = original.CreatePatch(modified);
 db.SavePatchLogEvent("dbo","products","42", patch);
 // Update the record in the products table.
 db.UpdateRecord("dbo","products","42", modified);
+```
+
+The generated JSON-PATCH document should look like this:
+
+```json
+[
+  {"op": "replace", "path": "/Name", "value":"Widget Name Here" },
+  {"op": "replace", "path": "/Price", "value":"42.99" }
+]
 ```
 
 ## PUT Operation Sequence Diagram
