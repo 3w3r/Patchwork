@@ -1,4 +1,4 @@
-# POST Record
+# POST to Insert a Record
 
 The Patchwork `HTTP POST` endpoint is used to insert a new record into a table. To create a new record, the calling client should generate a JSON document with all the required fields and invoke the `POST` endpoint for the table (without a primary key value). `POST` is only supported on the table URL and will not work on a schema or record URL. Any fields omitted from the JSON document will get the default value assigned by the database. Patchwork will then return back to the caller a JSON document representing the created record. This is great because it will show the values of any default fields that were assigned by the database such as identity columns often used as primary keys.
 
@@ -62,3 +62,24 @@ Patchwork will then create a response using the values from the newly inserted r
   { "ID":"42", "Name": "Widget", "Price":"42.42" }
 ```
 
+## POST Operation Sequence Diagram
+
+Here is a sequence diagram that shows the steps that Patchwork will follow when a PUT operation is called.
+
+```mermaid
+sequenceDiagram
+  autonumber
+  Client ->> Patchwork : POST /dbo/products { "Name": "Widget", "Price":"42.42" }
+  Patchwork --x IPatchworkMetadataHandler : Schema 'dbo' must exist
+  Patchwork --x IPatchworkMetadataHandler : Table 'products' must exist
+  Patchwork --x IPatchworkSecurityHandler : Current user must have POST access to products
+
+  Patchwork ->> JsonPatch : Create "Add" patch document for  { "Name": "Widget", "Price":"42.42" }
+  JsonPatch -->> Patchwork : return {patchDocument}
+  Patchwork ->> DB : Save {patchDocument} into event log
+
+  Patchwork ->> DB :   INSERT INTO dbo.products (Name, Price)  VALUES ('Widget Name Here', 42.42) RETURNING *
+  DB -->> Patchwork : Return {insertedRecord} product
+
+  Patchwork -->> Client : Return OK Status code and {insertedRecord}
+```

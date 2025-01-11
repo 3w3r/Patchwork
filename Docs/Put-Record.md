@@ -1,4 +1,4 @@
-# PUT Record
+# PUT to Replace a Record
 
 The `HTTP PUT` operation is used to replace an existing database record with new values. The best use case for the PUT operation is when a caller first downloads a record with an `HTTP GET` then makes some changes to the object and they need to save those changes. The client can then use the `HTTP PUT` to send the entire object back to the server to be persisted.
 
@@ -21,7 +21,6 @@ Content-Type: application/json
 { 
   // complete object in JSON format
 }
-
 ```
 
 Let's consider an example of what the Patchwork toolkit would do when this API endpoint is called. First, assume we have this table in the database.
@@ -95,11 +94,12 @@ Here is a sequence diagram that shows the steps that Patchwork will follow when 
 ```mermaid
 sequenceDiagram
   autonumber
-  Client ->> Patchwork : PUT record /dbo/products/42
-  Patchwork --x IPatchworkMetadataHandler : Does schema 'dbo' Exist?
-  Patchwork --x IPatchworkMetadataHandler : Does table 'products' Exist?
-  Patchwork --x IPatchworkMetadataHandler : Does record 42 Exist?
-  Patchwork --x IPatchworkSecurityHandler : Can Current User PUT dbo.products record 42?
+  Client ->> Patchwork : PUT record /dbo/products/42 {modified}
+  Patchwork --x IPatchworkMetadataHandler : Schema 'dbo' must exist
+  Patchwork --x IPatchworkMetadataHandler : Table 'products' must exist
+  Patchwork --x IPatchworkMetadataHandler : Product record 42 must exist
+  Patchwork --x IPatchworkSecurityHandler : Current User must have PUT access for product 42
+
   Patchwork ->> DB : Select * from dbo.products where ID = 42
   DB -->> Patchwork : Return {original} product
 
