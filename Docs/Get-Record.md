@@ -1,4 +1,4 @@
-# GET Record
+# GET to Query a Single Record
 
 Patchwork uses the HTTP GET operation to query a single record from the database by that record's primary key.
 

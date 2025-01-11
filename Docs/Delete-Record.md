@@ -1,4 +1,4 @@
-# DELETE Record
+# DELETE to Remove a Record
 
 The `HTTP DELETE` operation is used to remove a record from the database. This endpoint is fairly simple as it has no parameters, no payload, and can only work on a single record at a time.
 

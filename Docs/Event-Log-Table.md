@@ -1,0 +1,1 @@
+# Understanding the `PATCHWORK_EVENT_LOG` Table
