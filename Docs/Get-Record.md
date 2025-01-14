@@ -1,6 +1,6 @@
 # GET to Query a Single Record
 
-Patchwork uses the HTTP GET operation to query a single record from the database by that record's primary key.
+Patchwork uses the HTTP GET operation to query a single record from the database by that record's primary key. This endpoint is useful when the calling client needs to get the details of a record and expand it to include the record from related tables by following the primary to foreign key relationships defined in the database. Patchwork supports two `HTTP GET` endpoints, one for querying a list of records and one for querying a single record. This page describes the endpoint for querying a single record and, optionally, it's related records from other tables.
 
 ## URL Segments
 
@@ -88,7 +88,8 @@ CREATE TABLE Properties (
     ID SERIAL PRIMARY KEY,
     ProductId INTEGER REFERENCES Products(ID),
     Name VARCHAR(255) NOT NULL,
-    Description TEXT
+    Description TEXT,
+    FOREIGN KEY (ProductId) REFERENCES Products(ID)
 );
 ```
 
@@ -98,7 +99,8 @@ CREATE TABLE Properties (
 CREATE TABLE Verified_By (
     ID SERIAL PRIMARY KEY,
     PropertyId INTEGER REFERENCES Properties(ID),
-    Username VARCHAR(255) NOT NULL
+    Username VARCHAR(255) NOT NULL,
+    FOREIGN KEY (PropertyId) REFERENCES Properties(ID)
 );
 ```
 
@@ -108,7 +110,8 @@ CREATE TABLE Verified_By (
 CREATE TABLE Tags (
     ID SERIAL PRIMARY KEY,
     ProductId INTEGER REFERENCES Products(ID),
-    TagName VARCHAR(255) NOT NULL
+    TagName VARCHAR(255) NOT NULL,
+    FOREIGN KEY (ProductId) REFERENCES Products(ID)
 );
 ```
 

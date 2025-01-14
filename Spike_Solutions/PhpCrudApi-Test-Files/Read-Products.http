@@ -1,0 +1,4 @@
+GET http://dev.stickfiguresoftware.com/api.php/records/products
+Accept: application/json
+
+###
