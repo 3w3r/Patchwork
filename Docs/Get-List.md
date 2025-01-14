@@ -1,8 +1,22 @@
 # GET to Query a List of Records
 
-The `HTTP GET` operation is used to query a list of records from a table in the database. This endpoint is useful when the calling client needs to retrieve a set of records that match a specific criteria because it support filtering, sorting, and pagination. Patchwork supports two `HTTP GET` endpoints, one for querying a list of records and one for querying a single record. This page describes the endpoint for querying a list of records.
+## Table of Contents for List Feature
 
-## URL Segments
+- Get List
+  - [List Introduction](#intro)
+  - [URL Segments](#url-segments)
+  - [Basic Example](#basic-example)
+- [Include Querystring Parameter](./Get-List-Include.md)
+- [Exclude Querystring Parameter](./Get-List-Exclude.md)
+- [Size Querystring Parameter](./Get-List-Size.md)
+- [Page Querystring Parameter](./Get-List-Page.md)
+- [Order Querystring Parameter](./Get-List-Order.md)
+- [Filter Querystring Parameter](./Get-List-Filter.md)
+
+## List Introduction
+<a id="intro"></a>The `HTTP GET` operation is used to query a list of records from a table in the database. This endpoint is useful when the calling client needs to retrieve a set of records that match a specific criteria because it support filtering, sorting, and pagination. Patchwork supports two `HTTP GET` endpoints, one for querying a list of records and one for querying a single record. This page describes the endpoint for querying a list of records.
+
+## URL Segments <a id="url-segments"></a>
 
 The URL for replacing a record with an `HTTP GET` operation is as follows:
 
@@ -15,7 +29,8 @@ The URL for replacing a record with an `HTTP GET` operation is as follows:
 GET https://{server}/{schema name}/{table name}?{querystring}
 ```
 
-## Basic Example
+
+## Basic Example <a id="basic-example"></a>
 
 Let's consider an example of what the Patchwork toolkit would do when this API endpoint is called. First, assume we have this table in the database.
 

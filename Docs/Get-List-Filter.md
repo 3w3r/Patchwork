@@ -89,7 +89,7 @@ This would cause Patchwork to create and execute the following SQL query:
 ```sql
 SELECT *
 FROM dbo.products
-WHERE (Price > 40 OR Price < 10) AND Name = 'Widget C'
+WHERE (Price > 40 OR Price < 10) AND Name = 'Widget B'
 OFFSET 0 ROWS FETCH NEXT 25 ROWS ONLY
 ```
 
@@ -102,7 +102,7 @@ Content-Range: items 0-0/1
 X-Sort-Order: ID,asc
 
 [
-  { "ID":"44", "Name": "Widget C", "Price":"13.99" }
+  { "ID":"43", "Name": "Widget B", "Price":"2.24" }  
 ]
 ```
 
