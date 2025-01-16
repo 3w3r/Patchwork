@@ -19,6 +19,7 @@ These pages cover each of the feature of Patchwork in more detail.
   - [PATCH to update a list of records](Patch-List.md)
   - [PATCH to update a single record](Patch-Record.md)
   - [DELETE to remove a record](Delete-Record.md)
+  - [OPTIONS to find current permissions](Options-Request.md)
 - Event Processing
   - [How JSON-Patch is used for updates](Json-Patch-Description.md)
   - [Understanding the `PATCHWORK_EVENT_LOG` table](Event-Log-Table.md)
@@ -33,7 +34,7 @@ There are a couple of things that will make you successful with the Patchwork to
 3. **All tables should be exposed as a REST endpoint.** Patchwork assumes that all tables in your database should be exposed as their own API endpoint. If there are tables in your database that should **not** be available via a REST endpoint then you will need to explicitly state to omit them in the application startup code.
 4. **You will need to create your own security handler.** Patchwork makes the assumption that no tables should be available to query or edit for any user or client. You must create a security handler class implementing `IPatchworkSecurityHandler` to tell the Patchwork toolkit which users or clients are authorized to access the tables and API endpoints. If the security handler does not say that the client/user has permission it is assumed they do not and they should get an `HTTP 403: Access Denied` message.
 5. **URLs to access database objects are automatic based on the table schema and name.** Patchwork automatically builds the URL to access each database table from the table's schema and name. For example, if a table called `goats` is in the schema called `animals` then the URL to access that table will be `https://{server}/animals/goats`. Likewise, a table called `products` in the default schema would be accessed via `https://{server}/dbo/products`. Patchwork will make no attempt to change plurality, casing or formatting of names; if it is singular snake case in your database then it will be singular snake case in the response JSON.
-6. **Every table will have the GGPPPPD.** Patchwork automatically creates a set of API methods for each table mapping to the standard HTTP methods as follows:
+6. **Every table will have the GGPPPPDO.** Patchwork automatically creates a set of API methods for each table mapping to the standard HTTP methods as follows:
    1. **GET**: Get can also be used to search for records in the database by targeting the table name without a primary key value. In this case, there are query string parameters to control filtering, column selection, sorting, and paging.
    2. **GET**: Get is used to retrieve a single record by appending the primary key value to the URL.
    3. **POST**: Post is used to create a new database record.
@@ -41,6 +42,7 @@ There are a couple of things that will make you successful with the Patchwork to
    5. **PATCH**: The Patch operation uses the JSON-PATCH format for a selective update. When called against a single record by appending the primary key to the end of the URL, the JSON-PATCH document can target paths within that record.
    6. **PATCH**: Patch can also be called on the table's endpoint without a primary key value to update more than one record. In this case, the paths used in the JSON-PATCH document should specify the table name and primary key value at the beginning of hte path to indicate which record should be updated.
    7. **DELETE**: Must target a single record with the primary key value and causes that record to be removed.
+   8. **OPTIONS**: Used to determine what permissions the current client connection has
 7. **HTTP PATCH operations have a special place in our heart.** Patchwork is designed to make use of the [JSON-PATCH](https://jsonpatch.com/) standard for all modifications to the database. Whenever any of the API endpoints would cause a data modification, that modification is described in a JSON-PATCH document and appended to a special table called the `PATCHWORK_EVENT_LOG`. In this way, all changes are logged and can be rolled back or re-played if needed.
 8. **Database table and column descriptions provide additional metadata to Patchwork.** Patchwork will read the description of a database table and/or column to find some additional metadata. For example, if you put the term `PII` in the description of a database column then Patchwork will assume it is private data and omit it from all responses unless the connection requests is explicitly.
 
