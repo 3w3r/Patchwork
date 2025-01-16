@@ -2,9 +2,14 @@
 
 namespace Patchwork.Filters
 {
-  public static class PostgreSqlWhereClauseBuilder
+  public static class PostgreSqlDialectBuilder
   {
-    public static string ConvertToSqlWhereClause(string filterString)
+    public static string BuildSelectClause(string tableName, string schemaName)
+    {
+      return $"SELECT * FROM {schemaName}.{tableName}";
+    }
+
+    public static string BuildWhereClause(string filterString)
     {
       if (string.IsNullOrWhiteSpace(filterString))
         throw new ArgumentException("No input string");

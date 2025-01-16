@@ -8,8 +8,8 @@
   - [Basic Example](#basic-example)
 - [Include Querystring Parameter](./Get-List-Include.md)
 - [Exclude Querystring Parameter](./Get-List-Exclude.md)
-- [Size Querystring Parameter](./Get-List-Size.md)
-- [Page Querystring Parameter](./Get-List-Page.md)
+- [Limit Querystring Parameter](./Get-List-Limit.md)
+- [Offset Querystring Parameter](./Get-List-Offset.md)
 - [Order Querystring Parameter](./Get-List-Order.md)
 - [Filter Querystring Parameter](./Get-List-Filter.md)
 
@@ -54,7 +54,7 @@ And, let's assume that these records already exists in the database.
 In the simplest example, the client will call this endpoint with no querystring parameters at all. In this case, the
 Patchwork toolkit will assume that it should return to the caller a list of all records from the table. Patchwork will
 automatically apply a default ordering to order the records by the primary key and limit the result size to the default
-paging size set for the overall server. While the default page size can be configured at application startup, if the application omits this configuration, Patchwork will use a default page size of 25 records.
+`limit` set for the overall server. While the default `limit` can be configured at application startup, if the application omits this configuration, Patchwork will use a default `limit` of 25 records.
 
 When a calling the GET endpoint with like this operation:
 
@@ -77,7 +77,7 @@ The response would be an `HTTP 200` with this payload:
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Range: items 0-3/4
-X-Sort-Order: ID,asc
+X-Sort-Order: ID:asc
 
 [
   { "ID":"42", "Name": "Widget A", "Price":"42.42" },

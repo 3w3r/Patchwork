@@ -28,7 +28,7 @@ namespace Patchwork.Filters.Tests
     public void ConvertToSqlWhereClause_HandlesCommonCases(string filterString, string expected)
     {
       // Act
-      var actual = MsSqlWhereClauseBuilder.ConvertToSqlWhereClause(filterString);
+      var actual = MsSqlDialectBuilder.BuildWhereClause(filterString);
 
       // Assert
       Assert.Equal(expected, actual);
@@ -49,7 +49,7 @@ namespace Patchwork.Filters.Tests
       string filterString = input;
 
       // Act
-      var ex = Assert.ThrowsAny<ArgumentException>(() => { MsSqlWhereClauseBuilder.ConvertToSqlWhereClause(filterString); });
+      var ex = Assert.ThrowsAny<ArgumentException>(() => { MsSqlDialectBuilder.BuildWhereClause(filterString); });
 
       if (ex == null) throw new Exception(error);
     }

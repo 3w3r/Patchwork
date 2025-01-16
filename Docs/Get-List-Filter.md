@@ -66,7 +66,7 @@ We would expect the response to be:
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Range: items 0-1/2
-X-Sort-Order: ID,asc
+X-Sort-Order: ID:asc
 
 [
   { "ID":"44", "Name": "Widget C", "Price":"13.99" },
@@ -99,7 +99,7 @@ We would expect the response to be:
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Range: items 0-0/1
-X-Sort-Order: ID,asc
+X-Sort-Order: ID:asc
 
 [
   { "ID":"43", "Name": "Widget B", "Price":"2.24" }  
@@ -158,7 +158,7 @@ This is requesting all the records from the `Properties` table where the `Produc
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Range: items 0-1/2
-X-Sort-Order: ID,asc
+X-Sort-Order: ID:asc
 
 [
   { "ID":"1", "ProductId":"42", "Name": "Property A", "Description":"This is property A" },

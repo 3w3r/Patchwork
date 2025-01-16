@@ -21,7 +21,7 @@ By including all the table's columns except `Price`, the results from this query
 HTTP/1.1 200 OK
 Content-Type: application/json
 Content-Range: items 0-3/4
-X-Sort-Order: ID,asc
+X-Sort-Order: ID:asc
 
 [
   { "ID":"42", "Name": "Widget A" },
