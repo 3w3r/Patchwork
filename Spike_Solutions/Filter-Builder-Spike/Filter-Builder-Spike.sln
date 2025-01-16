@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patchwork.Filters", "Patchw
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patchwork.Filters.Tests", "Patchwork.Filters.Tests\Patchwork.Filters.Tests.csproj", "{7C32FBA0-8A21-4F95-9F6F-4C6EA841F3F0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patchwork.Sort", "Patchwork.Sort\Patchwork.Sort.csproj", "{8910C5D6-4AC9-429A-91BF-C28B5192BE16}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{7C32FBA0-8A21-4F95-9F6F-4C6EA841F3F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C32FBA0-8A21-4F95-9F6F-4C6EA841F3F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C32FBA0-8A21-4F95-9F6F-4C6EA841F3F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8910C5D6-4AC9-429A-91BF-C28B5192BE16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8910C5D6-4AC9-429A-91BF-C28B5192BE16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8910C5D6-4AC9-429A-91BF-C28B5192BE16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8910C5D6-4AC9-429A-91BF-C28B5192BE16}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Patchwork.Filters\Patchwork.Filters.csproj" />
+    <ProjectReference Include="..\Patchwork.Sort\Patchwork.Sort.csproj" />
   </ItemGroup>
 
 </Project>
