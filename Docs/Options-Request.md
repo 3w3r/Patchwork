@@ -80,11 +80,11 @@ Allow: GET, PUT, PATCH, DELETE, OPTIONS
 Access-Control-Max-Age: 86400
 
 {
-  "get":{ "action": "get_dbo_products_42" },
-  "put":{ "action": "put_dbo_products_42" },
-  "patch":{ "action": "patch_dbo_products_42" },
-  "delete":{ "action": "delete_dbo_products_42" },
-  "options":{ "action": "options_dbo_products_42" }
+  "get":{ "action": "get_dbo_products_42", "restrictions": [] },
+  "put":{ "action": "put_dbo_products_42", "restrictions": [] },
+  "patch":{ "action": "patch_dbo_products_42", "restrictions": [] },
+  "delete":{ "action": "delete_dbo_products_42", "restrictions": [] },
+  "options":{ "action": "options_dbo_products_42", "restrictions": [] }
 }
 ```
 
@@ -100,12 +100,87 @@ Allow: GET, OPTIONS
 Access-Control-Max-Age: 86400
 
 {
-  "get":{ "action": "get_dbo_products_42" },
+  "get":{ "action": "get_dbo_products_42", "restrictions": [] },
+  "post":{ "action": "post_dbo_products_42", "restrictions": [] },
   "put":{ "action": "put_dbo_products_42", "restrictions": [{"code":"readonly", "message":"PUT permission not granted"}]  },
   "patch":{ "action": "patch_dbo_products_42", "restrictions": [{"code":"readonly", "message":"PATCH permission not granted"}]  },
   "delete":{ "action": "delete_dbo_products_42", "restrictions": [{"code":"readonly", "message":"DELETE permission not granted"}]  },
-  "options":{ "action": "options_dbo_products_42" }
+  "options":{ "action": "options_dbo_products_42", "restrictions": [] }
 }
 ```
 
 Note that in this response the body payload lists all HTTP methods that _could_ be granted and indicates the reason that some are missing from the `Allow` header.
+
+## OPTIONS Response Body Payload
+
+The response body payload is a JSON object that follows a defined schema. The response is a single object that has an optional property for each of the HTTP verbs. At a high level, it would look like this:
+
+```json
+{
+  "get":{},
+  "post":{},
+  "put":{},
+  "patch":{},
+  "delete":{},
+  "options":{}
+}
+```
+
+The object for each of the HTTP verbs is the same schema. It has a required string property called `action` that gives a unique name to the endpoint's action. If the client can use the endpoint there will be no other properties on this object.
+
+If the client cannot access this endpoint then there will be a second parameter. The second parameter is an array that lists the reasons the calling client cannot access the endpoint. The objects in this array have two properties. The first property called `code` identifies the security rule that prevents access and the second property called `message` is a text message that can be shown to a user to explain why the endpoint is not available.
+
+```json
+{
+  "get":{ "action": "get_dbo_products_42" }, // endpoint is allowed
+  "put":{ 
+    "action": "put_dbo_products_42", 
+    "restrictions": [
+      {"code":"readonly", "message":"PUT permission not granted"} // endpoint blocked because the user is readonly
+      ] 
+    },
+}
+```
+
+### Payload Schema
+
+Here is a JSON Schema for the response payload.
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "get": { "$ref": "#/definitions/httpMethod" },
+    "post": { "$ref": "#/definitions/httpMethod" },
+    "put": { "$ref": "#/definitions/httpMethod" },
+    "patch": { "$ref": "#/definitions/httpMethod" },
+    "delete": { "$ref": "#/definitions/httpMethod" },
+    "options": { "$ref": "#/definitions/httpMethod" }
+  },
+  "required": ["get", "post", "put", "patch", "delete", "options"],
+  "definitions": {
+    "httpMethod": {
+      "type": "object",
+      "properties": {
+        "action": { "type": "string" },
+        "restrictions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/restriction"
+          }
+        }
+      },
+      "required": ["action", "restrictions"]
+    },
+    "restriction": {
+      "type": "object",
+      "properties": {
+        "code": { "type": "string" },
+        "message": { "type": "string" }
+      },
+      "required": ["code", "message"]
+    }
+  }
+}
+```
