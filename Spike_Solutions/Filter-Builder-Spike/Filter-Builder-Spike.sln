@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patchwork.Filters.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patchwork.Sort", "Patchwork.Sort\Patchwork.Sort.csproj", "{8910C5D6-4AC9-429A-91BF-C28B5192BE16}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patchwork.SqlDialects", "Patchwork.SqlDialects\Patchwork.SqlDialects.csproj", "{7B36A32E-93C9-4DD7-B611-1875341DB12A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patchwork.Paging", "Patchwork.Paging\Patchwork.Paging.csproj", "{27A22336-FF0D-47D3-8BD2-3AFCBBB2B2A3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +34,13 @@ Global
 		{8910C5D6-4AC9-429A-91BF-C28B5192BE16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8910C5D6-4AC9-429A-91BF-C28B5192BE16}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8910C5D6-4AC9-429A-91BF-C28B5192BE16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B36A32E-93C9-4DD7-B611-1875341DB12A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B36A32E-93C9-4DD7-B611-1875341DB12A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B36A32E-93C9-4DD7-B611-1875341DB12A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B36A32E-93C9-4DD7-B611-1875341DB12A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27A22336-FF0D-47D3-8BD2-3AFCBBB2B2A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27A22336-FF0D-47D3-8BD2-3AFCBBB2B2A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27A22336-FF0D-47D3-8BD2-3AFCBBB2B2A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27A22336-FF0D-47D3-8BD2-3AFCBBB2B2A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

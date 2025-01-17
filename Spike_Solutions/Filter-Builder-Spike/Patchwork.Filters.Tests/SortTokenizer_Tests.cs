@@ -2,7 +2,7 @@ using Patchwork.Sort;
 
 namespace Patchwork.Filters.Tests;
 
-public class SortLexerTests
+public class SortTokenizer_Tests
 {
   [Fact]
   public void Parse_ReturnsEmptyString_WhenNoExpressionProvided()

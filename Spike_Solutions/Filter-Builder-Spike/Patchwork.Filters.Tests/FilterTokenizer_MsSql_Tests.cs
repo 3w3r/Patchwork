@@ -1,3 +1,5 @@
+using Patchwork.SqlDialects;
+
 namespace Patchwork.Filters.Tests
 {
   public class FilterTokenizer_MsSql_Tests
@@ -27,8 +29,11 @@ namespace Patchwork.Filters.Tests
                 "WHERE [skillKey] = 'cdl' AND [effectiveStartDate] <= '2023-11-12T02:00:00.0000000Z' AND [effectiveEndDate] > '2023-11-12T10:00:00.0000000Z'")]
     public void ConvertToSqlWhereClause_HandlesCommonCases(string filterString, string expected)
     {
+      // Arrange
+      var sut = new MsSqlDialectBuilder();
+
       // Act
-      var actual = MsSqlDialectBuilder.BuildWhereClause(filterString);
+      var actual = sut.BuildWhereClause(filterString);
 
       // Assert
       Assert.Equal(expected, actual);
@@ -43,13 +48,15 @@ namespace Patchwork.Filters.Tests
     [InlineData("eq 42", "No column given")]
     [InlineData("ID eq 42 AND", "AND but no second condition")]
     [InlineData(",", "No Tokens in the input string")]
+    [InlineData("('1' eq ID)", "Filter conditions MUST the format `property operator value` to be valid")]
     public void ConvertToSqlWhereClause_ReturnsEmptyString_WhenInputFilterStringIsNull(string input, string error)
     {
       // Arrange
       string filterString = input;
+      var sut = new MsSqlDialectBuilder();
 
       // Act
-      var ex = Assert.ThrowsAny<ArgumentException>(() => { MsSqlDialectBuilder.BuildWhereClause(filterString); });
+      var ex = Assert.ThrowsAny<ArgumentException>(() => sut.BuildWhereClause(filterString));
 
       if (ex == null) throw new Exception(error);
     }

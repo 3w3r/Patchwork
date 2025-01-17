@@ -10,7 +10,7 @@
 - [Exclude Querystring Parameter](./Get-List-Exclude.md)
 - [Limit Querystring Parameter](./Get-List-Limit.md)
 - [Offset Querystring Parameter](./Get-List-Offset.md)
-- [Order Querystring Parameter](./Get-List-Order.md)
+- [Sort Querystring Parameter](./Get-List-Sort.md)
 - [Filter Querystring Parameter](./Get-List-Filter.md)
 
 ## List Introduction
