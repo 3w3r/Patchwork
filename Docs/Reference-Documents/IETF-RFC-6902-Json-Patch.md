@@ -6,6 +6,8 @@ ISSN: 2070-1721 Akamai
 Last Updated: April 2013
 ---
 
+> This document is the IETF-RFC 6902 in its entirety. I have copied it here for our reference.
+
 # JavaScript Object Notation (JSON) Patch
 
 ## Abstract
