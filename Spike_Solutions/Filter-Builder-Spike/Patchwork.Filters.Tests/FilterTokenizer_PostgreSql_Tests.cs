@@ -68,8 +68,8 @@ namespace Patchwork.Filters.Tests
     [Fact]
     public void AllTokenTypes_Are_Defined()
     {
-      var t = TokenType.Textual;
-      Assert.True(TokenType.Value.HasFlag(t));
+      var t = FilterTokenType.Textual;
+      Assert.True(FilterTokenType.Value.HasFlag(t));
     }
   }
 }

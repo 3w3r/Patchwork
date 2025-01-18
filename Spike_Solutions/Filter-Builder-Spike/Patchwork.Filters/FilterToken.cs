@@ -1,8 +1,8 @@
 ﻿namespace Patchwork.Filters
 {
-  public class Token
+  public class FilterToken
   {
-    public TokenType Type { get; set; }
+    public FilterTokenType Type { get; set; }
     public string Value { get; set; } = string.Empty;
   }
 }

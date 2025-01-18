@@ -5,20 +5,20 @@ using System.Text;
 
 namespace Patchwork.Filters
 {
-  public class Lexer
+  public class FilterLexer
   {
     private string _input;
     private int _position;
 
-    public Lexer(string input)
+    public FilterLexer(string input)
     {
       _input = input;
       _position = 0;
     }
 
-    public List<Token> Tokenize()
+    public List<FilterToken> Tokenize()
     {
-      var tokens = new List<Token>();
+      var tokens = new List<FilterToken>();
       while (_position < _input.Length)
       {
         var current = _input[_position];
@@ -29,14 +29,14 @@ namespace Patchwork.Filters
           var t = ReadOperator();
 
           // if it is not an operator, then it must be an identifier
-          if (t.Type == TokenType.Invalid)
+          if (t.Type == FilterTokenType.Invalid)
           {
             _position = placeholder;
             t = ReadLogicalOperator();
           }
 
           // verify if this token is a logical operator
-          if (t.Type == TokenType.Invalid)
+          if (t.Type == FilterTokenType.Invalid)
           {
             _position = placeholder;
             t = ReadIdentifier();
@@ -55,17 +55,17 @@ namespace Patchwork.Filters
         }
         else if (current == '(' || current == ')')
         {
-          tokens.Add(new Token { Type = current == '(' ? TokenType.OpenParen : TokenType.CloseParen, Value = current.ToString() });
+          tokens.Add(new FilterToken { Type = current == '(' ? FilterTokenType.OpenParen : FilterTokenType.CloseParen, Value = current.ToString() });
           _position++;
         }
         else if (char.IsWhiteSpace(current))
         {
-          tokens.Add(new Token { Type = TokenType.Whitespace, Value = " " });
+          tokens.Add(new FilterToken { Type = FilterTokenType.Whitespace, Value = " " });
           _position++;
         }
         else
         {
-          tokens.Add(new Token { Type = TokenType.Whitespace, Value = current.ToString() });
+          tokens.Add(new FilterToken { Type = FilterTokenType.Whitespace, Value = current.ToString() });
           _position++;
         }
       }
@@ -76,17 +76,17 @@ namespace Patchwork.Filters
       return tokens;
     }
 
-    private static void ValidateTokenSyntax(List<Token> tokens)
+    private static void ValidateTokenSyntax(List<FilterToken> tokens)
     {
 
       // Check if the token list starts with an operator or logical operator
-      if (tokens.Count > 0 && (tokens[0].Type == TokenType.Operator || tokens[0].Type == TokenType.Logical))
+      if (tokens.Count > 0 && (tokens[0].Type == FilterTokenType.Operator || tokens[0].Type == FilterTokenType.Logical))
       {
         throw new ArgumentException("Invalid syntax: Token list cannot start with an operator or logical operator");
       }
 
       // Check if the token list ends with an operator or logical operator
-      if (tokens.Count > 0 && (tokens[tokens.Count - 1].Type == TokenType.Operator || tokens[tokens.Count - 1].Type == TokenType.Logical))
+      if (tokens.Count > 0 && (tokens[tokens.Count - 1].Type == FilterTokenType.Operator || tokens[tokens.Count - 1].Type == FilterTokenType.Logical))
       {
         throw new ArgumentException("Invalid syntax: Token list cannot end with an operator or logical operator");
       }
@@ -94,8 +94,8 @@ namespace Patchwork.Filters
       // Check for consecutive operators or logical operators
       for (var i = 0; i < tokens.Count - 1; i++)
       {
-        if ((tokens[i].Type == TokenType.Operator || tokens[i].Type == TokenType.Logical) &&
-            (tokens[i + 1].Type == TokenType.Operator || tokens[i + 1].Type == TokenType.Logical))
+        if ((tokens[i].Type == FilterTokenType.Operator || tokens[i].Type == FilterTokenType.Logical) &&
+            (tokens[i + 1].Type == FilterTokenType.Operator || tokens[i + 1].Type == FilterTokenType.Logical))
         {
           throw new ArgumentException("Invalid syntax: Consecutive operators or logical operators are not allowed");
         }
@@ -105,37 +105,37 @@ namespace Patchwork.Filters
       var foundInOperator = false;
       for (var i = 0; i < tokens.Count - 1; i++)
       {
-        if (tokens[i].Type == TokenType.Operator && tokens[i].Value == "in")
+        if (tokens[i].Type == FilterTokenType.Operator && tokens[i].Value == "in")
         {
-          if (tokens[i + 1].Type != TokenType.OpenParen)
+          if (tokens[i + 1].Type != FilterTokenType.OpenParen)
           {
             throw new ArgumentException("Invalid syntax: The 'in' operator must be followed by an open parent to start a list of values.");
           }
           foundInOperator = true;
         }
-        if (tokens[i].Type == TokenType.CloseParen)
+        if (tokens[i].Type == FilterTokenType.CloseParen)
         {
           foundInOperator = false;
         }
-        if (foundInOperator && tokens[i].Type == TokenType.Numeric)
+        if (foundInOperator && tokens[i].Type == FilterTokenType.Numeric)
         {
-          if (tokens[i + 1].Type != TokenType.Numeric && tokens[i + 1].Type != TokenType.CloseParen)
+          if (tokens[i + 1].Type != FilterTokenType.Numeric && tokens[i + 1].Type != FilterTokenType.CloseParen)
           {
             throw new ArgumentException("Invalid syntax: List of values after the IN operator must all be numeric.");
           }
         }
-        if (foundInOperator && tokens[i].Type == TokenType.Textual)
+        if (foundInOperator && tokens[i].Type == FilterTokenType.Textual)
         {
-          if (tokens[i + 1].Type != TokenType.Textual && tokens[i + 1].Type != TokenType.CloseParen)
+          if (tokens[i + 1].Type != FilterTokenType.Textual && tokens[i + 1].Type != FilterTokenType.CloseParen)
           {
             throw new ArgumentException("Invalid syntax: List of values after the IN operator must all be textual.");
           }
         }
         if (!foundInOperator
-          && (TokenType.Value.HasFlag(tokens[i].Type))
-          && tokens[i + 1].Type != TokenType.Operator
-          && tokens[i + 1].Type != TokenType.Logical
-          && tokens[i + 1].Type != TokenType.CloseParen)
+          && (FilterTokenType.Value.HasFlag(tokens[i].Type))
+          && tokens[i + 1].Type != FilterTokenType.Operator
+          && tokens[i + 1].Type != FilterTokenType.Logical
+          && tokens[i + 1].Type != FilterTokenType.CloseParen)
         {
           throw new ArgumentException("Invalid syntax: Value token must be followed by an operator or logical operator or a paren");
         }
@@ -144,7 +144,7 @@ namespace Patchwork.Filters
       // Check for logical operator followed by an open parenthesis
       for (var i = 0; i < tokens.Count - 1; i++)
       {
-        if (tokens[i].Type == TokenType.OpenParen && tokens[i + 1].Type == TokenType.Logical)
+        if (tokens[i].Type == FilterTokenType.OpenParen && tokens[i + 1].Type == FilterTokenType.Logical)
         {
           throw new ArgumentException("Invalid syntax: An open parenthesis cannot be followed by logical operator.");
         }
@@ -153,7 +153,7 @@ namespace Patchwork.Filters
       // Check for logical operator followed by a close parenthesis
       for (var i = 0; i < tokens.Count - 1; i++)
       {
-        if (tokens[i].Type == TokenType.Logical && tokens[i + 1].Type == TokenType.CloseParen)
+        if (tokens[i].Type == FilterTokenType.Logical && tokens[i + 1].Type == FilterTokenType.CloseParen)
         {
           throw new ArgumentException("Invalid syntax: Logical operator cannot be followed by a close parenthesis");
         }
@@ -162,7 +162,7 @@ namespace Patchwork.Filters
       // Check for `in` operator not followed by an open parenthesis
       for (var i = 0; i < tokens.Count - 1; i++)
       {
-        if (tokens[i].Value == "in" && tokens[i + 1].Type != TokenType.OpenParen)
+        if (tokens[i].Value == "in" && tokens[i + 1].Type != FilterTokenType.OpenParen)
         {
           throw new ArgumentException("Invalid syntax: 'in' operator must be followed by an open parenthesis");
         }
@@ -172,11 +172,11 @@ namespace Patchwork.Filters
       var openParenCount = 0;
       foreach (var token in tokens)
       {
-        if (token.Type == TokenType.OpenParen)
+        if (token.Type == FilterTokenType.OpenParen)
         {
           openParenCount++;
         }
-        else if (token.Type == TokenType.CloseParen)
+        else if (token.Type == FilterTokenType.CloseParen)
         {
           openParenCount--;
           if (openParenCount < 0)
@@ -191,13 +191,13 @@ namespace Patchwork.Filters
       }
     }
 
-    private static List<Token> RemoveWhitespaceTokens(List<Token> tokens)
+    private static List<FilterToken> RemoveWhitespaceTokens(List<FilterToken> tokens)
     {
-      return tokens.Where(t => t.Type != TokenType.Whitespace)
+      return tokens.Where(t => t.Type != FilterTokenType.Whitespace)
                    .ToList(); // Remove whitespace tokens
     }
 
-    private Token ReadIdentifier()
+    private FilterToken ReadIdentifier()
     {
       var sb = new StringBuilder();
       while (
@@ -211,10 +211,10 @@ namespace Patchwork.Filters
         sb.Append(_input[_position++]);
       }
       var value = sb.ToString();
-      return new Token { Type = TokenType.Identifier, Value = value };
+      return new FilterToken { Type = FilterTokenType.Identifier, Value = value };
     }
 
-    private Token ReadStringOrDateTime()
+    private FilterToken ReadStringOrDateTime()
     {
       var sb = new StringBuilder();
       _position++; // Skip opening quote
@@ -228,25 +228,25 @@ namespace Patchwork.Filters
       var value = sb.ToString();
       if (DateTime.TryParse(value, out var dt))
       {
-        return new Token { Type = TokenType.DateTime, Value = dt.ToUniversalTime().ToString("o") };
+        return new FilterToken { Type = FilterTokenType.DateTime, Value = dt.ToUniversalTime().ToString("o") };
       }
       else
       {
-        return new Token { Type = TokenType.Textual, Value = sb.ToString() };
+        return new FilterToken { Type = FilterTokenType.Textual, Value = sb.ToString() };
       }
     }
 
-    private Token ReadNumber()
+    private FilterToken ReadNumber()
     {
       var sb = new StringBuilder();
       while (_position < _input.Length && char.IsDigit(_input[_position]))
       {
         sb.Append(_input[_position++]);
       }
-      return new Token { Type = TokenType.Numeric, Value = sb.ToString() };
+      return new FilterToken { Type = FilterTokenType.Numeric, Value = sb.ToString() };
     }
 
-    private Token ReadLogicalOperator()
+    private FilterToken ReadLogicalOperator()
     {
       var sb = new StringBuilder();
       while (_position < _input.Length && char.IsLetter(_input[_position]))
@@ -257,12 +257,12 @@ namespace Patchwork.Filters
       if (value.Equals("AND", StringComparison.OrdinalIgnoreCase)
        || value.Equals("OR", StringComparison.OrdinalIgnoreCase))
       {
-        return new Token { Type = TokenType.Logical, Value = value };
+        return new FilterToken { Type = FilterTokenType.Logical, Value = value };
       }
-      return new Token { Type = TokenType.Invalid, Value = value };
+      return new FilterToken { Type = FilterTokenType.Invalid, Value = value };
     }
 
-    private Token ReadOperator()
+    private FilterToken ReadOperator()
     {
       var sb = new StringBuilder();
       if (_position < _input.Length && char.IsLetter(_input[_position]))
@@ -274,9 +274,9 @@ namespace Patchwork.Filters
       if (op == "sw" || op == "ct" || op == "in" || op == "eq" || op == "ne" || op == "gt" || op == "ge" || op == "lt" || op == "le")
       {
         _position += 2;
-        return new Token { Type = TokenType.Operator, Value = op };
+        return new FilterToken { Type = FilterTokenType.Operator, Value = op };
       }
-      return new Token { Type = TokenType.Invalid, Value = op };
+      return new FilterToken { Type = FilterTokenType.Invalid, Value = op };
     }
   }
 }

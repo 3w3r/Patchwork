@@ -22,12 +22,12 @@ To update multiple resources in a single HTTP PATCH operation against a listing 
 [
   {
     "op": "replace",
-    "path": "/123/organisation",
+    "path": "/123/organization",
     "value": "A better name for my Org. Ltd"
   },
   {
     "op": "replace",
-    "path": "/456/organisation",
+    "path": "/456/organization",
     "value": "Acme Ltd"
   }
 ]
@@ -52,7 +52,7 @@ To update multiple resources in a single HTTP PATCH operation against a listing 
 
 ### Example:
 
-If you have a `/contacts` endpoint and you want to update the `organisation` attribute for two contacts with IDs `123` and `456`, your PATCH request would look like the example provided above.
+If you have a `/contacts` endpoint and you want to update the `organization` attribute for two contacts with IDs `123` and `456`, your PATCH request would look like the example provided above.
 
 This approach allows for efficient updates of multiple resources in a single HTTP request, reducing the number of network calls and improving performance, especially in scenarios where bulk updates are common. However, it's crucial to ensure that your server can handle such requests correctly, maintaining data integrity and providing appropriate error responses if necessary.
 

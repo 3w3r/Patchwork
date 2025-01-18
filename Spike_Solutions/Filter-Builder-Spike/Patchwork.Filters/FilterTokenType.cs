@@ -3,7 +3,7 @@
 namespace Patchwork.Filters
 {
   [Flags]
-  public enum TokenType
+  public enum FilterTokenType
   {
     Identifier = 0b00000001_00000000, // Column names
     Operator = 0b00000000_10000000, // eq, ne, gt, ge, lt, le, in, ct, sw

@@ -19,13 +19,13 @@ namespace Patchwork.SqlDialects
 
       try
       {
-        var lexer = new Lexer(filterString);
+        var lexer = new FilterLexer(filterString);
         var tokens = lexer.Tokenize();
 
         if (tokens.Count == 0)
           throw new ArgumentException("No valid tokens found");
 
-        var parser = new MsSqlTokenParser(tokens);
+        var parser = new MsSqlFilterTokenParser(tokens);
         var result = parser.Parse();
         return $"WHERE {result}";
       }

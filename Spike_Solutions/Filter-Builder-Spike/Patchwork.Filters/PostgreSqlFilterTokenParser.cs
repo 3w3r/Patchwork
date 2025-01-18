@@ -4,12 +4,12 @@ using System.Text;
 
 namespace Patchwork.Filters
 {
-  public class MsSqlTokenParser
+  public class PostgreSqlFilterTokenParser
   {
-    private List<Token> _tokens;
+    private List<FilterToken> _tokens;
     private int _position;
 
-    public MsSqlTokenParser(List<Token> tokens)
+    public PostgreSqlFilterTokenParser(List<FilterToken> tokens)
     {
       _tokens = tokens;
       _position = 0;
@@ -27,12 +27,12 @@ namespace Patchwork.Filters
       if (_position >= _tokens.Count)
         return;
 
-      if (_tokens[_position].Type == TokenType.OpenParen)
+      if (_tokens[_position].Type == FilterTokenType.OpenParen)
       {
         sb.Append("(");
         _position++;
         ParseExpression(sb);
-        if (_position < _tokens.Count && _tokens[_position].Type == TokenType.CloseParen)
+        if (_position < _tokens.Count && _tokens[_position].Type == FilterTokenType.CloseParen)
         {
           sb.Append(")");
           _position++;
@@ -48,16 +48,14 @@ namespace Patchwork.Filters
       }
 
       if (_position < _tokens.Count &&
-           (_tokens[_position].Value.Equals("AND", StringComparison.OrdinalIgnoreCase)
-           || _tokens[_position].Value.Equals("OR", StringComparison.OrdinalIgnoreCase)
-           )
-         )
+          (_tokens[_position].Value.Equals("AND", StringComparison.OrdinalIgnoreCase)
+           || _tokens[_position].Value.Equals("OR", StringComparison.OrdinalIgnoreCase)))
       {
         sb.Append(" ").Append(_tokens[_position].Value.ToUpper()).Append(" ");
         _position++;
         ParseExpression(sb);
       }
-      else if (_position < _tokens.Count && _tokens[_position].Type != TokenType.CloseParen)
+      else if (_position < _tokens.Count && _tokens[_position].Type != FilterTokenType.CloseParen)
       {
         throw new ArgumentException("Expected logical operator or closing parenthesis");
       }
@@ -69,14 +67,14 @@ namespace Patchwork.Filters
         return;
 
       var identifier = _tokens[_position++];
-      if (identifier.Type != TokenType.Identifier)
+      if (identifier.Type != FilterTokenType.Identifier)
         throw new ArgumentException("Expected identifier");
 
       if (_position >= _tokens.Count)
         throw new ArgumentException("Expected operator after identifier");
 
       var op = _tokens[_position++];
-      if (op.Type != TokenType.Operator)
+      if (op.Type != FilterTokenType.Operator)
         throw new ArgumentException("Expected operator");
 
       if (_position >= _tokens.Count)
@@ -84,26 +82,26 @@ namespace Patchwork.Filters
 
       var value = _tokens[_position++];
 
-      // need to handle case where value is open paren when operator is 'in'
-      if (value.Type != TokenType.OpenParen && op.Type == TokenType.Operator && op.Value == "in")
+      // Handle case where value is open paren when operator is 'in'
+      if (value.Type != FilterTokenType.OpenParen && op.Type == FilterTokenType.Operator && op.Value == "in")
       {
         throw new ArgumentException("Expected open paren to begin list of acceptable values");
       }
-      else if (op.Value != "in" && !TokenType.Value.HasFlag(value.Type))
+      else if (op.Value != "in" && !FilterTokenType.Value.HasFlag(value.Type))
         throw new ArgumentException("Expected value");
 
-      sb.Append($"[{identifier.Value}]").Append(" ").Append(ConvertOperator(op.Value)).Append(" ");
+      sb.Append(identifier.Value).Append(" ").Append(ConvertOperator(op.Value)).Append(" ");
 
       if (op.Value == "in")
       {
         sb.Append("(");
-        while (_position < _tokens.Count && TokenType.Value.HasFlag(_tokens[_position].Type))
+        while (_position < _tokens.Count && FilterTokenType.Value.HasFlag(_tokens[_position].Type))
         {
-          sb.Append(_tokens[_position].Type == TokenType.Numeric
-                   ? _tokens[_position].Value
-                   : $"'{_tokens[_position].Value}'");
+          sb.Append(_tokens[_position].Type == FilterTokenType.Numeric
+              ? _tokens[_position].Value
+              : $"'{_tokens[_position].Value}'");
           _position++;
-          if (_position < _tokens.Count && _tokens[_position].Type != TokenType.CloseParen)
+          if (_position < _tokens.Count && _tokens[_position].Type != FilterTokenType.CloseParen)
           {
             sb.Append(", ");
           }
@@ -112,19 +110,19 @@ namespace Patchwork.Filters
       }
       else if (op.Value == "sw")
       {
-        sb.Append("'").Append(value.Value).Append("%'");
+        sb.Append("E'").Append(value.Value).Append("%'");
       }
       else if (op.Value == "ct")
       {
-        sb.Append("'%").Append(value.Value).Append("%'");
+        sb.Append("E'%").Append(value.Value).Append("%'");
       }
       else
       {
-        if (value.Type == TokenType.DateTime)
+        if (value.Type == FilterTokenType.DateTime)
         {
           sb.Append($"'{value.Value}'");
         }
-        else if (value.Type == TokenType.Textual)
+        else if (value.Type == FilterTokenType.Textual)
         {
           sb.Append($"'{value.Value}'");
         }
@@ -155,7 +153,7 @@ namespace Patchwork.Filters
           return "IN";
         case "ct":
         case "sw":
-          return "LIKE";
+          return "ILIKE"; // Use ILIKE for case-insensitive pattern matching
         default:
           throw new ArgumentException("Unknown operator");
       }
