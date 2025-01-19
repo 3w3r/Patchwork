@@ -52,24 +52,25 @@ By default, all columns are selected when the GET operation is used. If you wish
 
 First, you can adjust which columns are authorized to each use with the `IPatchWorkSecurity` provider. In the provider, you can override the default behavior and remove columns that the current user should not see.
 
-Second, the calling client can specify which columns to return using the `include` or `exclude` query string parameters. If the caller adds the `include` parameter then they must give it a value of a comma separated list of columns to return. If a column is not listed, it will not be returned. Likewise, using the `exclude` query string parameter will cause patchwork to return all columns _except_ the ones listed in this parameter. Here are some examples:
+Second, the calling client can specify which columns to return using the `fields` query string parameters If the caller adds the `fields` parameter then they must give it a value of a comma separated list of columns to return. If a column is not listed, it will not be returned. There is also a special case value that can be added to the list. If the caller adds the `*` (asterisk) character then Patchwork should return all default columns. This is useful when the security provider makes a column hidden by default because the caller can ask for `fields=*,privateField` and they will get back all the default fields plus the extra one they have asked for.
 
 Given either of these URLS:
 
 ```
-    URL ->  http://localhost/dbo/products/42?include=Name,Price
+    URL ->  http://localhost/dbo/products/42?fields=Name,Price
 RETURNS ->{ "Name": "Widget", "Price":"42.42"  }
 
-    URL -> http://localhost/dbo/products/42?exclude=ID,Price
-RETURNS -> { "Name": "Widget" }
-```
+    URL -> http://localhost/dbo/products/42?fields=ID,Price
+RETURNS -> { "ID": "42", "Price"= "42.42" }
 
-Notice that the URL with the `include` returns only the listed column names while the URL with an `exclude` returns all columns except the listed ones.
+    URL -> http://localhost/dbo/products/42?fields=*
+RETURNS -> { "ID": "42", "Name": "Widget", "Price"= "42.42" }
+
+```
 
 ## Joining Related Tables
 
-It is often important to query a record and all of its related child records as a single operation. Patchwork supports this through the `join` query string parameter. Let's consider the case that we have these four tables:
-Here are the table definitions for the four related tables:
+It is often important to query a record and all of its related child records as a single operation. Patchwork supports this through the `include` query string parameter. Let's consider the case that we have these table definitions for the four related tables:
 
 1. `Products` table:
 
@@ -115,12 +116,10 @@ CREATE TABLE Tags (
 );
 ```
 
-Now, let's discuss how to join these tables using the `join` query string parameter in Patchwork.
-
-To join related tables, you can use the `join` query string parameter and specify the related table names separated by commas. For example, if you want to retrieve a product along with its properties, you can use the following URL:
+Now, let's discuss how to join these tables using the `include` query string parameter in Patchwork. To join related tables, you can use the `include` query string parameter and specify the related table names separated by commas. For example, if you want to retrieve a `product` along with its `properties`, you can use the following URL:
 
 ```
-https://localhost/dbo/products/42?join=Properties
+https://localhost/dbo/products/42?include=Properties
 ```
 
 This will return the product with its properties as a nested object in the response. Here's an example of the response:
@@ -147,10 +146,10 @@ This will return the product with its properties as a nested object in the respo
 }
 ```
 
-You can also join multiple tables by specifying them in the `join` parameter separated by commas. Listing multiple tables separated by commas indicates to Patchwork that those tables are a dependency change where the first is related to this table and the second is related to the first, etc. For example, to retrieve a product along with its properties and the users who verified those properties, you can use the following URL:
+You can also join multiple tables in a hierarchy by specifying them in the `include` parameter separated by commas. Listing multiple tables separated by commas indicates to Patchwork that those tables are a dependency chain where the first is related to this table and the second is related to the first, etc. For example, to retrieve a product along with its properties and the users who verified those properties, you can use the following URL:
 
 ```
-https://localhost/dbo/products/42?join=Properties,Verified_By
+https://localhost/dbo/products/42?include=Properties,Verified_By
 ```
 
 This will return the product with its properties and the verified users as nested objects in the response. Here's an example of the response:
@@ -196,12 +195,12 @@ This will return the product with its properties and the verified users as neste
 }
 ```
 
-Patchwork also supports joining on multiple tables that are not in a dependency chain. In this case, you should use the `join` parameter multiple times; once for each table related directly to main table.
+Patchwork also supports joining on multiple tables that are not in a dependency chain. In this case, you should use the `include` parameter multiple times; once for each table related directly to main table.
 
 Consider this url:
 
 ```
-https://localhost/dbo/products/42?join=Properties&join=Tags
+https://localhost/dbo/products/42?include=Properties&include=Tags
 ```
 
 ```json
@@ -238,21 +237,18 @@ https://localhost/dbo/products/42?join=Properties&join=Tags
 }
 ```
 
-In this response, the product with ID 42 is returned along with its properties and tags. The properties are nested within the product object, and the tags are returned as a separate array. This demonstrates how Patchwork supports joining multiple tables using the `join` query string parameter.
+In this response, the product with ID 42 is returned along with its properties and tags. The properties are nested within the product object, and the tags are returned as a separate array. This demonstrates how Patchwork supports joining multiple tables using the `include` query string parameter.
 
 ## Specifications
 
 - [ ] The first segment of the GET URL **must** specify the schema name that contains the table to query.
 - [ ] The second segment of the GET URL **must** be the name of the table.
 - [ ] The third segment of the GET URL **must** contain a string serialized version of the primary key value for the record being queried.
-- [ ] The URL **may** contain a query string parameter called `includes`.
-- [ ] If the `includes` parameter present, the response **must** include only the columns listed.
-- [ ] If the `includes` parameter is present, the `excludes` parameter **must not** be present.
-- [ ] If the `excludes` parameter present, the response **must not** include the columns listed but it **should** contain all the other columns.
-- [ ] If the `excludes` parameter is present, the `includes` parameter **must not** be present.
-- [ ] If the URL includes both `include` and `exclude` parameters then Patchwork **must** return an `HTTP 403: Bad Request` response.
-- [ ] The URL **may** contain the query string parameter called `join`.
-- [ ] If the parameter `join` is present then Patchwork **must** query the tables named and append the JSON values from that table as an array property in the response.
-- [ ] If the `join` parameter includes multiple tables separated by a comma then Patchwork **must** join from each table to the next in sequence and return the list of joined records as nested JSON under each record in turn to build a "tree" of response data.
-- [ ] If the `join` parameter appears more than once, then Patchwork **must** include one array of related tables on the main JSON response object for each `join` parameter.
-- [ ] if a `join` parameter is included but the named table does not have a foreign key from the main table then Patchwork **must** return an `HTTP 403: Bad Request` response.
+- [ ] The URL **may** contain a query string parameter called `fields`.
+- [ ] If the `fields` parameter present, the response **must** include only the columns listed.
+- [ ] If the `fields` parameter **may** contain an asterisk (`*`) character. If present, the Patchwork **MUST** return all columns.
+- [ ] The URL **may** contain the query string parameter called `include`.
+- [ ] If the parameter `include` is present then Patchwork **must** query the tables named and append the JSON values from that table as an array property in the response.
+- [ ] If the `include` parameter includes multiple tables separated by a comma then Patchwork **must** join from each table to the next in sequence and return the list of joined records as nested JSON under each record in turn to build a "tree" of response data.
+- [ ] If the `include` parameter appears more than once, then Patchwork **must** include one array of related tables on the main JSON response object for each `include` parameter.
+- [ ] if a `include` parameter is included but the named table does not have a foreign key from the main table then Patchwork **must** return an `HTTP 403: Bad Request` response.
