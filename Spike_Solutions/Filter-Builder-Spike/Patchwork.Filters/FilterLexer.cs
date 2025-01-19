@@ -55,17 +55,17 @@ namespace Patchwork.Filters
         }
         else if (current == '(' || current == ')')
         {
-          tokens.Add(new FilterToken { Type = current == '(' ? FilterTokenType.OpenParen : FilterTokenType.CloseParen, Value = current.ToString() });
+          tokens.Add(new FilterToken(current == '(' ? FilterTokenType.OpenParen : FilterTokenType.CloseParen, current.ToString()));
           _position++;
         }
         else if (char.IsWhiteSpace(current))
         {
-          tokens.Add(new FilterToken { Type = FilterTokenType.Whitespace, Value = " " });
+          tokens.Add(new FilterToken(FilterTokenType.Whitespace, " "));
           _position++;
         }
         else
         {
-          tokens.Add(new FilterToken { Type = FilterTokenType.Whitespace, Value = current.ToString() });
+          tokens.Add(new FilterToken(FilterTokenType.Whitespace, current.ToString()));
           _position++;
         }
       }
@@ -211,7 +211,7 @@ namespace Patchwork.Filters
         sb.Append(_input[_position++]);
       }
       var value = sb.ToString();
-      return new FilterToken { Type = FilterTokenType.Identifier, Value = value };
+      return new FilterToken(FilterTokenType.Identifier, value);
     }
 
     private FilterToken ReadStringOrDateTime()
@@ -228,11 +228,11 @@ namespace Patchwork.Filters
       var value = sb.ToString();
       if (DateTime.TryParse(value, out var dt))
       {
-        return new FilterToken { Type = FilterTokenType.DateTime, Value = dt.ToUniversalTime().ToString("o") };
+        return new FilterToken(FilterTokenType.DateTime, dt.ToUniversalTime().ToString("o"));
       }
       else
       {
-        return new FilterToken { Type = FilterTokenType.Textual, Value = sb.ToString() };
+        return new FilterToken(FilterTokenType.Textual, sb.ToString());
       }
     }
 
@@ -243,7 +243,7 @@ namespace Patchwork.Filters
       {
         sb.Append(_input[_position++]);
       }
-      return new FilterToken { Type = FilterTokenType.Numeric, Value = sb.ToString() };
+      return new FilterToken(FilterTokenType.Numeric, sb.ToString());
     }
 
     private FilterToken ReadLogicalOperator()
@@ -257,9 +257,9 @@ namespace Patchwork.Filters
       if (value.Equals("AND", StringComparison.OrdinalIgnoreCase)
        || value.Equals("OR", StringComparison.OrdinalIgnoreCase))
       {
-        return new FilterToken { Type = FilterTokenType.Logical, Value = value };
+        return new FilterToken(FilterTokenType.Logical, value);
       }
-      return new FilterToken { Type = FilterTokenType.Invalid, Value = value };
+      return new FilterToken(FilterTokenType.Invalid, value);
     }
 
     private FilterToken ReadOperator()
@@ -274,9 +274,9 @@ namespace Patchwork.Filters
       if (op == "sw" || op == "ct" || op == "in" || op == "eq" || op == "ne" || op == "gt" || op == "ge" || op == "lt" || op == "le")
       {
         _position += 2;
-        return new FilterToken { Type = FilterTokenType.Operator, Value = op };
+        return new FilterToken(FilterTokenType.Operator, op);
       }
-      return new FilterToken { Type = FilterTokenType.Invalid, Value = op };
+      return new FilterToken(FilterTokenType.Invalid, op);
     }
   }
 }

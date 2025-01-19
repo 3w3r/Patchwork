@@ -1,9 +1,9 @@
 # Including Only Specific Columns
 
-Often, when a client needs to get a listing of records from a table they only need a few columns from the table. Patchwork allows the client to specify which columns to return by using the `include` querystring parameter. The client can provide a comma separated list of column names to include in the response. If the client does not provide the `include` parameter, then all columns will be returned.
+Often, when a client needs to get a listing of records from a table they only need a few columns from the table. Patchwork allows the client to specify which columns to return by using the `fields` querystring parameter. The client can provide a comma separated list of column names to include in the response. If the client does not provide the `fields` parameter, then all columns will be returned. The works the same for the listing endpoint as it does for the `HTTP GET` of a single resource.
 
 ```http
-GET https://localhost/dbo/products?include=Name,ID
+GET https://localhost/dbo/products?fields=Name,ID
 ```
 
 This would cause Patchwork to create and execute a query similar to:

@@ -23,6 +23,7 @@
     <ProjectReference Include="..\Patchwork.Paging\Patchwork.Paging.csproj" />
     <ProjectReference Include="..\Patchwork.Sort\Patchwork.Sort.csproj" />
     <ProjectReference Include="..\Patchwork.SqlDialects\Patchwork.SqlDialects.csproj" />
+    <ProjectReference Include="..\Patchwork.Expansion\Patchwork.Expansion.csproj" />
   </ItemGroup>
 
 </Project>

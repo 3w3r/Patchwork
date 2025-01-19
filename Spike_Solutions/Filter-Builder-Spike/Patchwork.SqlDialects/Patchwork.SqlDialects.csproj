@@ -4,6 +4,7 @@
     <ProjectReference Include="..\Patchwork.Paging\Patchwork.Paging.csproj" />
     <ProjectReference Include="..\Patchwork.Sort\Patchwork.Sort.csproj" />
     <ProjectReference Include="..\Patchwork.Filters\Patchwork.Filters.csproj" />
+    <ProjectReference Include="..\Patchwork.Expansion\Patchwork.Expansion.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

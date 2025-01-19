@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patchwork.SqlDialects", "Pa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patchwork.Paging", "Patchwork.Paging\Patchwork.Paging.csproj", "{27A22336-FF0D-47D3-8BD2-3AFCBBB2B2A3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patchwork.Expansion", "Patchwork.Expansion\Patchwork.Expansion.csproj", "{12BC92B1-1690-4F0F-B600-1AB30A267AEF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{27A22336-FF0D-47D3-8BD2-3AFCBBB2B2A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27A22336-FF0D-47D3-8BD2-3AFCBBB2B2A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27A22336-FF0D-47D3-8BD2-3AFCBBB2B2A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12BC92B1-1690-4F0F-B600-1AB30A267AEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12BC92B1-1690-4F0F-B600-1AB30A267AEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12BC92B1-1690-4F0F-B600-1AB30A267AEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12BC92B1-1690-4F0F-B600-1AB30A267AEF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -7,6 +7,8 @@ namespace Patchwork.Filters.Tests
     [Theory]
     [InlineData("ID eq 42",
                 "WHERE [ID] = 42")]
+    [InlineData("First_Name eq 'bill'",
+                "WHERE [First_Name] = 'bill'")]
     [InlineData("Name eq 'jack' or foo eq 'bar'",
                 "WHERE [Name] = 'jack' OR [foo] = 'bar'")]
     [InlineData("(ID eq 42 AND Name eq 'Jack') OR (ID      eq    38 AND     Name   eq 'Bill') OR ([Name] eq 'Susan' AND [ID] eq 88)",
