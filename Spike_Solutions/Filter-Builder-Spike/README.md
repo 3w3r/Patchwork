@@ -14,16 +14,29 @@ This array of tokens is the sent to a `Parser`. There is one `Parser` class for 
 
 ```mermaid
 sequenceDiagram
-
-actor Client
-participant Controller
-
-Client ->> Controller : &include=child,grandchild
-create participant Lexer
-Controller ->> Lexer : Tokenize("child,grandchild")
-Lexer ->> Lexer : Validate
-create participant Token
-Lexer ->> Token : Create( token[2] )
-create participant Parser
+  participant SqlDialectBuilder  
+  create participant Lexer
+  SqlDialectBuilder ->> Lexer : Create
+  SqlDialectBuilder ->> Lexer : Tokenize("child,grandchild")
+  Lexer ->> Lexer : Validate
+  create participant Token
+  Lexer ->> Token : Create Token []
+  Lexer ->> Token : Add( token('child') )
+  Lexer ->> Token : Add( token('grandchild') )
+  destroy Token 
+  Token -->> Lexer : Return Token [] 
+  destroy Lexer
+  Lexer -->> SqlDialectBuilder : Return Token []
+  create participant Parser
+  SqlDialectBuilder ->> Parser : Parse(Token[])
+  Parser ->> Parser : Create SQL String
+  create participant Tokens
+  Parser ->> Tokens : foreach
+  Parser ->> Tokens : Read Token
+  Parser -->> Parser : Generate SQL String
+  destroy Tokens
+  Tokens -->> Parser : end loop
+  destroy Parser
+  Parser -->> SqlDialectBuilder : Return SQL String
 
 ```

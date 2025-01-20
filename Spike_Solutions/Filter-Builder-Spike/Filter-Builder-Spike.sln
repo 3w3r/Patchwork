@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patchwork.Paging", "Patchwo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patchwork.Expansion", "Patchwork.Expansion\Patchwork.Expansion.csproj", "{12BC92B1-1690-4F0F-B600-1AB30A267AEF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patchwork.Schema", "Patchwork.Schema\Patchwork.Schema.csproj", "{A3F69F92-0E5C-4F3E-825B-2B374DC3AC2F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +50,9 @@ Global
 		{12BC92B1-1690-4F0F-B600-1AB30A267AEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12BC92B1-1690-4F0F-B600-1AB30A267AEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12BC92B1-1690-4F0F-B600-1AB30A267AEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3F69F92-0E5C-4F3E-825B-2B374DC3AC2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3F69F92-0E5C-4F3E-825B-2B374DC3AC2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3F69F92-0E5C-4F3E-825B-2B374DC3AC2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3F69F92-0E5C-4F3E-825B-2B374DC3AC2F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
