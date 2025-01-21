@@ -1,7 +1,7 @@
 using System;
 using Patchwork.Paging;
 
-namespace Patchwork.Filters.Tests;
+namespace Patchwork.Tests;
 
 public class PagingTokenizer_Tests
 {

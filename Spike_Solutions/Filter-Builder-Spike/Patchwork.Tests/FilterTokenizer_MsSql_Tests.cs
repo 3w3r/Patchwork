@@ -1,6 +1,6 @@
 using Patchwork.SqlDialects;
 
-namespace Patchwork.Filters.Tests
+namespace Patchwork.Tests
 {
   public class FilterTokenizer_MsSql_Tests
   {
@@ -32,7 +32,7 @@ namespace Patchwork.Filters.Tests
     public void ConvertToSqlWhereClause_HandlesCommonCases(string filterString, string expected)
     {
       // Arrange
-      var sut = new MsSqlDialectBuilder();
+      var sut = new MsSqlDialectBuilder("");
 
       // Act
       var actual = sut.BuildWhereClause(filterString);
@@ -55,7 +55,7 @@ namespace Patchwork.Filters.Tests
     {
       // Arrange
       string filterString = input;
-      var sut = new MsSqlDialectBuilder();
+      var sut = new MsSqlDialectBuilder("");
 
       // Act
       var ex = Assert.ThrowsAny<ArgumentException>(() => sut.BuildWhereClause(filterString));

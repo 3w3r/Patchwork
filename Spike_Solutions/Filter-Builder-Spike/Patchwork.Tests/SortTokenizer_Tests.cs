@@ -1,6 +1,6 @@
 using Patchwork.Sort;
 
-namespace Patchwork.Filters.Tests;
+namespace Patchwork.Tests;
 
 public class SortTokenizer_Tests
 {

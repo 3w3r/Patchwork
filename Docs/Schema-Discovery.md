@@ -4,7 +4,7 @@ One of the most powerful feature of the Patchwork toolkit is the ability to disc
 
 First, Patchwork will find all the `schemas` defined in the database and use the name of each schema to create the first segment of the URL for accessing the data.
 
-Then, Patchwork will find all of the `tables` in the database and use name of each table to create the second segment of the URL for accessing the data.
+Then, Patchwork will find all of the `tables` in the database and use name of each table to create the second segment of the URL for accessing the data. Patchwork will also find all the `views` in the database and retrieve their metadata in much the same way it does for `tables`. The difference is that a `view` are considered read only so they will only support `HTTP GET` operations. The `views` never support `HTTP PUT`, `PATCH`, `POST`, or `DELETE` endpoints in the REST API.
 
 Next, Patchwork will find all of the `columns` in each table. Patchwork requires that each table have a primary key column. Patchwork will use the primary key column to create the third segment of the URL for accessing the data. Patchwork also looks for foreign key columns and uses them to establish join relationships between tables.
 

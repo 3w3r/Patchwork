@@ -1,6 +1,7 @@
+using Patchwork.Filters;
 using Patchwork.SqlDialects;
 
-namespace Patchwork.Filters.Tests
+namespace Patchwork.Tests
 {
   public class FilterTokenizer_PostgreSql_Tests
   {
