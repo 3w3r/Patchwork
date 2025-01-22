@@ -6,9 +6,9 @@ namespace Patchwork.Expansion;
 public class IncludeLexer
 {
   private readonly string _input;
-  private readonly Table _entity;
+  private readonly Entity _entity;
   private readonly DatabaseMetadata _meta;
-  public IncludeLexer(string input, Table entity, DatabaseMetadata meta)
+  public IncludeLexer(string input, Entity entity, DatabaseMetadata meta)
   {
     _input = input;
     _entity = entity;
@@ -31,20 +31,20 @@ public class IncludeLexer
     return tokens;
   }
 
-  private Column GetPrimaryKeyColumn(Table childTable)
+  private Column GetPrimaryKeyColumn(Entity childTable)
   {
     if (childTable.PrimaryKey == null) throw new InvalidOperationException($"Table {childTable.Name} does not have a primary key.");
     return childTable.PrimaryKey;
   }
 
-  private Column GetForeignKeyColumn(string child, Table childTable)
+  private Column GetForeignKeyColumn(string child, Entity childTable)
   {
     var fk = _entity.Columns.FirstOrDefault(c => c.IsForeignKey && c.ForeignKeyTableName.Equals(childTable.Name, StringComparison.CurrentCultureIgnoreCase));
     if (fk == null) throw new InvalidOperationException($"Table {_entity.Name} does not have a foreign key to {child}.");
     return fk;
   }
 
-  private Table GetChildTableName(string child)
+  private Entity GetChildTableName(string child)
   {
     var childTable = _meta.Schemas
                           .SelectMany(s => s.Tables)

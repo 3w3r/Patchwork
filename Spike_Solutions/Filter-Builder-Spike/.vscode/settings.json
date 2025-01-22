@@ -1,5 +1,9 @@
 {
   "cSpell.words": [
-    "Npgsql"
+    "effectiveenddate",
+    "effectivestartdate",
+    "ILIKE",
+    "Npgsql",
+    "skillkey"
   ]
 }

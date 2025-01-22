@@ -22,28 +22,21 @@ namespace Patchwork.SqlDialects
 
     public override string BuildSelectClause(string entityName)
     {
-      var entity = _metadata.Schemas.SelectMany(x => x.Tables).FirstOrDefault(t => t.Name.Equals(entityName, StringComparison.OrdinalIgnoreCase));
-      if (entity == null) throw new ArgumentException($"Invalid Table Name: {entityName}");
-
+      var entity = FindEntity(entityName);
       return $"SELECT * FROM [{entity.SchemaName}].[{entity.Name}] AS [T_{entity.Name}]";
     }
 
     public override string BuildJoinClause(string includeString, string entityName)
     {
-      if (string.IsNullOrEmpty(includeString)) return "";
+      if (string.IsNullOrEmpty(includeString)) throw new ArgumentException(nameof(includeString));
+      if (string.IsNullOrEmpty(entityName)) throw new ArgumentException(nameof(entityName));
 
       try
       {
-        DiscoverSchema();
-        if (_metadata == null) throw new ArgumentException("Cannot access database schema");
-        var entity = _metadata.Schemas.SelectMany(x => x.Tables).FirstOrDefault(t => t.Name.Equals(entityName, StringComparison.OrdinalIgnoreCase));
-        if (entity == null) throw new ArgumentException($"Invalid Table Name: {entityName}");
-
-        var lexer = new IncludeLexer(includeString, entity, _metadata);
-        var tokens = lexer.Tokenize();
+        var entity = FindEntity(entityName);
+        var tokens = GetIncludeTokens(includeString, entity);
         var parser = new MsSqlIncludeTokenParser(tokens);
-        var result = parser.Parse();
-        return result.ToString();
+        return parser.Parse();
       }
       catch (Exception ex)
       {
@@ -51,19 +44,12 @@ namespace Patchwork.SqlDialects
       }
     }
 
-    public override string BuildWhereClause(string filterString)
+    public override string BuildWhereClause(string filterString, string entityName)
     {
-      if (string.IsNullOrWhiteSpace(filterString))
-        throw new ArgumentException("No input string");
-
       try
       {
-        var lexer = new FilterLexer(filterString);
-        var tokens = lexer.Tokenize();
-
-        if (tokens.Count == 0)
-          throw new ArgumentException("No valid tokens found");
-
+        var entity = FindEntity(entityName);
+        var tokens = GetFilterTokens(filterString, entity);
         var parser = new MsSqlFilterTokenParser(tokens);
         var result = parser.Parse();
         return $"WHERE {result}";
@@ -74,18 +60,15 @@ namespace Patchwork.SqlDialects
       }
     }
 
-    public override string BuildOrderByClause(string sort, string pkName)
+    public override string BuildOrderByClause(string sort, string pkName, string entityName)
     {
       try
       {
-        var lexer = new SortLexer(sort);
-        var tokens = lexer.Tokenize();
+        var entity = FindEntity(entityName);
+        var tokens = GetSortTokens(sort, entity);
         var parser = new MsSortTokenParser(tokens);
         var orderby = parser.Parse();
-        if (string.IsNullOrWhiteSpace(orderby))
-          return $"ORDER BY {pkName}";
-        else
-          return $"ORDER BY {orderby}, {pkName}";
+        return $"ORDER BY {orderby}";
       }
       catch (ArgumentException ex)
       {

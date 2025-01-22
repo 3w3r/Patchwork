@@ -8,8 +8,8 @@ public interface ISqlDialectBuilder
   DatabaseMetadata DiscoverSchema();
   string BuildSelectClause(string entityName);
   string BuildJoinClause(string includeString, string entityName);
-  string BuildWhereClause(string filterString);
-  string BuildOrderByClause(string sort, string pkName);
+  string BuildWhereClause(string filterString, string entityName);
+  string BuildOrderByClause(string sort, string pkName, string entityName);
   string BuildLimitOffsetClause(int limit, int offset);
 
 }

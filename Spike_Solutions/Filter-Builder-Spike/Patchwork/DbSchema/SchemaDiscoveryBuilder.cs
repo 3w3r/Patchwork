@@ -20,29 +20,36 @@ public class SchemaDiscoveryBuilder
     var metadata = new DatabaseMetadata(dbS.Select(s =>
     {
       var tables = dbT.Where(t => t.SchemaOwner == s.Name)
-                      .Select(t => new Table(t.Name, t.Description, t.SchemaOwner,
-                                             t.Columns.Select(c => new Column(c.Name, c.Description, c.DbDataType,
-                                                                              c.IsPrimaryKey, c.IsForeignKey, c.ForeignKeyTableName,
+                      .Select(t => new Entity(t.Name, t.Description, t.SchemaOwner,
+                                              t.Columns.Select(c => new Column(c.Name,
+                                                                               c.Description,
+                                                                               c.DbDataType,
+                                                                               c.IsPrimaryKey,
+                                                                               c.IsForeignKey,
+                                                                               c.ForeignKeyTableName,
+                                                                               c.IsAutoNumber,
+                                                                               c.IsComputed,
+                                                                               c.IsUniqueKey,
+                                                                               c.IsIndexed)).ToList())
+                             ).ToList();
+
+      var views = dbV.Where(t => t.SchemaOwner == s.Name)
+                     .Select(v => new Entity(v.Name, v.Description, v.SchemaOwner,
+                                             v.Columns.Select(c => new Column(c.Name,
+                                                                              c.Description,
+                                                                              c.DbDataType,
+                                                                              c.IsPrimaryKey,
+                                                                              c.IsForeignKey,
+                                                                              c.ForeignKeyTableName,
                                                                               c.IsAutoNumber,
                                                                               c.IsComputed,
                                                                               c.IsUniqueKey,
-                                                                              c.IsIndexed)).ToList().AsReadOnly())
-                             ).ToList().AsReadOnly();
-
-      var views = dbV.Where(t => t.SchemaOwner == s.Name)
-                     .Select(v => new View(v.Name, v.Description, v.SchemaOwner,
-                                           v.Columns.Select(c => new Column(c.Name, c.Description, c.DbDataType,
-                                                                            c.IsPrimaryKey, c.IsForeignKey, c.ForeignKeyTableName,
-                                                                            c.IsAutoNumber,
-                                                                            c.IsComputed,
-                                                                            c.IsUniqueKey,
-                                                                            c.IsIndexed)).ToList().AsReadOnly())
-                           ).ToList().AsReadOnly();
+                                                                              c.IsIndexed)).ToList())
+                           ).ToList();
 
       return new Schema(s.Name, tables, views);
 
-    }).ToList().AsReadOnly());
-
+    }).ToList());
 
     return metadata;
   }

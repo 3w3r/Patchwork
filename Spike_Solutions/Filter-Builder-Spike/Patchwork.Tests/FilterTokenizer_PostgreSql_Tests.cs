@@ -33,10 +33,10 @@ namespace Patchwork.Tests
     public void ConvertToSqlWhereClause_HandlesCommonCases(string filterString, string expected)
     {
       // Arrange
-      var sut = new PostgreSqlDialectBuilder("");
+      var sut = new PostgreSqlDialectBuilder(TestSampleData.DB);
 
       // Act
-      var actual = sut.BuildWhereClause(filterString);
+      var actual = sut.BuildWhereClause(filterString, "MonkeyTable");
 
       // Assert
       Assert.Equal(expected, actual);
@@ -53,14 +53,15 @@ namespace Patchwork.Tests
     [InlineData("ID eq 42 AND", "AND but no second condition")]
     [InlineData(",", "No Tokens in the input string")]
     [InlineData("('1' eq ID)", "Filter conditions MUST the format `property operator value` to be valid")]
+    [InlineData("FooBar eq 'nope'", "column FooBar does not exist on this table.")]
     public void ConvertToSqlWhereClause_ThrowsException_WhenInputFilterStringIsInvalid(string input, string error)
     {
       // Arrange
       string filterString = input;
-      var sut = new PostgreSqlDialectBuilder("");
+      var sut = new PostgreSqlDialectBuilder(TestSampleData.DB);
 
       // Act
-      var ex = Assert.ThrowsAny<ArgumentException>(() => sut.BuildWhereClause(filterString));
+      var ex = Assert.ThrowsAny<ArgumentException>(() => sut.BuildWhereClause(filterString, "MonkeyTable"));
 
       if (ex == null) throw new Exception(error);
     }
