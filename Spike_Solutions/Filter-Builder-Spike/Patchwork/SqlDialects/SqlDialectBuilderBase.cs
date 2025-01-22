@@ -1,6 +1,7 @@
 using Patchwork.DbSchema;
 using Patchwork.Expansion;
 using Patchwork.Filters;
+using Patchwork.Paging;
 using Patchwork.Sort;
 using System.Data.Common;
 
@@ -105,6 +106,15 @@ namespace Patchwork.SqlDialects
         tokens.Add(new SortToken(entity.PrimaryKey.Name, SortDirection.Ascending));
 
       return tokens;
+    }
+
+    protected PagingToken GetPagingToken(int limit, int offset)
+    {
+      if (limit < 0) limit = 25;
+      if (limit > 5000) limit = 5000;
+      if (offset < 0) offset = 0;
+
+      return new PagingToken(limit, offset);
     }
   }
 }

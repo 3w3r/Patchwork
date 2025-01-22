@@ -78,7 +78,7 @@ namespace Patchwork.SqlDialects
     {
       try
       {
-        var token = new PagingToken(limit, offset);
+        var token = GetPagingToken(limit, offset);
         var parser = new PostgreSqlPagingParser(token);
         return parser.Parse();
       }
