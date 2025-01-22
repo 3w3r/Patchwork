@@ -2,39 +2,33 @@
 using Patchwork.Filters;
 using Patchwork.Sort;
 using Patchwork.Paging;
-using Patchwork.Schema;
+using Patchwork.DbSchema;
 using Microsoft.Data.SqlClient;
 using Patchwork.Expansion;
+using System.Data.Common;
 
 namespace Patchwork.SqlDialects
 {
-  public class MsSqlDialectBuilder : ISqlDialectBuilder
+  public class MsSqlDialectBuilder : SqlDialectBuilderBase
   {
-    private readonly string _connectionString;
-    private DatabaseMetadata? _metadata = null;
+    public MsSqlDialectBuilder(string connectionString) : base(connectionString) { }
 
-    public MsSqlDialectBuilder(string connectionString)
+    public MsSqlDialectBuilder(DatabaseMetadata metadata) : base(metadata) { }
+
+    protected override DbConnection GetConnection()
     {
-      _connectionString = connectionString;
+      return new SqlConnection(_connectionString);
     }
 
-    public void DiscoverSchema()
+    public override string BuildSelectClause(string entityName)
     {
-      if (_metadata != null) return;
+      var entity = _metadata.Schemas.SelectMany(x => x.Tables).FirstOrDefault(t => t.Name.Equals(entityName, StringComparison.OrdinalIgnoreCase));
+      if (entity == null) throw new ArgumentException($"Invalid Table Name: {entityName}");
 
-      var schemaDiscoveryBuilder = new SchemaDiscoveryBuilder();
-      using (var connection = new SqlConnection(_connectionString))
-      {
-        _metadata = schemaDiscoveryBuilder.ReadSchema(connection);
-      }
+      return $"SELECT * FROM [{entity.SchemaName}].[{entity.Name}] AS [T_{entity.Name}]";
     }
 
-    public string BuildSelectClause(string tableName, string schemaName)
-    {
-      return $"SELECT * FROM [{schemaName}].[{tableName}]";
-    }
-
-    public string BuildJoinClause(string includeString, string entityName)
+    public override string BuildJoinClause(string includeString, string entityName)
     {
       if (string.IsNullOrEmpty(includeString)) return "";
 
@@ -57,7 +51,7 @@ namespace Patchwork.SqlDialects
       }
     }
 
-    public string BuildWhereClause(string filterString)
+    public override string BuildWhereClause(string filterString)
     {
       if (string.IsNullOrWhiteSpace(filterString))
         throw new ArgumentException("No input string");
@@ -80,7 +74,7 @@ namespace Patchwork.SqlDialects
       }
     }
 
-    public string BuildOrderByClause(string sort, string pkName)
+    public override string BuildOrderByClause(string sort, string pkName)
     {
       try
       {
@@ -99,7 +93,7 @@ namespace Patchwork.SqlDialects
       }
     }
 
-    public string BuildLimitOffsetClause(int limit, int offset)
+    public override string BuildLimitOffsetClause(int limit, int offset)
     {
       try
       {

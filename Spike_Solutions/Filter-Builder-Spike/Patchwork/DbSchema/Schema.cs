@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
 
-namespace Patchwork.Schema;
+namespace Patchwork.DbSchema;
 
 public record Schema(string Name,
                      ReadOnlyCollection<Table> Tables,

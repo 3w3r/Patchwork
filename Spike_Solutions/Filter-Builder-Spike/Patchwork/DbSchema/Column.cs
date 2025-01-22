@@ -1,4 +1,4 @@
-namespace Patchwork.Schema;
+namespace Patchwork.DbSchema;
 
 public record Column(string Name, string Description, string DbDataType,
                      bool IsPrimaryKey,

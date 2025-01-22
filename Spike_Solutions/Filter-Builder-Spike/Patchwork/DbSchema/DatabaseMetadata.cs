@@ -1,5 +1,5 @@
 using System.Collections.ObjectModel;
 
-namespace Patchwork.Schema;
+namespace Patchwork.DbSchema;
 
 public record DatabaseMetadata(ReadOnlyCollection<Schema> Schemas);

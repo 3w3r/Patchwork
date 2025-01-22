@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Text;
-using Patchwork.Schema;
+using Patchwork.DbSchema;
 
 namespace Patchwork.Expansion;
 

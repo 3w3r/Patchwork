@@ -33,7 +33,7 @@ namespace Patchwork.Tests
     public void ConvertToSqlWhereClause_HandlesCommonCases(string filterString, string expected)
     {
       // Arrange
-      var sut = new PostgreSqlDialectBuilder();
+      var sut = new PostgreSqlDialectBuilder("");
 
       // Act
       var actual = sut.BuildWhereClause(filterString);
@@ -57,7 +57,7 @@ namespace Patchwork.Tests
     {
       // Arrange
       string filterString = input;
-      var sut = new PostgreSqlDialectBuilder();
+      var sut = new PostgreSqlDialectBuilder("");
 
       // Act
       var ex = Assert.ThrowsAny<ArgumentException>(() => sut.BuildWhereClause(filterString));
