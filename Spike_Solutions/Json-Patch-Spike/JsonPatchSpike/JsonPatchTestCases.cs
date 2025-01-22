@@ -28,35 +28,47 @@ namespace JsonPatchSpike
                     JsonElement disabled;
                     if (!jsonElement.TryGetProperty("disabled", out disabled))
                     {
-                        JsonElement testName;
-                        jsonElement.TryGetProperty("comment", out testName);
-
                         JsonElement errorMessage;
 
                         if (!jsonElement.TryGetProperty("error", out errorMessage))
                         {
-                            PatchResult actual = GetPatchResult(jsonElement);
-
-                            var expected = jsonElement.GetProperty("expected");
-
-                            Assert.True(JsonNode.DeepEquals(actual.Result, expected.AsNode()), $"Test '{testName}' failed! Output '{actual}' not equal to expected output '{expected}'");
+                            EnsurePasses(jsonElement);
                         }
                         else
                         {
-                            try
-                            {
-                                PatchResult actual = GetPatchResult(jsonElement);
-
-                                Assert.True(actual.Error != null, $"Test '{testName}' failed! Expected error '{errorMessage}'");
-                            }
-                            catch(Exception ex)
-                            {
-                                //This means the test passed... so there's nothing to do here... 
-                            }
+                            EnsureFails(jsonElement, errorMessage);
                         }
                     }
                 }
             }
+        }
+
+        private static void EnsurePasses(JsonElement jsonElement)
+        {
+            JsonElement testName;
+            jsonElement.TryGetProperty("comment", out testName);
+
+            PatchResult actual = GetPatchResult(jsonElement);
+
+            var expected = jsonElement.GetProperty("expected");
+
+            Assert.True(JsonNode.DeepEquals(actual.Result, expected.AsNode()), $"Test '{testName}' failed! Output '{actual}' not equal to expected output '{expected}'");
+        }
+
+        private static void EnsureFails(JsonElement jsonElement, JsonElement errorMessage)
+        {
+            JsonElement testName;
+            jsonElement.TryGetProperty("comment", out testName);
+
+            Assert.ThrowsAny<Exception>(() => {
+
+                PatchResult actual = GetPatchResult(jsonElement);
+
+                if (actual.Error != null)
+                {
+                    throw new Exception(actual.Error);
+                }
+            });
         }
 
         private static PatchResult GetPatchResult(JsonElement jsonElement)
