@@ -1,5 +1,6 @@
 using Patchwork.DbSchema;
 using Patchwork.Expansion;
+using Patchwork.Fields;
 using Patchwork.Filters;
 using Patchwork.Paging;
 using Patchwork.Sort;
@@ -35,7 +36,7 @@ namespace Patchwork.SqlDialects
       }
     }
 
-    public abstract string BuildSelectClause(string entityName);
+    public abstract string BuildSelectClause(string fields, string entityName);
     public abstract string BuildJoinClause(string includeString, string entityName);
     public abstract string BuildWhereClause(string filterString, string entityName);
     public abstract string BuildOrderByClause(string sort, string pkName, string entityName);
@@ -55,6 +56,13 @@ namespace Patchwork.SqlDialects
                             .FirstOrDefault(t => t.Name.Equals(entityName, StringComparison.OrdinalIgnoreCase));
       if (entity == null) throw new ArgumentException($"Invalid Table or View Name: {entityName}");
       return entity;
+    }
+
+    protected List<FieldsToken> GetFieldTokens(string fields, Entity entity)
+    {
+      var lexer = new FieldsLexer(fields, entity, _metadata);
+      var tokens = lexer.Tokenize();
+      return tokens;
     }
 
     protected List<FilterToken> GetFilterTokens(string filterString, Entity entity)

@@ -1,10 +1,11 @@
-using Patchwork.Filters;
-using Patchwork.Sort;
-using Patchwork.Paging;
-using Patchwork.DbSchema;
-using Patchwork.Expansion;
 using MySqlConnector;
 using System.Data.Common;
+using Patchwork.DbSchema;
+using Patchwork.Expansion;
+using Patchwork.Fields;
+using Patchwork.Filters;
+using Patchwork.Paging;
+using Patchwork.Sort;
 
 namespace Patchwork.SqlDialects
 {
@@ -18,10 +19,18 @@ namespace Patchwork.SqlDialects
       return new MySqlConnection(_connectionString);
     }
 
-    public override string BuildSelectClause(string entityName)
+    public override string BuildSelectClause(string fields, string entityName)
     {
       var entity = FindEntity(entityName);
-      return $"SELECT * FROM {entity.SchemaName.ToLower()}.{entity.Name.ToLower()} AS t_{entity.Name.ToLower()}";
+
+      if (string.IsNullOrEmpty(fields) || fields.Contains("*"))
+        return $"SELECT * FROM {entity.SchemaName.ToLower()}.{entity.Name.ToLower()} AS t_{entity.Name.ToLower()}";
+
+      var tokens = GetFieldTokens(fields, entity);
+      var parser = new PostgreSqlFieldsTokenParser(tokens);
+      var fieldList = parser.Parse();
+
+      return $"SELECT {fieldList} FROM {entity.SchemaName.ToLower()}.{entity.Name.ToLower()} AS t_{entity.Name.ToLower()}";
     }
 
     public override string BuildJoinClause(string includeString, string entityName)
