@@ -1,32 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
+using Patchwork.DbSchema;
 
 namespace Patchwork.Filters
 {
   public class FilterLexer
   {
-    private string _input;
+    private readonly string _input;
     private int _position;
+    private readonly Entity _entity;
+    private readonly DatabaseMetadata _metadata;
 
-    public FilterLexer(string input)
+    public FilterLexer(string input, Entity entity, DatabaseMetadata metadata)
     {
       _input = input;
       _position = 0;
+      _entity = entity;
+      _metadata = metadata;
     }
 
     public List<FilterToken> Tokenize()
     {
-      var tokens = new List<FilterToken>();
+      List<FilterToken> tokens = new List<FilterToken>();
       while (_position < _input.Length)
       {
-        var current = _input[_position];
+        char current = _input[_position];
         if (char.IsLetter(current))
         {
           // verify if this token is an operator
-          var placeholder = _position;
-          var t = ReadOperator();
+          int placeholder = _position;
+          FilterToken t = ReadOperator();
 
           // if it is not an operator, then it must be an identifier
           if (t.Type == FilterTokenType.Invalid)
@@ -76,7 +78,7 @@ namespace Patchwork.Filters
       return tokens;
     }
 
-    private static void ValidateTokenSyntax(List<FilterToken> tokens)
+    private void ValidateTokenSyntax(List<FilterToken> tokens)
     {
 
       // Check if the token list starts with an operator or logical operator
@@ -92,7 +94,7 @@ namespace Patchwork.Filters
       }
 
       // Check for consecutive operators or logical operators
-      for (var i = 0; i < tokens.Count - 1; i++)
+      for (int i = 0; i < tokens.Count - 1; i++)
       {
         if ((tokens[i].Type == FilterTokenType.Operator || tokens[i].Type == FilterTokenType.Logical) &&
             (tokens[i + 1].Type == FilterTokenType.Operator || tokens[i + 1].Type == FilterTokenType.Logical))
@@ -102,9 +104,11 @@ namespace Patchwork.Filters
       }
 
       // Check for value token not followed by an operator or logical operator or a paren
-      var foundInOperator = false;
-      for (var i = 0; i < tokens.Count - 1; i++)
+      bool foundInOperator = false;
+      for (int i = 0; i < tokens.Count - 1; i++)
       {
+        if (tokens[i].Type == FilterTokenType.Identifier && !_entity.Columns.Any(c => c.Name.Equals(tokens[i].Value, StringComparison.OrdinalIgnoreCase)))
+          throw new ArgumentException($"Column '{tokens[i].Value}' does not exist on {_entity.Name}.");
         if (tokens[i].Type == FilterTokenType.Operator && tokens[i].Value == "in")
         {
           if (tokens[i + 1].Type != FilterTokenType.OpenParen)
@@ -142,7 +146,7 @@ namespace Patchwork.Filters
       }
 
       // Check for logical operator followed by an open parenthesis
-      for (var i = 0; i < tokens.Count - 1; i++)
+      for (int i = 0; i < tokens.Count - 1; i++)
       {
         if (tokens[i].Type == FilterTokenType.OpenParen && tokens[i + 1].Type == FilterTokenType.Logical)
         {
@@ -151,7 +155,7 @@ namespace Patchwork.Filters
       }
 
       // Check for logical operator followed by a close parenthesis
-      for (var i = 0; i < tokens.Count - 1; i++)
+      for (int i = 0; i < tokens.Count - 1; i++)
       {
         if (tokens[i].Type == FilterTokenType.Logical && tokens[i + 1].Type == FilterTokenType.CloseParen)
         {
@@ -160,7 +164,7 @@ namespace Patchwork.Filters
       }
 
       // Check for `in` operator not followed by an open parenthesis
-      for (var i = 0; i < tokens.Count - 1; i++)
+      for (int i = 0; i < tokens.Count - 1; i++)
       {
         if (tokens[i].Value == "in" && tokens[i + 1].Type != FilterTokenType.OpenParen)
         {
@@ -169,8 +173,8 @@ namespace Patchwork.Filters
       }
 
       // Check for unmatched parentheses
-      var openParenCount = 0;
-      foreach (var token in tokens)
+      int openParenCount = 0;
+      foreach (FilterToken token in tokens)
       {
         if (token.Type == FilterTokenType.OpenParen)
         {
@@ -199,7 +203,7 @@ namespace Patchwork.Filters
 
     private FilterToken ReadIdentifier()
     {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       while (
         _position < _input.Length
         && (char.IsLetterOrDigit(_input[_position])
@@ -210,13 +214,13 @@ namespace Patchwork.Filters
       {
         sb.Append(_input[_position++]);
       }
-      var value = sb.ToString();
+      string value = sb.ToString();
       return new FilterToken(FilterTokenType.Identifier, value);
     }
 
     private FilterToken ReadStringOrDateTime()
     {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       _position++; // Skip opening quote
       while (_position < _input.Length && _input[_position] != '\'')
       {
@@ -225,8 +229,8 @@ namespace Patchwork.Filters
       if (_position < _input.Length)
         _position++; // Skip closing quote
 
-      var value = sb.ToString();
-      if (DateTime.TryParse(value, out var dt))
+      string value = sb.ToString();
+      if (DateTime.TryParse(value, out DateTime dt))
       {
         return new FilterToken(FilterTokenType.DateTime, dt.ToUniversalTime().ToString("o"));
       }
@@ -238,7 +242,7 @@ namespace Patchwork.Filters
 
     private FilterToken ReadNumber()
     {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       while (_position < _input.Length && char.IsDigit(_input[_position]))
       {
         sb.Append(_input[_position++]);
@@ -248,12 +252,12 @@ namespace Patchwork.Filters
 
     private FilterToken ReadLogicalOperator()
     {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       while (_position < _input.Length && char.IsLetter(_input[_position]))
       {
         sb.Append(_input[_position++]);
       }
-      var value = sb.ToString().ToLower();
+      string value = sb.ToString().ToLower();
       if (value.Equals("AND", StringComparison.OrdinalIgnoreCase)
        || value.Equals("OR", StringComparison.OrdinalIgnoreCase))
       {
@@ -264,13 +268,13 @@ namespace Patchwork.Filters
 
     private FilterToken ReadOperator()
     {
-      var sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder();
       if (_position < _input.Length && char.IsLetter(_input[_position]))
       {
         sb.Append(_input[_position]);
         sb.Append(_input[_position + 1]);
       }
-      var op = sb.ToString().ToLower();
+      string op = sb.ToString().ToLower();
       if (op == "sw" || op == "ct" || op == "in" || op == "eq" || op == "ne" || op == "gt" || op == "ge" || op == "lt" || op == "le")
       {
         _position += 2;

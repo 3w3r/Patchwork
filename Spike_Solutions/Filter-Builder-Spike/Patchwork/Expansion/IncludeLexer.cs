@@ -17,13 +17,13 @@ public class IncludeLexer
 
   public List<IncludeToken> Tokenize()
   {
-    var tokens = new List<IncludeToken>();
-    foreach (var segment in _input.Trim().Split(','))
+    List<IncludeToken> tokens = new List<IncludeToken>();
+    foreach (string segment in _input.Trim().Split(','))
     {
-      var child = ReadIdentifier(segment);
-      var childTable = GetChildTableName(child);
-      var pk = GetPrimaryKeyColumn(childTable);
-      var fk = GetForeignKeyColumn(child, childTable);
+      string child = ReadIdentifier(segment);
+      Entity childTable = GetChildTableName(child);
+      Column pk = GetPrimaryKeyColumn(childTable);
+      Column fk = GetForeignKeyColumn(child, childTable);
 
       tokens.Add(new IncludeToken(childTable.Name, pk.Name, _entity.Name, fk.Name));
     }
@@ -33,31 +33,34 @@ public class IncludeLexer
 
   private Column GetPrimaryKeyColumn(Entity childTable)
   {
-    if (childTable.PrimaryKey == null) throw new InvalidOperationException($"Table {childTable.Name} does not have a primary key.");
+    if (childTable.PrimaryKey == null)
+      throw new InvalidOperationException($"Table {childTable.Name} does not have a primary key.");
     return childTable.PrimaryKey;
   }
 
   private Column GetForeignKeyColumn(string child, Entity childTable)
   {
-    var fk = _entity.Columns.FirstOrDefault(c => c.IsForeignKey && c.ForeignKeyTableName.Equals(childTable.Name, StringComparison.CurrentCultureIgnoreCase));
-    if (fk == null) throw new InvalidOperationException($"Table {_entity.Name} does not have a foreign key to {child}.");
+    Column? fk = _entity.Columns.FirstOrDefault(c => c.IsForeignKey && c.ForeignKeyTableName.Equals(childTable.Name, StringComparison.CurrentCultureIgnoreCase));
+    if (fk == null)
+      throw new InvalidOperationException($"Table {_entity.Name} does not have a foreign key to {child}.");
     return fk;
   }
 
   private Entity GetChildTableName(string child)
   {
-    var childTable = _meta.Schemas
+    Entity? childTable = _meta.Schemas
                           .SelectMany(s => s.Tables)
                           .FirstOrDefault(t => t.Name == child);
 
-    if (childTable == null) throw new InvalidOperationException($"Table '{child}' not found.");
+    if (childTable == null)
+      throw new InvalidOperationException($"Table '{child}' not found.");
     return childTable;
   }
 
   private string ReadIdentifier(string segment)
   {
-    var position = 0;
-    var sb = new StringBuilder();
+    int position = 0;
+    StringBuilder sb = new StringBuilder();
     while (
       position < segment.Length
       && (char.IsLetterOrDigit(segment[position])
@@ -68,7 +71,7 @@ public class IncludeLexer
     {
       sb.Append(segment[position++]);
     }
-    var value = sb.ToString();
+    string value = sb.ToString();
     return value;
   }
 }

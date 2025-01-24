@@ -33,10 +33,10 @@ namespace Patchwork.Tests
     public void ConvertToSqlWhereClause_HandlesCommonCases(string filterString, string expected)
     {
       // Arrange
-      var sut = new PostgreSqlDialectBuilder(TestSampleData.DB);
+      PostgreSqlDialectBuilder sut = new PostgreSqlDialectBuilder(TestSampleData.DB);
 
       // Act
-      var actual = sut.BuildWhereClause(filterString, "MonkeyTable");
+      string actual = sut.BuildWhereClause(filterString, "MonkeyTable");
 
       // Assert
       Assert.Equal(expected, actual);
@@ -58,12 +58,13 @@ namespace Patchwork.Tests
     {
       // Arrange
       string filterString = input;
-      var sut = new PostgreSqlDialectBuilder(TestSampleData.DB);
+      PostgreSqlDialectBuilder sut = new PostgreSqlDialectBuilder(TestSampleData.DB);
 
       // Act
-      var ex = Assert.ThrowsAny<ArgumentException>(() => sut.BuildWhereClause(filterString, "MonkeyTable"));
+      ArgumentException ex = Assert.ThrowsAny<ArgumentException>(() => sut.BuildWhereClause(filterString, "MonkeyTable"));
 
-      if (ex == null) throw new Exception(error);
+      if (ex == null)
+        throw new Exception(error);
     }
   }
 
@@ -72,7 +73,7 @@ namespace Patchwork.Tests
     [Fact]
     public void AllTokenTypes_Are_Defined()
     {
-      var t = FilterTokenType.Textual;
+      FilterTokenType t = FilterTokenType.Textual;
       Assert.True(FilterTokenType.Value.HasFlag(t));
     }
   }

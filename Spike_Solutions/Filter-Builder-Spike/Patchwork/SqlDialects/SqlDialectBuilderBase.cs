@@ -1,10 +1,10 @@
+using System.Data.Common;
 using Patchwork.DbSchema;
 using Patchwork.Expansion;
 using Patchwork.Fields;
 using Patchwork.Filters;
 using Patchwork.Paging;
 using Patchwork.Sort;
-using System.Data.Common;
 
 namespace Patchwork.SqlDialects
 {
@@ -12,6 +12,7 @@ namespace Patchwork.SqlDialects
   {
 
     protected readonly string _connectionString;
+    protected static Dictionary<string, DatabaseMetadata> _metadataCache = new Dictionary<string, DatabaseMetadata>();
     protected DatabaseMetadata? _metadata = null;
 
     public SqlDialectBuilderBase(string connectionString)
@@ -27,13 +28,16 @@ namespace Patchwork.SqlDialects
     protected abstract DbConnection GetConnection();
     public virtual DatabaseMetadata DiscoverSchema()
     {
-      if (_metadata != null) return _metadata;
-
-      var schemaDiscoveryBuilder = new SchemaDiscoveryBuilder();
-      using (var connection = GetConnection())
+      if (_metadata != null || _metadataCache.TryGetValue(_connectionString, out _metadata))
       {
-        return schemaDiscoveryBuilder.ReadSchema(connection);
+        return _metadata;
       }
+
+      SchemaDiscoveryBuilder schemaDiscoveryBuilder = new SchemaDiscoveryBuilder();
+      using DbConnection connection = GetConnection();
+      _metadata = schemaDiscoveryBuilder.ReadSchema(connection);
+      _metadataCache[_connectionString] = _metadata;
+      return _metadata;
     }
 
     public abstract string BuildSelectClause(string fields, string entityName);
@@ -44,24 +48,27 @@ namespace Patchwork.SqlDialects
 
     protected Entity FindEntity(string entityName)
     {
-      if (string.IsNullOrEmpty(entityName)) throw new ArgumentException(nameof(entityName));
+      if (string.IsNullOrEmpty(entityName))
+        throw new ArgumentException(nameof(entityName));
       DiscoverSchema();
-      if (_metadata == null) throw new ArgumentException("Cannot access database schema");
-      var entity = _metadata.Schemas
+      if (_metadata == null)
+        throw new ArgumentException("Cannot access database schema");
+      Entity? entity = _metadata.Schemas
                             .SelectMany(x => x.Tables)
                             .FirstOrDefault(t => t.Name.Equals(entityName, StringComparison.OrdinalIgnoreCase));
       if (entity == null)
         entity = _metadata.Schemas
                             .SelectMany(x => x.Views)
                             .FirstOrDefault(t => t.Name.Equals(entityName, StringComparison.OrdinalIgnoreCase));
-      if (entity == null) throw new ArgumentException($"Invalid Table or View Name: {entityName}");
+      if (entity == null)
+        throw new ArgumentException($"Invalid Table or View Name: {entityName}");
       return entity;
     }
 
     protected List<FieldsToken> GetFieldTokens(string fields, Entity entity)
     {
-      var lexer = new FieldsLexer(fields, entity, _metadata);
-      var tokens = lexer.Tokenize();
+      FieldsLexer lexer = new FieldsLexer(fields, entity, DiscoverSchema());
+      List<FieldsToken> tokens = lexer.Tokenize();
       return tokens;
     }
 
@@ -69,15 +76,16 @@ namespace Patchwork.SqlDialects
     {
       if (string.IsNullOrWhiteSpace(filterString))
         throw new ArgumentException("No input string");
-      if (entity == null) throw new ArgumentNullException(nameof(entity));
+      if (entity == null)
+        throw new ArgumentNullException(nameof(entity));
 
-      var lexer = new FilterLexer(filterString);
-      var tokens = lexer.Tokenize();
+      FilterLexer lexer = new FilterLexer(filterString, entity, DiscoverSchema());
+      List<FilterToken> tokens = lexer.Tokenize();
 
       if (tokens.Count == 0)
         throw new ArgumentException("No valid tokens found");
 
-      foreach (var token in tokens)
+      foreach (FilterToken token in tokens)
       {
         if (
              token.Type == FilterTokenType.Identifier &&
@@ -97,8 +105,8 @@ namespace Patchwork.SqlDialects
       if (entity == null)
         throw new ArgumentNullException(nameof(entity));
 
-      var lexer = new IncludeLexer(includeString, entity, DiscoverSchema());
-      var tokens = lexer.Tokenize();
+      IncludeLexer lexer = new IncludeLexer(includeString, entity, DiscoverSchema());
+      List<IncludeToken> tokens = lexer.Tokenize();
       return tokens;
     }
 
@@ -107,20 +115,21 @@ namespace Patchwork.SqlDialects
       if (entity == null)
         throw new ArgumentNullException(nameof(entity));
 
-      var lexer = new SortLexer(sort);
-      var tokens = lexer.Tokenize();
+      SortLexer lexer = new SortLexer(sort, entity, DiscoverSchema());
+      List<SortToken> tokens = lexer.Tokenize();
 
-      if (entity.PrimaryKey != null)
-        tokens.Add(new SortToken(entity.PrimaryKey.Name, SortDirection.Ascending));
 
       return tokens;
     }
 
     protected PagingToken GetPagingToken(int limit, int offset)
     {
-      if (limit < 0) limit = 25;
-      if (limit > 5000) limit = 5000;
-      if (offset < 0) offset = 0;
+      if (limit < 0)
+        limit = 25;
+      if (limit > 5000)
+        limit = 5000;
+      if (offset < 0)
+        offset = 0;
 
       return new PagingToken(limit, offset);
     }

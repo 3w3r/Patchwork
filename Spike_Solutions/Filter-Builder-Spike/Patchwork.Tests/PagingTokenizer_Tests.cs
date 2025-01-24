@@ -1,11 +1,9 @@
-using System;
 using Patchwork.Paging;
 
 namespace Patchwork.Tests;
 
 public class PagingTokenizer_Tests
 {
-
   [Theory]
   [InlineData(0, 0, "OFFSET 0 ROWS FETCH NEXT 25 ROWS ONLY")]
   [InlineData(-5, 0, "OFFSET 0 ROWS FETCH NEXT 25 ROWS ONLY")]
@@ -16,19 +14,19 @@ public class PagingTokenizer_Tests
   [InlineData(30, 1974, "OFFSET 1974 ROWS FETCH NEXT 30 ROWS ONLY")]
   [InlineData(4999, 1974, "OFFSET 1974 ROWS FETCH NEXT 4999 ROWS ONLY")]
   [InlineData(2245816, 22788956, "OFFSET 22788956 ROWS FETCH NEXT 5000 ROWS ONLY")]
-
   public void Parse_ReturnsOffsetString_ForMsSql(int limit, int offset, string expected)
   {
     // Arrange
-    var tokenizer = new PagingToken(limit, offset);
-    var parser = new MsSqlPagingParser(tokenizer);
+    PagingToken tokenizer = new PagingToken(limit, offset);
+    MsSqlPagingParser parser = new MsSqlPagingParser(tokenizer);
 
     // Act
-    var result = parser.Parse();
+    string result = parser.Parse();
 
     // Assert
     Assert.Equal(expected, result);
   }
+
   [Theory]
   [InlineData(0, 0, "LIMIT 25 OFFSET 0")]
   [InlineData(-5, 0, "LIMIT 25 OFFSET 0")]
@@ -42,11 +40,11 @@ public class PagingTokenizer_Tests
   public void Parse_ReturnsOffsetString_ForPostgreSql(int limit, int offset, string expected)
   {
     // Arrange
-    var tokenizer = new PagingToken(limit, offset);
-    var parser = new PostgreSqlPagingParser(tokenizer);
+    PagingToken tokenizer = new PagingToken(limit, offset);
+    PostgreSqlPagingParser parser = new PostgreSqlPagingParser(tokenizer);
 
     // Act
-    var result = parser.Parse();
+    string result = parser.Parse();
 
     // Assert
     Assert.Equal(expected, result);

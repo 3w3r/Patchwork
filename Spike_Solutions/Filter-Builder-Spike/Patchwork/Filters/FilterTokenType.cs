@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Patchwork.Filters
+﻿namespace Patchwork.Filters
 {
   [Flags]
   public enum FilterTokenType

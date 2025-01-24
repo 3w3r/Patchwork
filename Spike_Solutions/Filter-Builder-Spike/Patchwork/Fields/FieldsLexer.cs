@@ -19,13 +19,14 @@ public class FieldsLexer
 
   public List<FieldsToken> Tokenize()
   {
-    if (_input.Trim().Equals("*")) return _allFields;
+    if (_input.Trim().Equals("*"))
+      return _allFields;
 
-    var tokens = new List<FieldsToken>();
-    foreach (var segment in _input.Trim().Split(','))
+    List<FieldsToken> tokens = new List<FieldsToken>();
+    foreach (string segment in _input.Trim().Split(','))
     {
-      var child = ReadIdentifier(segment);
-      var col = _entity.Columns.FirstOrDefault(e => e.Name.Equals(child, StringComparison.OrdinalIgnoreCase));
+      string child = ReadIdentifier(segment);
+      Column? col = _entity.Columns.FirstOrDefault(e => e.Name.Equals(child, StringComparison.OrdinalIgnoreCase));
       if (col == null)
         throw new ArgumentException($"The field {child} is not valid for {_entity.Name}.");
 
@@ -37,8 +38,8 @@ public class FieldsLexer
 
   private string ReadIdentifier(string segment)
   {
-    var position = 0;
-    var sb = new StringBuilder();
+    int position = 0;
+    StringBuilder sb = new StringBuilder();
     while (
       position < segment.Length
       && (char.IsLetterOrDigit(segment[position])
@@ -49,7 +50,7 @@ public class FieldsLexer
     {
       sb.Append(segment[position++]);
     }
-    var value = sb.ToString();
+    string value = sb.ToString();
     return value;
   }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 
 namespace Patchwork.Filters
 {
@@ -17,7 +15,7 @@ namespace Patchwork.Filters
 
     public string Parse()
     {
-      var whereClause = new StringBuilder();
+      StringBuilder whereClause = new StringBuilder();
       ParseExpression(whereClause);
       return whereClause.ToString();
     }
@@ -66,21 +64,21 @@ namespace Patchwork.Filters
       if (_position >= _tokens.Count)
         return;
 
-      var identifier = _tokens[_position++];
+      FilterToken identifier = _tokens[_position++];
       if (identifier.Type != FilterTokenType.Identifier)
         throw new ArgumentException("Expected identifier");
 
       if (_position >= _tokens.Count)
         throw new ArgumentException("Expected operator after identifier");
 
-      var op = _tokens[_position++];
+      FilterToken op = _tokens[_position++];
       if (op.Type != FilterTokenType.Operator)
         throw new ArgumentException("Expected operator");
 
       if (_position >= _tokens.Count)
         throw new ArgumentException("Expected value after operator");
 
-      var value = _tokens[_position++];
+      FilterToken value = _tokens[_position++];
 
       // Handle case where value is open paren when operator is 'in'
       if (value.Type != FilterTokenType.OpenParen && op.Type == FilterTokenType.Operator && op.Value == "in")

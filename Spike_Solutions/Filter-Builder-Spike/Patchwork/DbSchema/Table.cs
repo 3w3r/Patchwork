@@ -1,5 +1,3 @@
-using System.Collections.ObjectModel;
-
 namespace Patchwork.DbSchema;
 
 public record Entity(string Name,

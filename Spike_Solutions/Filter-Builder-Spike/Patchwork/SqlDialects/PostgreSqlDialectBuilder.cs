@@ -22,27 +22,29 @@ namespace Patchwork.SqlDialects
 
     public override string BuildSelectClause(string fields, string entityName)
     {
-      var entity = FindEntity(entityName);
+      Entity entity = FindEntity(entityName);
 
       if (string.IsNullOrEmpty(fields) || fields.Contains("*"))
         return $"SELECT * FROM {entity.SchemaName.ToLower()}.{entity.Name.ToLower()} AS t_{entity.Name.ToLower()}";
 
-      var tokens = GetFieldTokens(fields, entity);
-      var parser = new PostgreSqlFieldsTokenParser(tokens);
-      var fieldList = parser.Parse();
+      List<FieldsToken> tokens = GetFieldTokens(fields, entity);
+      PostgreSqlFieldsTokenParser parser = new PostgreSqlFieldsTokenParser(tokens);
+      string fieldList = parser.Parse();
 
       return $"SELECT {fieldList} FROM {entity.SchemaName.ToLower()}.{entity.Name.ToLower()} AS t_{entity.Name.ToLower()}";
     }
     public override string BuildJoinClause(string includeString, string entityName)
     {
-      if (string.IsNullOrEmpty(includeString)) throw new ArgumentException(nameof(includeString));
-      if (string.IsNullOrEmpty(entityName)) throw new ArgumentException(nameof(entityName));
+      if (string.IsNullOrEmpty(includeString))
+        throw new ArgumentException(nameof(includeString));
+      if (string.IsNullOrEmpty(entityName))
+        throw new ArgumentException(nameof(entityName));
 
       try
       {
-        var entity = FindEntity(entityName);
-        var tokens = GetIncludeTokens(includeString, entity);
-        var parser = new PostgreSqlIncludeTokenParser(tokens);
+        Entity entity = FindEntity(entityName);
+        List<IncludeToken> tokens = GetIncludeTokens(includeString, entity);
+        PostgreSqlIncludeTokenParser parser = new PostgreSqlIncludeTokenParser(tokens);
         return parser.Parse();
       }
       catch (Exception ex)
@@ -55,10 +57,10 @@ namespace Patchwork.SqlDialects
     {
       try
       {
-        var entity = FindEntity(entityName);
-        var tokens = GetFilterTokens(filterString, entity);
-        var parser = new PostgreSqlFilterTokenParser(tokens);
-        var result = parser.Parse();
+        Entity entity = FindEntity(entityName);
+        List<FilterToken> tokens = GetFilterTokens(filterString, entity);
+        PostgreSqlFilterTokenParser parser = new PostgreSqlFilterTokenParser(tokens);
+        string result = parser.Parse();
         return $"WHERE {result}";
       }
       catch (ArgumentException ex)
@@ -71,10 +73,10 @@ namespace Patchwork.SqlDialects
     {
       try
       {
-        var entity = FindEntity(entityName);
-        var tokens = GetSortTokens(sort, entity);
-        var parser = new PostgreSqlSortTokenParser(tokens);
-        var orderby = parser.Parse();
+        Entity entity = FindEntity(entityName);
+        List<SortToken> tokens = GetSortTokens(sort, entity);
+        PostgreSqlSortTokenParser parser = new PostgreSqlSortTokenParser(tokens);
+        string orderby = parser.Parse();
         return $"ORDER BY {orderby}";
       }
       catch (ArgumentException ex)
@@ -87,8 +89,8 @@ namespace Patchwork.SqlDialects
     {
       try
       {
-        var token = GetPagingToken(limit, offset);
-        var parser = new PostgreSqlPagingParser(token);
+        PagingToken token = GetPagingToken(limit, offset);
+        PostgreSqlPagingParser parser = new PostgreSqlPagingParser(token);
         return parser.Parse();
       }
       catch (ArgumentException ex)

@@ -32,10 +32,10 @@ namespace Patchwork.Tests
     public void ConvertToSqlWhereClause_HandlesCommonCases(string filterString, string expected)
     {
       // Arrange
-      var sut = new MsSqlDialectBuilder(TestSampleData.DB);
+      MsSqlDialectBuilder sut = new MsSqlDialectBuilder(TestSampleData.DB);
 
       // Act
-      var actual = sut.BuildWhereClause(filterString, "MonkeyTable");
+      string actual = sut.BuildWhereClause(filterString, "MonkeyTable");
 
       // Assert
       Assert.Equal(expected, actual);
@@ -56,12 +56,13 @@ namespace Patchwork.Tests
     {
       // Arrange
       string filterString = input;
-      var sut = new MsSqlDialectBuilder(TestSampleData.DB);
+      MsSqlDialectBuilder sut = new MsSqlDialectBuilder(TestSampleData.DB);
 
       // Act
-      var ex = Assert.ThrowsAny<ArgumentException>(() => sut.BuildWhereClause(filterString, "MonkeyTable"));
+      ArgumentException ex = Assert.ThrowsAny<ArgumentException>(() => sut.BuildWhereClause(filterString, "MonkeyTable"));
 
-      if (ex == null) throw new Exception(error);
+      if (ex == null)
+        throw new Exception(error);
     }
   }
 }

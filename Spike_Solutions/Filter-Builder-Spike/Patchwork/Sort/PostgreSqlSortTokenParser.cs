@@ -11,7 +11,7 @@ public class PostgreSqlSortTokenParser
   }
   public string Parse()
   {
-    var orderByClause = new StringBuilder();
+    StringBuilder orderByClause = new StringBuilder();
     ParseExpression(orderByClause);
     return orderByClause.ToString();
   }

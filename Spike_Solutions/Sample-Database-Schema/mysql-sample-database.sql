@@ -120,6 +120,30 @@ CREATE TABLE orderdetails (
   FOREIGN KEY (productCode) REFERENCES products (productCode)
 );
 
+CREATE VIEW CustomerSpendingByProductLine AS
+SELECT 
+    c.contactFirstName,
+    c.contactLastName,
+    p.productLine,
+    SUM(od.quantityOrdered * od.priceEach) AS TotalSpent
+FROM 
+    customers c
+JOIN 
+    orders o ON c.customerNumber = o.customerNumber
+JOIN 
+    orderdetails od ON o.orderNumber = od.orderNumber
+JOIN 
+    products p ON od.productCode = p.productCode
+GROUP BY 
+    c.contactFirstName, 
+    c.contactLastName, 
+    p.productLine
+ORDER BY 
+    c.contactLastName, 
+    c.contactFirstName, 
+    p.productLine;
+
+
 
 /* Inserting data  */
 insert  into productlines(productLine,textDescription,htmlDescription,image) values 

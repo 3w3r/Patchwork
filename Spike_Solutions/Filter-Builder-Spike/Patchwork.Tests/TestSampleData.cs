@@ -52,6 +52,22 @@ public static class TestSampleData
               new Column("effectiveEndDate", "end", "datetime", false, false, "", false, false, false, true),
           }
         ),
+        new Entity("SortTest", "Table with lots of columns for sort testing", "dbo",
+          new List<Column>()
+          {
+              new Column("A", "PK", "bigint", true, false, "", true, false, true, true),
+              new Column("FirstName", "Name of widget", "text", false, false, "", false, false, false, true),
+              new Column("LastName", "Name of widget", "text", false, false, "", false, false, false, true),
+              new Column("But_I_Think_This_Column_Name_Is_Really_Long", "Name of widget", "text", false, false, "", false, false, false, true),
+              new Column("B", "Name of widget", "text", false, false, "", false, false, false, true),
+              new Column("C", "Name of owner", "text", false, false, "", false, false, false, true),
+              new Column("D", "Random text", "text", false, false, "", false, false, false, true),
+              new Column("E", "Price of the product", "decimal(10, 2)", false, false, "", false, false, false, true),
+              new Column("F", "skill", "text", false, false, "", false, false, false, true),
+              new Column("effectiveStartDate", "start", "datetime", false, false, "", false, false, false, true),
+              new Column("effectiveEndDate", "end", "datetime", false, false, "", false, false, false, true),
+          }
+        ),
       },
       new List<Entity>()
     )}

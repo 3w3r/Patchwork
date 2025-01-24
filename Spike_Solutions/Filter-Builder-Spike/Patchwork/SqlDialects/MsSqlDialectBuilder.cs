@@ -22,28 +22,30 @@ namespace Patchwork.SqlDialects
 
     public override string BuildSelectClause(string fields, string entityName)
     {
-      var entity = FindEntity(entityName);
+      Entity entity = FindEntity(entityName);
 
       if (string.IsNullOrEmpty(fields) || fields.Contains("*"))
         return $"SELECT * FROM [{entity.SchemaName}].[{entity.Name}] AS [T_{entity.Name}]";
 
-      var tokens = GetFieldTokens(fields, entity);
-      var parser = new MsSqlFieldsTokenParser(tokens);
-      var fieldList = parser.Parse();
+      List<FieldsToken> tokens = GetFieldTokens(fields, entity);
+      MsSqlFieldsTokenParser parser = new MsSqlFieldsTokenParser(tokens);
+      string fieldList = parser.Parse();
 
       return $"SELECT {fieldList} FROM [{entity.SchemaName}].[{entity.Name}] AS [T_{entity.Name}]";
     }
 
     public override string BuildJoinClause(string includeString, string entityName)
     {
-      if (string.IsNullOrEmpty(includeString)) throw new ArgumentException(nameof(includeString));
-      if (string.IsNullOrEmpty(entityName)) throw new ArgumentException(nameof(entityName));
+      if (string.IsNullOrEmpty(includeString))
+        throw new ArgumentException(nameof(includeString));
+      if (string.IsNullOrEmpty(entityName))
+        throw new ArgumentException(nameof(entityName));
 
       try
       {
-        var entity = FindEntity(entityName);
-        var tokens = GetIncludeTokens(includeString, entity);
-        var parser = new MsSqlIncludeTokenParser(tokens);
+        Entity entity = FindEntity(entityName);
+        List<IncludeToken> tokens = GetIncludeTokens(includeString, entity);
+        MsSqlIncludeTokenParser parser = new MsSqlIncludeTokenParser(tokens);
         return parser.Parse();
       }
       catch (Exception ex)
@@ -56,10 +58,10 @@ namespace Patchwork.SqlDialects
     {
       try
       {
-        var entity = FindEntity(entityName);
-        var tokens = GetFilterTokens(filterString, entity);
-        var parser = new MsSqlFilterTokenParser(tokens);
-        var result = parser.Parse();
+        Entity entity = FindEntity(entityName);
+        List<FilterToken> tokens = GetFilterTokens(filterString, entity);
+        MsSqlFilterTokenParser parser = new MsSqlFilterTokenParser(tokens);
+        string result = parser.Parse();
         return $"WHERE {result}";
       }
       catch (ArgumentException ex)
@@ -72,10 +74,10 @@ namespace Patchwork.SqlDialects
     {
       try
       {
-        var entity = FindEntity(entityName);
-        var tokens = GetSortTokens(sort, entity);
-        var parser = new MsSortTokenParser(tokens);
-        var orderby = parser.Parse();
+        Entity entity = FindEntity(entityName);
+        List<SortToken> tokens = GetSortTokens(sort, entity);
+        MsSortTokenParser parser = new MsSortTokenParser(tokens);
+        string orderby = parser.Parse();
         return $"ORDER BY {orderby}";
       }
       catch (ArgumentException ex)
@@ -88,8 +90,8 @@ namespace Patchwork.SqlDialects
     {
       try
       {
-        var token = GetPagingToken(limit, offset);
-        var parser = new MsSqlPagingParser(token);
+        PagingToken token = GetPagingToken(limit, offset);
+        MsSqlPagingParser parser = new MsSqlPagingParser(token);
         return parser.Parse();
       }
       catch (ArgumentException ex)

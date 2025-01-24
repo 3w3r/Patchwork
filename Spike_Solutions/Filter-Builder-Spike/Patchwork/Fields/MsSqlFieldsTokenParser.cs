@@ -1,5 +1,4 @@
 using System.Text;
-using Patchwork.DbSchema;
 
 namespace Patchwork.Fields;
 
@@ -13,13 +12,14 @@ public class MsSqlFieldsTokenParser
   }
   public string Parse()
   {
-    var sb = new StringBuilder();
-    foreach (var token in _tokens)
+    StringBuilder sb = new StringBuilder();
+    foreach (FieldsToken token in _tokens)
     {
-      if (!string.IsNullOrEmpty(token.Prefix)) sb.Append($"[{token.Prefix}].");
+      if (!string.IsNullOrEmpty(token.Prefix))
+        sb.Append($"[{token.Prefix}].");
       sb.Append($"[{token.Name}], ");
     }
-    var final = sb.ToString().Trim().TrimEnd(',');
+    string final = sb.ToString().Trim().TrimEnd(',');
     return final;
   }
 }
