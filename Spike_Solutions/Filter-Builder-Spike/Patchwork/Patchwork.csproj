@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Expansion\" />
-    <Folder Include="Filters\" />
     <Folder Include="Paging\" />
     <Folder Include="DbSchema\" />
     <Folder Include="Sort\" />

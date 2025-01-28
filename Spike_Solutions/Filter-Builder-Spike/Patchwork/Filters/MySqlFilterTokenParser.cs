@@ -2,12 +2,12 @@
 
 namespace Patchwork.Filters
 {
-  public class MsSqlFilterTokenParser
+  public class MySqlFilterTokenParser
   {
     private List<FilterToken> _tokens;
     private int _position;
 
-    public MsSqlFilterTokenParser(List<FilterToken> tokens)
+    public MySqlFilterTokenParser(List<FilterToken> tokens)
     {
       _tokens = tokens;
       _position = 0;
@@ -46,10 +46,8 @@ namespace Patchwork.Filters
       }
 
       if (_position < _tokens.Count &&
-           (_tokens[_position].Value.Equals("AND", StringComparison.OrdinalIgnoreCase)
-           || _tokens[_position].Value.Equals("OR", StringComparison.OrdinalIgnoreCase)
-           )
-         )
+          (_tokens[_position].Value.Equals("AND", StringComparison.OrdinalIgnoreCase)
+           || _tokens[_position].Value.Equals("OR", StringComparison.OrdinalIgnoreCase)))
       {
         sb.Append(" ").Append(_tokens[_position].Value.ToUpper()).Append(" ");
         _position++;
@@ -82,7 +80,7 @@ namespace Patchwork.Filters
 
       FilterToken value = _tokens[_position++];
 
-      // need to handle case where value is open paren when operator is 'in'
+      // Handle case where value is open paren when operator is 'in'
       if (value.Type != FilterTokenType.OpenParen && op.Type == FilterTokenType.Operator && op.Value == "in")
       {
         throw new ArgumentException("Expected open paren to begin list of acceptable values");
@@ -90,7 +88,7 @@ namespace Patchwork.Filters
       else if (op.Value != "in" && !FilterTokenType.Value.HasFlag(value.Type))
         throw new ArgumentException("Expected value");
 
-      sb.Append($"[T_{identifier.EntityName}].[{identifier.Value}] {ConvertOperator(op.Value)} ");
+      sb.Append($"t_{identifier.EntityName.ToLower()}.{identifier.Value.ToLower()} {ConvertOperator(op.Value)} ");
 
       if (op.Value == "in")
       {
@@ -98,8 +96,8 @@ namespace Patchwork.Filters
         while (_position < _tokens.Count && FilterTokenType.Value.HasFlag(_tokens[_position].Type))
         {
           sb.Append(_tokens[_position].Type == FilterTokenType.Numeric
-                   ? _tokens[_position].Value
-                   : $"'{_tokens[_position].Value}'");
+              ? _tokens[_position].Value
+              : $"'{_tokens[_position].Value}'");
           _position++;
           if (_position < _tokens.Count && _tokens[_position].Type != FilterTokenType.CloseParen)
           {
@@ -153,7 +151,7 @@ namespace Patchwork.Filters
           return "IN";
         case "ct":
         case "sw":
-          return "LIKE";
+          return "LIKE"; // Use ILIKE for case-insensitive pattern matching
         default:
           throw new ArgumentException("Unknown operator");
       }

@@ -29,8 +29,8 @@ public class MsSortTokenParser
   public string RenderToken(SortToken token)
   {
     if (token.Direction == SortDirection.Ascending)
-      return $"[{token.Column}]";
+      return $"[T_{token.EntityName}].[{token.Column}]";
     else
-      return $"[{token.Column}] DESC";
+      return $"[T_{token.EntityName}].[{token.Column}] DESC";
   }
 }

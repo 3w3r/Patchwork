@@ -27,7 +27,7 @@ public class SortLexer
     }
 
     if (_entity.PrimaryKey != null && !tokens.Any(t => t.Column.Equals(_entity.PrimaryKey.Name, StringComparison.OrdinalIgnoreCase)))
-      tokens.Add(new SortToken(_entity.PrimaryKey.Name, SortDirection.Ascending));
+      tokens.Add(new SortToken(_entity.Name, _entity.PrimaryKey.Name, SortDirection.Ascending));
 
     return tokens;
   }
@@ -45,7 +45,7 @@ public class SortLexer
   private SortToken MakeAscendingColumnToken(string columnSort)
   {
     ValidateColumnName(columnSort);
-    return new SortToken(columnSort, SortDirection.Ascending);
+    return new SortToken(_entity.Name, columnSort, SortDirection.Ascending);
   }
 
   private void ValidateColumnName(string columnSort)
@@ -74,6 +74,6 @@ public class SortLexer
         throw new ArgumentException($"Invalid sort order: {split[1].Trim()} is not asc or desc.");
     }
 
-    return new SortToken(name, direction);
+    return new SortToken(_entity.Name, name, direction);
   }
 }

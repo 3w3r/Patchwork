@@ -22,25 +22,6 @@ namespace Patchwork.SqlDialects
       return new SqlConnection(_connectionString);
     }
 
-    public override string BuildGetListSql(string schemaName, string entityName
-    , string fields = ""
-    , string filter = ""
-    , string sort = ""
-    , int limit = 0
-    , int offset = 0)
-    {
-      if(string.IsNullOrEmpty(schemaName))
-        throw new ArgumentException("Schema name is required.", nameof(schemaName));
-      if (string.IsNullOrEmpty(entityName))
-        throw new ArgumentException("Entity name is required.", nameof(entityName));
-
-      var select = BuildSelectClause(fields, entityName);
-      var where = string.IsNullOrEmpty(filter) ? "" : BuildWhereClause(filter, entityName);
-      var orderBy = string.IsNullOrEmpty(sort) ? "" : BuildOrderByClause(sort, entityName);
-      var paging = BuildLimitOffsetClause(limit, offset);
-
-      return $"{select} {where} {orderBy} {paging}";
-    }
     public override string BuildPatchListSql(string schemaName, string entityName, JsonPatchDocument jsonPatchRequestBody) { throw new NotImplementedException(); }
     public override string BuildGetSingleSql(string schemaName, string entityName, string id
     , string fields = ""

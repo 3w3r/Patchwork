@@ -29,8 +29,8 @@ public class PostgreSqlSortTokenParser
   public string RenderToken(SortToken token)
   {
     if (token.Direction == SortDirection.Ascending)
-      return $"{token.Column.ToLower()}";
+      return $"t_{token.EntityName.ToLower()}.{token.Column.ToLower()}";
     else
-      return $"{token.Column.ToLower()} desc";
+      return $"t_{token.EntityName.ToLower()}.{token.Column.ToLower()} desc";
   }
 }

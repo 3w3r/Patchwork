@@ -88,7 +88,7 @@ namespace Patchwork.Filters
       else if (op.Value != "in" && !FilterTokenType.Value.HasFlag(value.Type))
         throw new ArgumentException("Expected value");
 
-      sb.Append(identifier.Value.ToLower()).Append(" ").Append(ConvertOperator(op.Value)).Append(" ");
+      sb.Append($"t_{identifier.EntityName.ToLower()}.{identifier.Value.ToLower()} {ConvertOperator(op.Value)} ");
 
       if (op.Value == "in")
       {

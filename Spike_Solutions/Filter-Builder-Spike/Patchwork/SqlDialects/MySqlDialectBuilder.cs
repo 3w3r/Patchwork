@@ -21,12 +21,6 @@ namespace Patchwork.SqlDialects
       return new MySqlConnection(_connectionString);
     }
 
-    public override string BuildGetListSql(string schemaName, string entityName
-    , string fields = ""
-    , string filter = ""
-    , string sort = ""
-    , int limit = 0
-    , int offset = 0) { throw new NotImplementedException(); }
     public override string BuildPatchListSql(string schemaName, string entityName, JsonPatchDocument jsonPatchRequestBody) { throw new NotImplementedException(); }
     public override string BuildGetSingleSql(string schemaName, string entityName, string id
     , string fields = ""
@@ -76,7 +70,7 @@ namespace Patchwork.SqlDialects
       {
         Entity entity = FindEntity(entityName);
         List<FilterToken> tokens = GetFilterTokens(filterString, entity);
-        PostgreSqlFilterTokenParser parser = new PostgreSqlFilterTokenParser(tokens);
+        MySqlFilterTokenParser parser = new MySqlFilterTokenParser(tokens);
         string result = parser.Parse();
         return $"WHERE {result}";
       }

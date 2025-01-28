@@ -7,29 +7,29 @@ namespace Patchwork.Tests
   {
     [Theory]
     [InlineData("ID eq 42",
-                "WHERE id = 42")]
+                "WHERE t_monkeytable.id = 42")]
     [InlineData("First_Name eq 'bill'",
-                "WHERE first_name = 'bill'")]
+                "WHERE t_monkeytable.first_name = 'bill'")]
     [InlineData("Name eq 'jack' or foo eq 'bar'",
-                "WHERE name = 'jack' OR foo = 'bar'")]
+                "WHERE t_monkeytable.name = 'jack' OR t_monkeytable.foo = 'bar'")]
     [InlineData("(ID eq 42 AND Name eq 'Jack') OR (ID      eq    38 AND     Name   eq 'Bill') OR (Name eq 'Susan' AND ID eq 88)",
-                "WHERE (id = 42 AND name = 'Jack') OR (id = 38 AND name = 'Bill') OR (name = 'Susan' AND id = 88)")]
+                "WHERE (t_monkeytable.id = 42 AND t_monkeytable.name = 'Jack') OR (t_monkeytable.id = 38 AND t_monkeytable.name = 'Bill') OR (t_monkeytable.name = 'Susan' AND t_monkeytable.id = 88)")]
     [InlineData("Price gt 10 AND Price lt 40",
-                "WHERE price > 10 AND price < 40")]
+                "WHERE t_monkeytable.price > 10 AND t_monkeytable.price < 40")]
     [InlineData("(Price gt 40 OR Price lt 10) AND Name eq 'Widget C'",
-                "WHERE (price > 40 OR price < 10) AND name = 'Widget C'")]
-    [InlineData("Name ne 'Bill'", "WHERE name != 'Bill'")]
-    [InlineData("ID gt 30", "WHERE id > 30")]
-    [InlineData("ID ge 30", "WHERE id >= 30")]
-    [InlineData("ID lt 30", "WHERE id < 30")]
-    [InlineData("ID le 30", "WHERE id <= 30")]
-    [InlineData("Name in ('Bill','Susan','Jack')", "WHERE name IN ('Bill', 'Susan', 'Jack')")]
-    [InlineData("Name ct 'Bill'", "WHERE name ILIKE E'%Bill%'")]
-    [InlineData("Name sw 'Bill'", "WHERE name ILIKE E'Bill%'")]
+                "WHERE (t_monkeytable.price > 40 OR t_monkeytable.price < 10) AND t_monkeytable.name = 'Widget C'")]
+    [InlineData("Name ne 'Bill'", "WHERE t_monkeytable.name != 'Bill'")]
+    [InlineData("ID gt 30", "WHERE t_monkeytable.id > 30")]
+    [InlineData("ID ge 30", "WHERE t_monkeytable.id >= 30")]
+    [InlineData("ID lt 30", "WHERE t_monkeytable.id < 30")]
+    [InlineData("ID le 30", "WHERE t_monkeytable.id <= 30")]
+    [InlineData("Name in ('Bill','Susan','Jack')", "WHERE t_monkeytable.name IN ('Bill', 'Susan', 'Jack')")]
+    [InlineData("Name ct 'Bill'", "WHERE t_monkeytable.name ILIKE E'%Bill%'")]
+    [InlineData("Name sw 'Bill'", "WHERE t_monkeytable.name ILIKE E'Bill%'")]
 
     // Filters that contain dates and times
     [InlineData("skillKey eq 'cdl' AND effectiveStartDate le '2023-11-11T22:00:00-0400' AND effectiveEndDate gt '2023-11-12T06:00:00-0400'",
-                "WHERE skillkey = 'cdl' AND effectivestartdate <= '2023-11-12T02:00:00.0000000Z' AND effectiveenddate > '2023-11-12T10:00:00.0000000Z'")]
+                "WHERE t_monkeytable.skillkey = 'cdl' AND t_monkeytable.effectivestartdate <= '2023-11-12T02:00:00.0000000Z' AND t_monkeytable.effectiveenddate > '2023-11-12T10:00:00.0000000Z'")]
     public void ConvertToSqlWhereClause_HandlesCommonCases(string filterString, string expected)
     {
       // Arrange

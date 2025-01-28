@@ -20,13 +20,13 @@ public class SortTokenizer_Tests
   }
 
   [Theory]
-  [InlineData("firstname:asc,lastname:desc", "ORDER BY [firstname], [lastname] DESC, [A]")]
-  [InlineData("firstname:asc       ,lastname    :desc       ", "ORDER BY [firstname], [lastname] DESC, [A]")]
-  [InlineData("       firstname:asc,lastname         :desc", "ORDER BY [firstname], [lastname] DESC, [A]")]
-  [InlineData("A,B,C,D,E,F", "ORDER BY [A], [B], [C], [D], [E], [F]")]
-  [InlineData("A,B:desc,C,D:desc,E,F", "ORDER BY [A], [B] DESC, [C], [D] DESC, [E], [F]")]
-  [InlineData("A,B:asc,C,D:asc,E:desc,F", "ORDER BY [A], [B], [C], [D], [E] DESC, [F]")]
-  [InlineData("A,But_I_Think_This_Column_Name_Is_Really_Long:desc", "ORDER BY [A], [But_I_Think_This_Column_Name_Is_Really_Long] DESC")]
+  [InlineData("firstname:asc,lastname:desc", "ORDER BY [T_SortTest].[firstname], [T_SortTest].[lastname] DESC, [T_SortTest].[A]")]
+  [InlineData("firstname:asc       ,lastname    :desc       ", "ORDER BY [T_SortTest].[firstname], [T_SortTest].[lastname] DESC, [T_SortTest].[A]")]
+  [InlineData("       firstname:asc,lastname         :desc", "ORDER BY [T_SortTest].[firstname], [T_SortTest].[lastname] DESC, [T_SortTest].[A]")]
+  [InlineData("A,B,C,D,E,F", "ORDER BY [T_SortTest].[A], [T_SortTest].[B], [T_SortTest].[C], [T_SortTest].[D], [T_SortTest].[E], [T_SortTest].[F]")]
+  [InlineData("A,B:desc,C,D:desc,E,F", "ORDER BY [T_SortTest].[A], [T_SortTest].[B] DESC, [T_SortTest].[C], [T_SortTest].[D] DESC, [T_SortTest].[E], [T_SortTest].[F]")]
+  [InlineData("A,B:asc,C,D:asc,E:desc,F", "ORDER BY [T_SortTest].[A], [T_SortTest].[B], [T_SortTest].[C], [T_SortTest].[D], [T_SortTest].[E] DESC, [T_SortTest].[F]")]
+  [InlineData("A,But_I_Think_This_Column_Name_Is_Really_Long:desc", "ORDER BY [T_SortTest].[A], [T_SortTest].[But_I_Think_This_Column_Name_Is_Really_Long] DESC")]
   public void Parse_ReturnsOrderByClause_MsSqlSuccessCases(string sort, string expected)
   {
     // Arrange
@@ -41,13 +41,13 @@ public class SortTokenizer_Tests
   }
 
   [Theory]
-  [InlineData("firstName:asc,lastName:desc", "ORDER BY firstname, lastname desc, a")]
-  [InlineData("firstName:asc       ,lastname    :desc       ", "ORDER BY firstname, lastname desc, a")]
-  [InlineData("       firstname:asc,lastname         :desc", "ORDER BY firstname, lastname desc, a")]
-  [InlineData("A,B,C,D,E,F", "ORDER BY a, b, c, d, e, f")]
-  [InlineData("A,B:desc,C,D:desc,E,F", "ORDER BY a, b desc, c, d desc, e, f")]
-  [InlineData("A,B:asc,C,D:asc,E:desc,F", "ORDER BY a, b, c, d, e desc, f")]
-  [InlineData("A,But_I_Think_This_Column_Name_Is_Really_Long:desc", "ORDER BY a, but_i_think_this_column_name_is_really_long desc")]
+  [InlineData("firstName:asc,lastName:desc", "ORDER BY t_sorttest.firstname, t_sorttest.lastname desc, t_sorttest.a")]
+  [InlineData("firstName:asc       ,lastname    :desc       ", "ORDER BY t_sorttest.firstname, t_sorttest.lastname desc, t_sorttest.a")]
+  [InlineData("       firstname:asc,lastname         :desc", "ORDER BY t_sorttest.firstname, t_sorttest.lastname desc, t_sorttest.a")]
+  [InlineData("A,B,C,D,E,F", "ORDER BY t_sorttest.a, t_sorttest.b, t_sorttest.c, t_sorttest.d, t_sorttest.e, t_sorttest.f")]
+  [InlineData("A,B:desc,C,D:desc,E,F", "ORDER BY t_sorttest.a, t_sorttest.b desc, t_sorttest.c, t_sorttest.d desc, t_sorttest.e, t_sorttest.f")]
+  [InlineData("A,B:asc,C,D:asc,E:desc,F", "ORDER BY t_sorttest.a, t_sorttest.b, t_sorttest.c, t_sorttest.d, t_sorttest.e desc, t_sorttest.f")]
+  [InlineData("A,But_I_Think_This_Column_Name_Is_Really_Long:desc", "ORDER BY t_sorttest.a, t_sorttest.but_i_think_this_column_name_is_really_long desc")]
   public void Parse_ReturnsOrderByClause_PostgreSqlSuccessCases(string sort, string expected)
   {
 
