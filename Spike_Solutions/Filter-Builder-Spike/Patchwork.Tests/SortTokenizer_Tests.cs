@@ -34,7 +34,7 @@ public class SortTokenizer_Tests
     MsSqlDialectBuilder sut = new MsSqlDialectBuilder(TestSampleData.DB);
 
     // Act
-    string result = sut.BuildOrderByClause(sort, "A", "SortTest");
+    string result = sut.BuildOrderByClause(sort, "SortTest");
 
     // Assert
     Assert.Equal(expected, result);
@@ -55,7 +55,7 @@ public class SortTokenizer_Tests
     PostgreSqlDialectBuilder sut = new PostgreSqlDialectBuilder(TestSampleData.DB);
 
     // Act
-    string result = sut.BuildOrderByClause(sort, "A", "SortTest");
+    string result = sut.BuildOrderByClause(sort, "SortTest");
 
     // Assert
     Assert.Equal(expected, result);
@@ -76,7 +76,7 @@ public class SortTokenizer_Tests
 
     ArgumentException ex = Assert.ThrowsAny<ArgumentException>(() =>
     {
-      string result = sut.BuildOrderByClause(sort, "A", "SortTest");
+      string result = sut.BuildOrderByClause(sort, "SortTest");
 
     });
     if (ex == null)

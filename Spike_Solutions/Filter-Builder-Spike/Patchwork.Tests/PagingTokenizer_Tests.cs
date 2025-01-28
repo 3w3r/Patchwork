@@ -1,4 +1,5 @@
 using Patchwork.Paging;
+using Patchwork.SqlDialects;
 
 namespace Patchwork.Tests;
 
@@ -17,14 +18,13 @@ public class PagingTokenizer_Tests
   public void Parse_ReturnsOffsetString_ForMsSql(int limit, int offset, string expected)
   {
     // Arrange
-    PagingToken tokenizer = new PagingToken(limit, offset);
-    MsSqlPagingParser parser = new MsSqlPagingParser(tokenizer);
+    var ms = new MsSqlDialectBuilder(TestSampleData.DB);
 
     // Act
-    string result = parser.Parse();
+    string msResult = ms.BuildLimitOffsetClause(limit, offset);
 
     // Assert
-    Assert.Equal(expected, result);
+    Assert.Equal(expected, msResult);
   }
 
   [Theory]
@@ -40,13 +40,15 @@ public class PagingTokenizer_Tests
   public void Parse_ReturnsOffsetString_ForPostgreSql(int limit, int offset, string expected)
   {
     // Arrange
-    PagingToken tokenizer = new PagingToken(limit, offset);
-    PostgreSqlPagingParser parser = new PostgreSqlPagingParser(tokenizer);
+    var my = new MySqlDialectBuilder(TestSampleData.DB);
+    var pg = new PostgreSqlDialectBuilder(TestSampleData.DB);
 
     // Act
-    string result = parser.Parse();
+    string myResult = my.BuildLimitOffsetClause(limit, offset);
+    string pgResult = pg.BuildLimitOffsetClause(limit, offset);
 
     // Assert
-    Assert.Equal(expected, result);
+    Assert.Equal(expected, myResult);
+    Assert.Equal(expected, pgResult);
   }
 }

@@ -1,4 +1,6 @@
+using System.Collections.Specialized;
 using System.Data.Common;
+using Azure;
 using Patchwork.DbSchema;
 using Patchwork.Expansion;
 using Patchwork.Fields;
@@ -26,6 +28,7 @@ namespace Patchwork.SqlDialects
     }
 
     protected abstract DbConnection GetConnection();
+
     public virtual DatabaseMetadata DiscoverSchema()
     {
       if (_metadata != null || _metadataCache.TryGetValue(_connectionString, out _metadata))
@@ -40,10 +43,28 @@ namespace Patchwork.SqlDialects
       return _metadata;
     }
 
+    public abstract string BuildGetListSql(string schemaName, string entityName
+    , string fields = ""
+    , string filter = ""
+    , string sort = ""
+    , int limit = 0
+    , int offset = 0);
+    public abstract string BuildPatchListSql(string schemaName, string entityName, JsonPatchDocument jsonPatchRequestBody);
+    public virtual string BuildGetSingleSql(string schemaName, string entityName, string id
+    , string fields = ""
+    , string include = ""
+    , DateTimeOffset? asOf = null)
+    {
+      throw new NotImplementedException();
+    }
+    public abstract string BuildPutSingleSql(string schemaName, string entityName, string id, string jsonResourceRequestBody);
+    public abstract string BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatchDocument jsonPatchRequestBody);
+    public abstract string BuildDeleteSingleSql(string schemaName, string entityName, string id);
+
     public abstract string BuildSelectClause(string fields, string entityName);
     public abstract string BuildJoinClause(string includeString, string entityName);
     public abstract string BuildWhereClause(string filterString, string entityName);
-    public abstract string BuildOrderByClause(string sort, string pkName, string entityName);
+    public abstract string BuildOrderByClause(string sort, string entityName);
     public abstract string BuildLimitOffsetClause(int limit, int offset);
 
     protected Entity FindEntity(string entityName)
@@ -124,13 +145,6 @@ namespace Patchwork.SqlDialects
 
     protected PagingToken GetPagingToken(int limit, int offset)
     {
-      if (limit < 0)
-        limit = 25;
-      if (limit > 5000)
-        limit = 5000;
-      if (offset < 0)
-        offset = 0;
-
       return new PagingToken(limit, offset);
     }
   }

@@ -1,4 +1,6 @@
-﻿using System.Data.Common;
+﻿using System.Collections.Specialized;
+using System.Data.Common;
+using Azure;
 using Npgsql;
 using Patchwork.DbSchema;
 using Patchwork.Expansion;
@@ -20,6 +22,21 @@ namespace Patchwork.SqlDialects
       return new NpgsqlConnection(_connectionString);
     }
 
+    public override string BuildGetListSql(string schemaName, string entityName
+    , string fields = ""
+    , string filter = ""
+    , string sort = ""
+    , int limit = 0
+    , int offset = 0) { throw new NotImplementedException(); }
+    public override string BuildPatchListSql(string schemaName, string entityName, JsonPatchDocument jsonPatchRequestBody) { throw new NotImplementedException(); }
+    public override string BuildGetSingleSql(string schemaName, string entityName, string id
+    , string fields = ""
+    , string include = ""
+    , DateTimeOffset? asOf = null) { throw new NotImplementedException(); }
+    public override string BuildPutSingleSql(string schemaName, string entityName, string id, string jsonRequestBody) { throw new NotImplementedException(); }
+    public override string BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatchDocument jsonPatchRequestBody) { throw new NotImplementedException(); }
+    public override string BuildDeleteSingleSql(string schemaName, string entityName, string id) { throw new NotImplementedException(); }
+
     public override string BuildSelectClause(string fields, string entityName)
     {
       Entity entity = FindEntity(entityName);
@@ -33,6 +50,7 @@ namespace Patchwork.SqlDialects
 
       return $"SELECT {fieldList} FROM {entity.SchemaName.ToLower()}.{entity.Name.ToLower()} AS t_{entity.Name.ToLower()}";
     }
+    
     public override string BuildJoinClause(string includeString, string entityName)
     {
       if (string.IsNullOrEmpty(includeString))
@@ -69,7 +87,7 @@ namespace Patchwork.SqlDialects
       }
     }
 
-    public override string BuildOrderByClause(string sort, string pkName, string entityName)
+    public override string BuildOrderByClause(string sort, string entityName)
     {
       try
       {
