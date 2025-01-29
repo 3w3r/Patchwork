@@ -7,7 +7,8 @@ namespace Patchwork.Tests;
 
 public class MySqlDialectBuilderTests
 {
-  private static string Conn = "Server=mysql.markewer.com;User ID=seth_ewer;Password=a0edfca687e487391bee7f18f3349b;Database=taskboard;";
+  private static string Conn = "Server=mysql.markewer.com;User ID=seth_ewer;Password=**;Database=taskboard;";
+
   [Fact]
   public void BuildGetListSql_ShouldBuildSelectStatement_ForGetListEndpoint()
   {
