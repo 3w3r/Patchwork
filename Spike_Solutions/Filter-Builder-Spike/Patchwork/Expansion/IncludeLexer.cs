@@ -25,7 +25,7 @@ public class IncludeLexer
       Column pk = GetPrimaryKeyColumn(childTable);
       Column fk = GetForeignKeyColumn(child, childTable);
 
-      tokens.Add(new IncludeToken(childTable.Name, pk.Name, _entity.Name, fk.Name));
+      tokens.Add(new IncludeToken(childTable.SchemaName, childTable.Name, pk.Name, _entity.SchemaName, _entity.Name, fk.Name));
     }
 
     return tokens;

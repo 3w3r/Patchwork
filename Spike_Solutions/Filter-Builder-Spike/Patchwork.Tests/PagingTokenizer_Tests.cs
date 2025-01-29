@@ -1,4 +1,3 @@
-using Patchwork.Paging;
 using Patchwork.SqlDialects;
 
 namespace Patchwork.Tests;

@@ -15,9 +15,9 @@ public class PostgreSqlIncludeTokenParser
     StringBuilder sb = new StringBuilder();
     foreach (IncludeToken token in _tokens)
     {
-      sb.AppendLine($"LEFT OUTER JOIN {token.ChildTableName} AS {token.ChildTablePrefixName} ON " +
-                    $"{token.ParentTablePrefixName}.{token.ParentTableFkName} = " +
-                    $"{token.ChildTablePrefixName}.{token.ChildTablePkName}");
+      sb.AppendLine($"LEFT OUTER JOIN {token.ChildSchemaName}.{token.ChildTableName} AS t_{token.ChildTableName} ON " +
+                    $"t_{token.ParentTableName}.{token.ParentTableFkName} = " +
+                    $"t_{token.ChildTableName}.{token.ChildTablePkName}");
 
     }
     return sb.ToString();

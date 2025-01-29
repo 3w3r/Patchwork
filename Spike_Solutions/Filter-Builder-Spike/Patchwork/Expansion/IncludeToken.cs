@@ -1,7 +1,3 @@
 namespace Patchwork.Expansion;
 
-public record IncludeToken(string ChildTableName, string ChildTablePkName, string ParentTableName, string ParentTableFkName)
-{
-  public string ChildTablePrefixName => $"T_{ChildTableName}";
-  public string ParentTablePrefixName => $"T_{ParentTableName}";
-};
+public record IncludeToken(string ChildSchemaName, string ChildTableName, string ChildTablePkName, string ParentSchemaName, string ParentTableName, string ParentTableFkName);

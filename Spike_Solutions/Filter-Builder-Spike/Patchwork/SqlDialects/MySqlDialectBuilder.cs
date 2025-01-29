@@ -1,4 +1,3 @@
-using System.Collections.Specialized;
 using System.Data.Common;
 using Azure;
 using MySqlConnector;
@@ -8,6 +7,7 @@ using Patchwork.Fields;
 using Patchwork.Filters;
 using Patchwork.Paging;
 using Patchwork.Sort;
+using Patchwork.SqlStatements;
 
 namespace Patchwork.SqlDialects
 {
@@ -22,10 +22,6 @@ namespace Patchwork.SqlDialects
     }
 
     public override string BuildPatchListSql(string schemaName, string entityName, JsonPatchDocument jsonPatchRequestBody) { throw new NotImplementedException(); }
-    public override string BuildGetSingleSql(string schemaName, string entityName, string id
-    , string fields = ""
-    , string include = ""
-    , DateTimeOffset? asOf = null) { throw new NotImplementedException(); }
     public override string BuildPutSingleSql(string schemaName, string entityName, string id, string jsonRequestBody) { throw new NotImplementedException(); }
     public override string BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatchDocument jsonPatchRequestBody) { throw new NotImplementedException(); }
     public override string BuildDeleteSingleSql(string schemaName, string entityName, string id) { throw new NotImplementedException(); }
@@ -43,11 +39,10 @@ namespace Patchwork.SqlDialects
 
       return $"SELECT {fieldList} FROM {entity.SchemaName.ToLower()}.{entity.Name.ToLower()} AS t_{entity.Name.ToLower()}";
     }
-
     public override string BuildJoinClause(string includeString, string entityName)
     {
       if (string.IsNullOrEmpty(includeString))
-        throw new ArgumentException(nameof(includeString));
+        return string.Empty;
       if (string.IsNullOrEmpty(entityName))
         throw new ArgumentException(nameof(entityName));
 
@@ -63,23 +58,27 @@ namespace Patchwork.SqlDialects
         throw new ArgumentException($"Invalid include string: {ex.Message}", ex);
       }
     }
-
-    public override string BuildWhereClause(string filterString, string entityName)
+    public override FilterStatement BuildWhereClause(string filterString, string entityName)
     {
       try
       {
         Entity entity = FindEntity(entityName);
         List<FilterToken> tokens = GetFilterTokens(filterString, entity);
         MySqlFilterTokenParser parser = new MySqlFilterTokenParser(tokens);
-        string result = parser.Parse();
-        return $"WHERE {result}";
+        FilterStatement result = parser.Parse();
+
+        return result;
       }
       catch (ArgumentException ex)
       {
         throw new ArgumentException($"Invalid filter string: {ex.Message}", ex);
       }
     }
-
+    public override string BuildGetByPkClause(string entityName)
+    {
+      Entity entity = FindEntity(entityName);
+      return $"WHERE t_{entity.Name}.{entity.PrimaryKey.Name} = @Id";
+    }
     public override string BuildOrderByClause(string sort, string entityName)
     {
       try
@@ -95,7 +94,6 @@ namespace Patchwork.SqlDialects
         throw new ArgumentException($"Invalid sort string: {ex.Message}", ex);
       }
     }
-
     public override string BuildLimitOffsetClause(int limit, int offset)
     {
       try

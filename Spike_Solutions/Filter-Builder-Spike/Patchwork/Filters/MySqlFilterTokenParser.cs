@@ -2,25 +2,14 @@
 
 namespace Patchwork.Filters
 {
-  public class MySqlFilterTokenParser
+
+  public class MySqlFilterTokenParser : FilterTokenParserBase
   {
-    private List<FilterToken> _tokens;
-    private int _position;
 
-    public MySqlFilterTokenParser(List<FilterToken> tokens)
-    {
-      _tokens = tokens;
-      _position = 0;
-    }
+    public MySqlFilterTokenParser(List<FilterToken> tokens) : base(tokens) { }
 
-    public string Parse()
-    {
-      StringBuilder whereClause = new StringBuilder();
-      ParseExpression(whereClause);
-      return whereClause.ToString();
-    }
 
-    private void ParseExpression(StringBuilder sb)
+    protected override void ParseExpression(StringBuilder sb)
     {
       if (_position >= _tokens.Count)
         return;

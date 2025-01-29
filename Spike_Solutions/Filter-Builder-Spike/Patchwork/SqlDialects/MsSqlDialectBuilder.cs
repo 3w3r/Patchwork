@@ -1,5 +1,4 @@
-﻿using System.Collections.Specialized;
-using System.Data.Common;
+﻿using System.Data.Common;
 using Azure;
 using Microsoft.Data.SqlClient;
 using Patchwork.DbSchema;
@@ -8,6 +7,7 @@ using Patchwork.Fields;
 using Patchwork.Filters;
 using Patchwork.Paging;
 using Patchwork.Sort;
+using Patchwork.SqlStatements;
 
 namespace Patchwork.SqlDialects
 {
@@ -23,10 +23,6 @@ namespace Patchwork.SqlDialects
     }
 
     public override string BuildPatchListSql(string schemaName, string entityName, JsonPatchDocument jsonPatchRequestBody) { throw new NotImplementedException(); }
-    public override string BuildGetSingleSql(string schemaName, string entityName, string id
-    , string fields = ""
-    , string include = ""
-    , DateTimeOffset? asOf = null) { throw new NotImplementedException(); }
     public override string BuildPutSingleSql(string schemaName, string entityName, string id, string jsonRequestBody) { throw new NotImplementedException(); }
     public override string BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatchDocument jsonPatchRequestBody) { throw new NotImplementedException(); }
     public override string BuildDeleteSingleSql(string schemaName, string entityName, string id) { throw new NotImplementedException(); }
@@ -73,20 +69,27 @@ namespace Patchwork.SqlDialects
       }
     }
 
-    public override string BuildWhereClause(string filterString, string entityName)
+    public override FilterStatement BuildWhereClause(string filterString, string entityName)
     {
       try
       {
         Entity entity = FindEntity(entityName);
         List<FilterToken> tokens = GetFilterTokens(filterString, entity);
         MsSqlFilterTokenParser parser = new MsSqlFilterTokenParser(tokens);
-        string result = parser.Parse();
-        return $"WHERE {result}";
+        FilterStatement result = parser.Parse();
+
+        return result;
       }
       catch (ArgumentException ex)
       {
         throw new ArgumentException($"Invalid filter string: {ex.Message}", ex);
       }
+    }
+
+    public override string BuildGetByPkClause(string entityName)
+    {
+      Entity entity = FindEntity(entityName);
+      return $"WHERE [T_{entity.SchemaName}].[{entity.Name}].[{entity.PrimaryKey.Name}] = @Id";
     }
 
     public override string BuildOrderByClause(string sort, string entityName)

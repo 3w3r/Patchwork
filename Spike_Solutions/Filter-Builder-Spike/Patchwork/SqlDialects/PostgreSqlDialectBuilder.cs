@@ -1,5 +1,4 @@
-﻿using System.Collections.Specialized;
-using System.Data.Common;
+﻿using System.Data.Common;
 using Azure;
 using Npgsql;
 using Patchwork.DbSchema;
@@ -8,6 +7,7 @@ using Patchwork.Fields;
 using Patchwork.Filters;
 using Patchwork.Paging;
 using Patchwork.Sort;
+using Patchwork.SqlStatements;
 
 namespace Patchwork.SqlDialects
 {
@@ -22,14 +22,8 @@ namespace Patchwork.SqlDialects
       return new NpgsqlConnection(_connectionString);
     }
 
-    public override string BuildGetListSql(string schemaName, string entityName
-    , string fields = ""
-    , string filter = ""
-    , string sort = ""
-    , int limit = 0
-    , int offset = 0) { throw new NotImplementedException(); }
     public override string BuildPatchListSql(string schemaName, string entityName, JsonPatchDocument jsonPatchRequestBody) { throw new NotImplementedException(); }
-    public override string BuildGetSingleSql(string schemaName, string entityName, string id
+    public override SelectStatement BuildGetSingleSql(string schemaName, string entityName, string id
     , string fields = ""
     , string include = ""
     , DateTimeOffset? asOf = null) { throw new NotImplementedException(); }
@@ -71,20 +65,27 @@ namespace Patchwork.SqlDialects
       }
     }
 
-    public override string BuildWhereClause(string filterString, string entityName)
+    public override FilterStatement BuildWhereClause(string filterString, string entityName)
     {
       try
       {
         Entity entity = FindEntity(entityName);
         List<FilterToken> tokens = GetFilterTokens(filterString, entity);
         PostgreSqlFilterTokenParser parser = new PostgreSqlFilterTokenParser(tokens);
-        string result = parser.Parse();
-        return $"WHERE {result}";
+        FilterStatement result = parser.Parse();
+
+        return result;
       }
       catch (ArgumentException ex)
       {
         throw new ArgumentException($"Invalid filter string: {ex.Message}", ex);
       }
+    }
+
+    public override string BuildGetByPkClause(string entityName)
+    {
+      Entity entity = FindEntity(entityName);
+      return $"WHERE t_{entity.SchemaName.ToLower()}.{entity.Name.ToLower()}.{entity.PrimaryKey.Name} = @Id";
     }
 
     public override string BuildOrderByClause(string sort, string entityName)

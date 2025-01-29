@@ -1,4 +1,3 @@
-using System.Collections.Specialized;
 using System.Data.Common;
 using Azure;
 using Patchwork.DbSchema;
@@ -7,6 +6,7 @@ using Patchwork.Fields;
 using Patchwork.Filters;
 using Patchwork.Paging;
 using Patchwork.Sort;
+using Patchwork.SqlStatements;
 
 namespace Patchwork.SqlDialects
 {
@@ -28,7 +28,6 @@ namespace Patchwork.SqlDialects
     }
 
     protected abstract DbConnection GetConnection();
-
     public virtual DatabaseMetadata DiscoverSchema()
     {
       if (_metadata != null || _metadataCache.TryGetValue(_connectionString, out _metadata))
@@ -43,12 +42,7 @@ namespace Patchwork.SqlDialects
       return _metadata;
     }
 
-    public virtual string BuildGetListSql(string schemaName, string entityName
-    , string fields = ""
-    , string filter = ""
-    , string sort = ""
-    , int limit = 0
-    , int offset = 0)
+    public virtual SelectStatement BuildGetListSql(string schemaName, string entityName, string fields = "", string filter = "", string sort = "", int limit = 0, int offset = 0)
     {
       if (string.IsNullOrEmpty(schemaName))
         throw new ArgumentException("Schema name is required.", nameof(schemaName));
@@ -56,27 +50,38 @@ namespace Patchwork.SqlDialects
         throw new ArgumentException("Entity name is required.", nameof(entityName));
 
       var select = BuildSelectClause(fields, entityName);
-      var where = string.IsNullOrEmpty(filter) ? "" : BuildWhereClause(filter, entityName);
+      var where = string.IsNullOrEmpty(filter) ? null : BuildWhereClause(filter, entityName);
       var orderBy = string.IsNullOrEmpty(sort) ? "" : BuildOrderByClause(sort, entityName);
       var paging = BuildLimitOffsetClause(limit, offset);
+      var parameters = new Dictionary<string, object>();
 
-      return $"{select} {where} {orderBy} {paging}";
+      return new SelectStatement($"{select} {where?.Sql} {orderBy} {paging}", parameters);
     }
-    public abstract string BuildPatchListSql(string schemaName, string entityName, JsonPatchDocument jsonPatchRequestBody);
-    public virtual string BuildGetSingleSql(string schemaName, string entityName, string id
-    , string fields = ""
-    , string include = ""
-    , DateTimeOffset? asOf = null)
+    public virtual SelectStatement BuildGetSingleSql(string schemaName, string entityName, string id, string fields = "", string include = "", DateTimeOffset? asOf = null)
     {
-      throw new NotImplementedException();
+      if (string.IsNullOrEmpty(schemaName))
+        throw new ArgumentException("Schema name is required.", nameof(schemaName));
+      if (string.IsNullOrEmpty(entityName))
+        throw new ArgumentException("Entity name is required.", nameof(entityName));
+
+      Entity entity = FindEntity(entityName);
+      string select = BuildSelectClause(fields, entityName);
+      string join = BuildJoinClause(include, entityName);
+      string where = BuildGetByPkClause(entityName);
+      var parameters = new Dictionary<string, object> { { "id", id } };
+
+      return new SelectStatement($"{select} {join} {where}", parameters);
     }
+    
+    public abstract string BuildPatchListSql(string schemaName, string entityName, JsonPatchDocument jsonPatchRequestBody);
     public abstract string BuildPutSingleSql(string schemaName, string entityName, string id, string jsonResourceRequestBody);
     public abstract string BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatchDocument jsonPatchRequestBody);
     public abstract string BuildDeleteSingleSql(string schemaName, string entityName, string id);
 
     public abstract string BuildSelectClause(string fields, string entityName);
     public abstract string BuildJoinClause(string includeString, string entityName);
-    public abstract string BuildWhereClause(string filterString, string entityName);
+    public abstract FilterStatement BuildWhereClause(string filterString, string entityName);
+    public abstract string BuildGetByPkClause(string entityName);
     public abstract string BuildOrderByClause(string sort, string entityName);
     public abstract string BuildLimitOffsetClause(int limit, int offset);
 
@@ -98,14 +103,12 @@ namespace Patchwork.SqlDialects
         throw new ArgumentException($"Invalid Table or View Name: {entityName}");
       return entity;
     }
-
     protected List<FieldsToken> GetFieldTokens(string fields, Entity entity)
     {
       FieldsLexer lexer = new FieldsLexer(fields, entity, DiscoverSchema());
       List<FieldsToken> tokens = lexer.Tokenize();
       return tokens;
     }
-
     protected List<FilterToken> GetFilterTokens(string filterString, Entity entity)
     {
       if (string.IsNullOrWhiteSpace(filterString))
@@ -131,7 +134,6 @@ namespace Patchwork.SqlDialects
       }
       return tokens;
     }
-
     protected List<IncludeToken> GetIncludeTokens(string includeString, Entity entity)
     {
       if (string.IsNullOrEmpty(includeString))
@@ -143,7 +145,6 @@ namespace Patchwork.SqlDialects
       List<IncludeToken> tokens = lexer.Tokenize();
       return tokens;
     }
-
     protected List<SortToken> GetSortTokens(string sort, Entity entity)
     {
       if (entity == null)
@@ -155,7 +156,6 @@ namespace Patchwork.SqlDialects
 
       return tokens;
     }
-
     protected PagingToken GetPagingToken(int limit, int offset)
     {
       return new PagingToken(limit, offset);

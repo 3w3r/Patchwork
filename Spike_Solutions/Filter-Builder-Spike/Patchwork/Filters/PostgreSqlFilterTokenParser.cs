@@ -2,25 +2,11 @@
 
 namespace Patchwork.Filters
 {
-  public class PostgreSqlFilterTokenParser
+  public class PostgreSqlFilterTokenParser : FilterTokenParserBase
   {
-    private List<FilterToken> _tokens;
-    private int _position;
+    public PostgreSqlFilterTokenParser(List<FilterToken> tokens) : base(tokens) { }
 
-    public PostgreSqlFilterTokenParser(List<FilterToken> tokens)
-    {
-      _tokens = tokens;
-      _position = 0;
-    }
-
-    public string Parse()
-    {
-      StringBuilder whereClause = new StringBuilder();
-      ParseExpression(whereClause);
-      return whereClause.ToString();
-    }
-
-    private void ParseExpression(StringBuilder sb)
+    protected override void ParseExpression(StringBuilder sb)
     {
       if (_position >= _tokens.Count)
         return;

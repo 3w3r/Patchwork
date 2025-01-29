@@ -35,10 +35,10 @@ namespace Patchwork.Tests
       MsSqlDialectBuilder sut = new MsSqlDialectBuilder(TestSampleData.DB);
 
       // Act
-      string actual = sut.BuildWhereClause(filterString, "MonkeyTable");
+      var actual = sut.BuildWhereClause(filterString, "MonkeyTable");
 
       // Assert
-      Assert.Equal(expected, actual);
+      Assert.Equal(expected, actual.Sql);
     }
 
     [Theory]
