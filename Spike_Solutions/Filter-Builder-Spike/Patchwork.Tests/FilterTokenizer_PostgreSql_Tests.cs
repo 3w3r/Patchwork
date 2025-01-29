@@ -1,4 +1,3 @@
-using Patchwork.Filters;
 using Patchwork.SqlDialects;
 
 namespace Patchwork.Tests
@@ -65,16 +64,6 @@ namespace Patchwork.Tests
 
       if (ex == null)
         throw new Exception(error);
-    }
-  }
-
-  public class TestTokenTypes
-  {
-    [Fact]
-    public void AllTokenTypes_Are_Defined()
-    {
-      FilterTokenType t = FilterTokenType.Textual;
-      Assert.True(FilterTokenType.Value.HasFlag(t));
     }
   }
 }

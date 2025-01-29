@@ -7,13 +7,11 @@ namespace Patchwork.Tests;
 
 public class MySqlDialectBuilderTests
 {
-  private static string Conn = "Server=mysql.markewer.com;User ID=seth_ewer;Password=**;Database=taskboard;";
-
   [Fact]
   public void BuildGetListSql_ShouldBuildSelectStatement_ForGetListEndpoint()
   {
     // Arrange
-    MySqlDialectBuilder sut = new MySqlDialectBuilder(Conn);
+    MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
 
     // Act
     string sql = sut.BuildGetListSql("Taskboard", "Products", "*", "productName sw 197", "productName", 10, 0);
@@ -26,7 +24,7 @@ public class MySqlDialectBuilderTests
     Assert.Contains("LIMIT 10", sql);
     Assert.Contains("OFFSET 0", sql);
 
-    using var connect = new MySqlConnection(Conn);
+    using var connect = new MySqlConnection(ConnectionStringManager.GetMySqlConnectionString());
     connect.Open();
 
     var found = connect.Query(sql);
@@ -43,7 +41,7 @@ public class MySqlDialectBuilderTests
   public void BuildGetListSql_ShouldBuildSelectStatement_ForGetListEndpointWithOffset()
   {
     // Arrange
-    MySqlDialectBuilder sut = new MySqlDialectBuilder(Conn);
+    MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
 
     // Act
     string sql1 = sut.BuildGetListSql("Taskboard", "Orders", "orderNumber, shippedDate, status", "Status eq 'shipped'", "", 10, 0);
@@ -64,7 +62,7 @@ public class MySqlDialectBuilderTests
     Assert.Contains("LIMIT 5", sql2);
     Assert.Contains("OFFSET 5", sql2);
 
-    using var connect = new MySqlConnection(Conn);
+    using var connect = new MySqlConnection(ConnectionStringManager.GetMySqlConnectionString());
     connect.Open();
 
     var found1 = connect.Query(sql1).ToArray();
@@ -91,7 +89,7 @@ public class MySqlDialectBuilderTests
   public void BuildGetListSql_ThrowsArgumentException_WhenSchemaNameIsNull()
   {
     // Arrange
-    MySqlDialectBuilder sut = new MySqlDialectBuilder(Conn);
+    MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
 
     // Act
     ArgumentException ex = Assert.Throws<ArgumentException>(() =>
@@ -113,7 +111,7 @@ public class MySqlDialectBuilderTests
   public void BuildGetListSql_ThrowsArgumentException_WhenEntityNameIsNull()
   {
     // Arrange
-    MySqlDialectBuilder sut = new MySqlDialectBuilder(Conn);
+    MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
 
     // Act
     ArgumentException ex = Assert.Throws<ArgumentException>(() =>
