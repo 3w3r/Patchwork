@@ -398,3 +398,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/Spike_Solutions/Filter-Builder-Spike/Patchwork.Tests/appsettings.local.json
