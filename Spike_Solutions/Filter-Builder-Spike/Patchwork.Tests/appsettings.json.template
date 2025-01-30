@@ -1,0 +1,8 @@
+{
+  "ConnectionStrings": {
+    "MySql": "Server=localhost;User ID=user;Password=password;Database=classicmodels;",
+    "PostgreSql": "Host=localhost;Port=5432;Database=classicmodels;User ID=user;Password=password;Pooling=true;SearchPath=myschema;",
+    "MsSql": "Server=localhost;Database=classicmodels;User Id=user;Password=password;",
+    "Sqlite": "Data Source=./Test-Data/Products.db"
+  }
+}

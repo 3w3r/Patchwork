@@ -9,12 +9,20 @@ using (var connection = new MySqlConnection($"Server=mysql.markewer.com;User ID=
 {
     var dbReader = new DatabaseSchemaReader.DatabaseReader(connection);
 
-    //AllTables returns schema without users or data
-    var all = dbReader.AllTables();
-
-    foreach (var table in all)
+    var schemas = dbReader.AllSchemas();
+    Console.WriteLine("====[ Database Schemas ]==============");
+    foreach (var schema in schemas)
     {
-        Console.WriteLine(table.SchemaOwner + "/" + table.Name);
+        Console.WriteLine($"SCHEMA: {schema.Name}");
+    }
+    Console.WriteLine("--------------------------------------");
+    Console.WriteLine();
+
+    var tables = dbReader.AllTables();
+    Console.WriteLine("====[ Database Tables ]===============");
+    foreach (var table in tables)
+    {
+        Console.WriteLine($"TABLE: {table.SchemaOwner}/{table.Name}");
         foreach (var column in table.Columns)
         {
             Console.Write("    " + column.Name);
@@ -24,8 +32,30 @@ using (var connection = new MySqlConnection($"Server=mysql.markewer.com;User ID=
                 Console.Write($" [FK: {column.ForeignKeyTableName}]");
             Console.Write("\n");
         }
-        Console.Write("\n");
+        Console.WriteLine();
     }
+    Console.WriteLine("--------------------------------------");
+    Console.WriteLine();
+
+    var views = dbReader.AllViews();
+    Console.WriteLine("====[ Database Views ]================");
+    foreach (var view in views)
+    {
+        Console.WriteLine($"VIEW: {view.SchemaOwner}/{view.Name}");
+        foreach (var column in view.Columns)
+        {
+            Console.Write("    " + column.Name);
+            if (column.IsPrimaryKey)
+                Console.Write(" [PK]");
+            if (column.IsForeignKey)
+                Console.Write($" [FK: {column.ForeignKeyTableName}]");
+            Console.Write("\n");
+        }
+        Console.WriteLine();
+    }
+    Console.WriteLine("--------------------------------------");
+    Console.WriteLine();
+
     Console.WriteLine("Press any key to close...");
     Console.ReadKey();
 }
