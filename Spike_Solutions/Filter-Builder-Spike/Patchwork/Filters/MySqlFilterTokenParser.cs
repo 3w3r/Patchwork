@@ -95,7 +95,7 @@ namespace Patchwork.Filters
       }
       else
       {
-        if (value.Type == FilterTokenType.DateTime || value.Type == FilterTokenType.Textual)
+        if (value.Type == FilterTokenType.DateTime || value.Type == FilterTokenType.Textual || value.Type == FilterTokenType.Numeric)
         {
           sb.Append($"@{value.ParameterName}");
         }
