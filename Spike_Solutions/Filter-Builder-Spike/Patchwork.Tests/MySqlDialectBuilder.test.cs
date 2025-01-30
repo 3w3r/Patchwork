@@ -3,25 +3,25 @@ using Patchwork.SqlDialects;
 using Dapper;
 
 namespace Patchwork.Tests;
-
 public class MySqlDialectBuilderTests
 {
   [Fact]
-  public void BuildGetListSql_ShouldBuildSelectStatement_ForGetListEndpoint()
+  public void BuildGetListSql_ShouldBuildSelectStatement_ForGetListEndpointWithStartsWith()
   {
     // Arrange
     MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
 
     // Act
-    var sql = sut.BuildGetListSql("Taskboard", "Products", "*", "productName sw 197", "productName", 10, 0);
+    var sql = sut.BuildGetListSql("Taskboard", "Products", "*", "productName sw '197'", "productName", 10, 0);
 
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
     Assert.Contains("FROM taskboard.products", sql.Sql);
-    Assert.Contains("WHERE t_products.productname LIKE '197%'", sql.Sql);
+    Assert.Contains("WHERE t_products.productname LIKE @V0", sql.Sql);
     Assert.Contains("LIMIT 10", sql.Sql);
     Assert.Contains("OFFSET 0", sql.Sql);
+    Assert.Equal("197%", sql.Parameters.First().Value);
 
     using var connect = new MySqlConnection(ConnectionStringManager.GetMySqlConnectionString());
     connect.Open();
@@ -33,7 +33,82 @@ public class MySqlDialectBuilderTests
       Assert.StartsWith("197", item.productName);
     }
 
-    connect.Clone();
+    connect.Close();
+  }
+
+  [Fact]
+  public void BuildGetListSql_ShouldBuildSelectStatement_ForGetListEndpointWithContains()
+  {
+    // Arrange
+    MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
+
+    // Act
+    var sql = sut.BuildGetListSql("Taskboard", "Products", "*", "productName ct 'Chevy'", "productName", 10, 0);
+
+    // Assert
+    Assert.NotEmpty(sql.Sql);
+    Assert.Contains("SELECT *", sql.Sql);
+    Assert.Contains("FROM taskboard.products", sql.Sql);
+    Assert.Contains("WHERE t_products.productname LIKE @V0", sql.Sql);
+    Assert.Contains("LIMIT 10", sql.Sql);
+    Assert.Contains("OFFSET 0", sql.Sql);
+    Assert.Equal("%Chevy%", sql.Parameters.First().Value);
+
+    using var connect = new MySqlConnection(ConnectionStringManager.GetMySqlConnectionString());
+    connect.Open();
+
+    var found = connect.Query(sql.Sql, sql.Parameters);
+    Assert.Equal(4, found.Count());
+    foreach (var item in found)
+    {
+      Assert.Contains("Chevy", item.productName);
+    }
+
+    connect.Close();
+  }
+
+  [Fact]
+  public void BuildGetListSql_ShouldBuildSelectStatement_ForGetListWithLongFilter()
+  {
+    // Arrange
+    MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
+
+    // Act
+    var sql = sut.BuildGetListSql("Taskboard", "Products", "*", 
+      "productName ct 'Chevy' OR productName sw '1978' OR (ProductName ct 'Alpine') OR productName ct 'Roadster' OR productName ct 'Benz' " +
+      "OR productName ct 'Moto' OR productName ct 'Pickup' OR (pRoductName ct 'Hawk' AND productName ct 'Black') OR productName ct 'Ford' " +
+      "OR productName ct 'Hemi' OR productName ct 'Honda' OR produCtName sw '1952' ",
+      "productName", 20, 5);
+
+    // Assert
+    Assert.NotEmpty(sql.Sql);
+    Assert.Contains("SELECT *", sql.Sql);
+    Assert.Contains("FROM taskboard.products", sql.Sql);
+    Assert.Contains("t_products.productname LIKE @V0", sql.Sql);
+    Assert.Contains("t_products.productname LIKE @V1", sql.Sql);
+    Assert.Contains("t_products.productname LIKE @V2", sql.Sql);
+    Assert.Contains("t_products.productname LIKE @V3", sql.Sql);
+    Assert.Contains("t_products.productname LIKE @V4", sql.Sql);
+    Assert.Contains("t_products.productname LIKE @V5", sql.Sql);
+    Assert.Contains("t_products.productname LIKE @V6", sql.Sql);
+    Assert.Contains("t_products.productname LIKE @V7", sql.Sql);
+    Assert.Contains("t_products.productname LIKE @V8", sql.Sql);
+    Assert.Contains("t_products.productname LIKE @V9", sql.Sql);
+    Assert.Contains("t_products.productname LIKE @V10", sql.Sql);
+    Assert.Contains("t_products.productname LIKE @V11", sql.Sql);
+    Assert.Contains("t_products.productname LIKE @V12", sql.Sql);
+    Assert.Contains("LIMIT 20", sql.Sql);
+    Assert.Contains("OFFSET 5", sql.Sql);
+    Assert.Equal("%Chevy%", sql.Parameters.First().Value);
+    Assert.Equal("1952%", sql.Parameters.Last().Value);
+
+    using var connect = new MySqlConnection(ConnectionStringManager.GetMySqlConnectionString());
+    connect.Open();
+
+    var found = connect.Query(sql.Sql, sql.Parameters);
+    Assert.Equal(20, found.Count());
+
+    connect.Close();
   }
 
   [Fact]
@@ -50,16 +125,18 @@ public class MySqlDialectBuilderTests
     Assert.NotEmpty(sql1.Sql);
     Assert.Contains("SELECT t_orders.ordernumber, t_orders.shippeddate, t_orders.status", sql1.Sql);
     Assert.Contains("FROM taskboard.orders", sql1.Sql);
-    Assert.Contains("WHERE t_orders.status = 'shipped'", sql1.Sql);
+    Assert.Contains("WHERE t_orders.status = @V0", sql1.Sql);
     Assert.Contains("LIMIT 10", sql1.Sql);
     Assert.Contains("OFFSET 0", sql1.Sql);
+    Assert.Equal("shipped", sql1.Parameters.First().Value);
 
     Assert.NotEmpty(sql2.Sql);
     Assert.Contains("SELECT t_orders.ordernumber, t_orders.shippeddate, t_orders.status", sql2.Sql);
     Assert.Contains("FROM taskboard.orders", sql2.Sql);
-    Assert.Contains("WHERE t_orders.status = 'shipped'", sql2.Sql);
+    Assert.Contains("WHERE t_orders.status = @V0", sql2.Sql);
     Assert.Contains("LIMIT 5", sql2.Sql);
     Assert.Contains("OFFSET 5", sql2.Sql);
+    Assert.Equal("shipped", sql2.Parameters.First().Value);
 
     using var connect = new MySqlConnection(ConnectionStringManager.GetMySqlConnectionString());
     connect.Open();
@@ -81,7 +158,7 @@ public class MySqlDialectBuilderTests
       Assert.Equal(found2[i].status.ToString(), found1[i + 5].status.ToString());
     }
 
-    connect.Clone();
+    connect.Close();
   }
 
   [Fact]
@@ -150,6 +227,6 @@ public class MySqlDialectBuilderTests
     Assert.Equal("1:24", found.productScale);
     Assert.False(string.IsNullOrEmpty(found.textDescription));
 
-    connect.Clone();
+    connect.Close();
   }
 }

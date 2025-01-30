@@ -53,9 +53,8 @@ namespace Patchwork.SqlDialects
       var where = string.IsNullOrEmpty(filter) ? null : BuildWhereClause(filter, entityName);
       var orderBy = string.IsNullOrEmpty(sort) ? "" : BuildOrderByClause(sort, entityName);
       var paging = BuildLimitOffsetClause(limit, offset);
-      var parameters = new Dictionary<string, object>();
 
-      return new SelectStatement($"{select} {where?.Sql} {orderBy} {paging}", parameters);
+      return new SelectStatement($"{select} {where?.Sql} {orderBy} {paging}", where?.Parameters ?? new Dictionary<string, object>());
     }
     public virtual SelectStatement BuildGetSingleSql(string schemaName, string entityName, string id, string fields = "", string include = "", DateTimeOffset? asOf = null)
     {

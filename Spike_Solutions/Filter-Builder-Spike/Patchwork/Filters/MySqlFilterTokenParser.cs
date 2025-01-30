@@ -84,9 +84,7 @@ namespace Patchwork.Filters
         sb.Append("(");
         while (_position < _tokens.Count && FilterTokenType.Value.HasFlag(_tokens[_position].Type))
         {
-          sb.Append(_tokens[_position].Type == FilterTokenType.Numeric
-              ? _tokens[_position].Value
-              : $"'{_tokens[_position].Value}'");
+          sb.Append($"@{_tokens[_position].ParameterName}");
           _position++;
           if (_position < _tokens.Count && _tokens[_position].Type != FilterTokenType.CloseParen)
           {
@@ -95,23 +93,11 @@ namespace Patchwork.Filters
         }
         sb.Append(")");
       }
-      else if (op.Value == "sw")
-      {
-        sb.Append("'").Append(value.Value).Append("%'");
-      }
-      else if (op.Value == "ct")
-      {
-        sb.Append("'%").Append(value.Value).Append("%'");
-      }
       else
       {
-        if (value.Type == FilterTokenType.DateTime)
+        if (value.Type == FilterTokenType.DateTime || value.Type == FilterTokenType.Textual)
         {
-          sb.Append($"'{value.Value}'");
-        }
-        else if (value.Type == FilterTokenType.Textual)
-        {
-          sb.Append($"'{value.Value}'");
+          sb.Append($"@{value.ParameterName}");
         }
         else
         {

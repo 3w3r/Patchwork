@@ -1,36 +1,52 @@
-﻿using System.Text;
+﻿using System.ComponentModel.Design;
+using System.Text;
 using Patchwork.SqlStatements;
 
-namespace Patchwork.Filters
+namespace Patchwork.Filters;
+
+public abstract class FilterTokenParserBase
 {
-  public abstract class FilterTokenParserBase
+  protected List<FilterToken> _tokens;
+  protected int _position;
+
+  public FilterTokenParserBase(List<FilterToken> tokens)
   {
-    protected List<FilterToken> _tokens;
-    protected int _position;
+    _tokens = tokens;
+    _position = 0;
+  }
 
-    public FilterTokenParserBase(List<FilterToken> tokens)
+  public FilterStatement Parse()
+  {
+    StringBuilder whereClause = new StringBuilder();
+    ParseExpression(whereClause);
+    return new FilterStatement($"WHERE {whereClause.ToString()}", GetParameters());
+  }
+
+  protected abstract void ParseExpression(StringBuilder sb);
+
+  private Dictionary<string, object> GetParameters()
+  {
+    Dictionary<string, object> parameters = new Dictionary<string, object>();
+    for(int i =0; i < _tokens.Count; i++)
     {
-      _tokens = tokens;
-      _position = 0;
-    }
-
-    public FilterStatement Parse()
-    {
-      StringBuilder whereClause = new StringBuilder();
-      ParseExpression(whereClause);
-      return new FilterStatement($"WHERE {whereClause.ToString()}", GetParameters());
-    }
-
-    protected abstract void ParseExpression(StringBuilder sb);
-
-    private Dictionary<string, object> GetParameters()
-    {
-      Dictionary<string, object> parameters = new Dictionary<string, object>();
-      foreach (FilterToken? token in _tokens.Where(t => t.ParameterName.Length > 1))
+      if (i > 0 && _tokens[i].Type == FilterTokenType.Textual)
       {
-        parameters.Add(token.ParameterName, token.Value);
+        if (_tokens[i - 1].Value == "sw")
+          parameters.Add(_tokens[i].ParameterName, GetStartsWithValue(_tokens[i]));
+        else if(_tokens[i - 1].Value == "ct")
+          parameters.Add(_tokens[i].ParameterName, GetContainsValue(_tokens[i]));
+        else
+          parameters.Add(_tokens[i].ParameterName, _tokens[i].Value);
       }
-      return parameters;
     }
+    return parameters;
+  }
+  private string GetStartsWithValue(FilterToken token)
+  {
+    return $"{token.Value}%";
+  }
+  private string GetContainsValue(FilterToken token)
+  {
+    return $"%{token.Value}%";
   }
 }
