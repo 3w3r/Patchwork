@@ -22,10 +22,25 @@ public class IncludeLexer
     {
       string child = ReadIdentifier(segment);
       Entity childTable = GetChildTableName(child);
-      Column pk = GetPrimaryKeyColumn(childTable);
-      Column fk = GetForeignKeyColumn(child, childTable);
-
-      tokens.Add(new IncludeToken(childTable.SchemaName, childTable.Name, pk.Name, _entity.SchemaName, _entity.Name, fk.Name));
+      Column fk = GetEntityForeignKeyToInclude(child, childTable);
+      if(fk!=null)
+      {
+        Column pk = GetPrimaryKeyColumn(childTable);
+        tokens.Add(new IncludeToken(childTable.SchemaName, childTable.Name, pk.Name, _entity.SchemaName, _entity.Name, fk.Name));
+      }
+      else
+      {
+        fk=GetIncludeForeignKeyToEntity(child, childTable);
+        if (fk != null)
+        {
+          Column pk = GetPrimaryKeyColumn(_entity);
+          tokens.Add(new IncludeToken(childTable.SchemaName, childTable.Name, pk.Name, _entity.SchemaName, _entity.Name, fk.Name));
+        }
+        else
+        {
+          throw new ArgumentOutOfRangeException("include", $"The tables {_entity.Name} and {childTable.Name} are not related.");
+        }
+      }
     }
 
     return tokens;
@@ -38,11 +53,18 @@ public class IncludeLexer
     return childTable.PrimaryKey;
   }
 
-  private Column GetForeignKeyColumn(string child, Entity childTable)
+  private Column GetEntityForeignKeyToInclude(string child, Entity childTable)
   {
     Column? fk = _entity.Columns.FirstOrDefault(c => c.IsForeignKey && c.ForeignKeyTableName.Equals(childTable.Name, StringComparison.CurrentCultureIgnoreCase));
-    if (fk == null)
-      throw new InvalidOperationException($"Table {_entity.Name} does not have a foreign key to {child}.");
+    //if (fk == null)
+    //  throw new InvalidOperationException($"Table {_entity.Name} does not have a foreign key to {child}.");
+    return fk;
+  }
+  private Column GetIncludeForeignKeyToEntity(string child, Entity childTable)
+  {
+    Column? fk = childTable.Columns.FirstOrDefault(c => c.IsForeignKey && c.ForeignKeyTableName.Equals(_entity.Name, StringComparison.CurrentCultureIgnoreCase));
+    //if (fk == null)
+    //  throw new InvalidOperationException($"Table {_entity.Name} does not have a foreign key to {child}.");
     return fk;
   }
 

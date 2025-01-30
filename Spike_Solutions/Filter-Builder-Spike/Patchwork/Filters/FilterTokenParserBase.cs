@@ -38,6 +38,10 @@ public abstract class FilterTokenParserBase
         else
           parameters.Add(_tokens[i].ParameterName, _tokens[i].Value);
       }
+      else if(i > 0 && _tokens[i].Type == FilterTokenType.Numeric)
+          parameters.Add(_tokens[i].ParameterName, _tokens[i].Value);
+      else if(i > 0 && _tokens[i].Type == FilterTokenType.DateTime)
+          parameters.Add(_tokens[i].ParameterName, _tokens[i].Value);
     }
     return parameters;
   }
