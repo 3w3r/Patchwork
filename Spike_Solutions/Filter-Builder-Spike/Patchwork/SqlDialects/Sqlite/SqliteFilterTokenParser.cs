@@ -93,7 +93,11 @@ public class SqliteFilterTokenParser : FilterTokenParserBase
     }
     else
     {
-      if (value.Type == FilterTokenType.DateTime || value.Type == FilterTokenType.Textual || value.Type == FilterTokenType.Numeric)
+      if (value.Type == FilterTokenType.Textual)
+      {
+        sb.Append($"@{value.ParameterName} COLLATE NOCASE");
+      }
+      else if (value.Type == FilterTokenType.DateTime || value.Type == FilterTokenType.Numeric)
       {
         sb.Append($"@{value.ParameterName}");
       }

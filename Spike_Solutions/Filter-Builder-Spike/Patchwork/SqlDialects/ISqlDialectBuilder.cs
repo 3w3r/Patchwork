@@ -16,10 +16,4 @@ public interface ISqlDialectBuilder
   string BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatchDocument jsonPatchRequestBody);
   string BuildDeleteSingleSql(string schemaName, string entityName, string id);
 
-  // string BuildSelectClause(string fields, string entityName);
-  // string BuildJoinClause(string includeString, string entityName);
-  // string BuildGetByPkClause(string entityName);
-  // FilterStatement BuildWhereClause(string filterString, string entityName);
-  // string BuildOrderByClause(string sort, string entityName);
-  // string BuildLimitOffsetClause(int limit, int offset);
 }

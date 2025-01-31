@@ -1,14 +1,13 @@
 ﻿using Patchwork.Filters;
 
-namespace Patchwork.Tests
+namespace Patchwork.Tests;
+
+public class TestTokenTypes
 {
-  public class TestTokenTypes
+  [Fact]
+  public void AllTokenTypes_Are_Defined()
   {
-    [Fact]
-    public void AllTokenTypes_Are_Defined()
-    {
-      FilterTokenType t = FilterTokenType.Textual;
-      Assert.True(FilterTokenType.Value.HasFlag(t));
-    }
+    FilterTokenType t = FilterTokenType.Textual;
+    Assert.True(FilterTokenType.Value.HasFlag(t));
   }
 }

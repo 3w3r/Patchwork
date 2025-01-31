@@ -30,15 +30,16 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
   internal override string BuildSelectClause(string fields, string entityName)
   {
     Entity entity = FindEntity(entityName);
+    var schemaPrefix = string.IsNullOrEmpty(entity.SchemaName) ? string.Empty : $"{entity.SchemaName}.";
 
     if (string.IsNullOrEmpty(fields) || fields.Contains("*"))
-      return $"SELECT * FROM {entity.SchemaName.ToLower()}.{entity.Name.ToLower()} AS t_{entity.Name.ToLower()}";
+      return $"SELECT * FROM {schemaPrefix}{entity.Name} AS t_{entity.Name}";
 
     List<FieldsToken> tokens = GetFieldTokens(fields, entity);
     var parser = new SqliteFieldsTokenParser(tokens);
     string fieldList = parser.Parse();
 
-    return $"SELECT {fieldList} FROM {entity.SchemaName.ToLower()}.{entity.Name.ToLower()} AS t_{entity.Name.ToLower()}";
+    return $"SELECT {fieldList} FROM {schemaPrefix}{entity.Name} AS t_{entity.Name}";
   }
   internal override string BuildJoinClause(string includeString, string entityName)
   {
@@ -65,7 +66,7 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
     {
       Entity entity = FindEntity(entityName);
       List<FilterToken> tokens = GetFilterTokens(filterString, entity);
-      MySqlFilterTokenParser parser = new MySqlFilterTokenParser(tokens);
+      var parser = new SqliteFilterTokenParser(tokens);
       return parser.Parse();
     }
     catch (ArgumentException ex)
@@ -76,7 +77,7 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
   internal override string BuildGetByPkClause(string entityName)
   {
     Entity entity = FindEntity(entityName);
-    return $"WHERE t_{entity.Name}.{entity.PrimaryKey?.Name} = @Id";
+    return $"WHERE t_{entity.Name}.{entity.PrimaryKey!.Name} = @id";
   }
   internal override string BuildOrderByClause(string sort, string entityName)
   {

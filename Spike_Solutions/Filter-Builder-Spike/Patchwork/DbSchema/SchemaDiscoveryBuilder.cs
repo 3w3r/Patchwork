@@ -6,8 +6,6 @@ namespace Patchwork.DbSchema;
 
 public class SchemaDiscoveryBuilder
 {
-  public SchemaDiscoveryBuilder() { }
-
   public DatabaseMetadata ReadSchema(DbConnection connection)
   {
     DatabaseSchemaReader.DatabaseReader dbReader = new DatabaseSchemaReader.DatabaseReader(connection);

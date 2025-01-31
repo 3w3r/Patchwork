@@ -11,7 +11,9 @@ public class MsSqlIncludeTokenParser : IncludeTokenParserBase
     StringBuilder sb = new StringBuilder();
     foreach (IncludeToken token in _tokens)
     {
-      sb.AppendLine($"LEFT OUTER JOIN [{token.ChildSchemaName}].[{token.ChildTableName}] AS [T_{token.ChildTableName}] ON " +
+      var cs = string.IsNullOrEmpty(token.ChildSchemaName) ? "" : $"[{token.ChildSchemaName}].";
+
+      sb.AppendLine($"LEFT OUTER JOIN {cs}[{token.ChildTableName}] AS [T_{token.ChildTableName}] ON " +
                     $"[T_{token.ParentTableName}].[{token.ParentTableFkName}] = " +
                     $"[T_{token.ChildTableName}].[{token.ChildTablePkName}]");
     }
