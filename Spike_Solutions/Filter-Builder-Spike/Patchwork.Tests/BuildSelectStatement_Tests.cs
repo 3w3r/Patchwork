@@ -1,4 +1,6 @@
-using Patchwork.SqlDialects;
+using Patchwork.SqlDialects.MsSql;
+using Patchwork.SqlDialects.MySql;
+using Patchwork.SqlDialects.PostgreSql;
 
 namespace Patchwork.Tests;
 
@@ -41,7 +43,7 @@ public class BuildSelectStatement_Tests
     string select = dialect.BuildSelectClause("*", "pRoDuCtS");
 
     // Assert
-    Assert.Equal("SELECT * FROM shopping.products AS t_products", select);
+    Assert.Equal("SELECT * FROM `shopping`.`products` AS t_products", select);
   }
 
   [Fact]
@@ -54,7 +56,7 @@ public class BuildSelectStatement_Tests
     string select = dialect.BuildSelectClause("name,price", "pRoDuCtS");
 
     // Assert
-    Assert.Equal("SELECT t_products.name, t_products.price FROM shopping.products AS t_products", select);
+    Assert.Equal("SELECT t_products.`name`, t_products.`price` FROM `shopping`.`products` AS t_products", select);
   }
 
   [Fact]

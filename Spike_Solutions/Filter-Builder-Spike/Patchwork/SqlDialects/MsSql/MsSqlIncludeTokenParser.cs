@@ -1,16 +1,12 @@
 using System.Text;
+using Patchwork.Expansion;
 
-namespace Patchwork.Expansion;
-
-public class MsSqlIncludeTokenParser
+namespace Patchwork.SqlDialects.MsSql;
+public class MsSqlIncludeTokenParser : IncludeTokenParserBase
 {
-  private readonly List<IncludeToken> _tokens;
+  public MsSqlIncludeTokenParser(List<IncludeToken> tokens) : base(tokens) { }
 
-  public MsSqlIncludeTokenParser(List<IncludeToken> tokens)
-  {
-    _tokens = tokens;
-  }
-  public string Parse()
+  public override string Parse()
   {
     StringBuilder sb = new StringBuilder();
     foreach (IncludeToken token in _tokens)

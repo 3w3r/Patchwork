@@ -1,6 +1,6 @@
 using MySqlConnector;
-using Patchwork.SqlDialects;
 using Dapper;
+using Patchwork.SqlDialects.MySql;
 
 namespace Patchwork.Tests;
 public class MySqlDialectBuilderTests
@@ -17,8 +17,8 @@ public class MySqlDialectBuilderTests
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
-    Assert.Contains("FROM taskboard.products", sql.Sql);
-    Assert.Contains("WHERE t_products.productname LIKE @V0", sql.Sql);
+    Assert.Contains("FROM `taskboard`.`products`", sql.Sql);
+    Assert.Contains("WHERE t_products.`productname` LIKE @V0", sql.Sql);
     Assert.Contains("LIMIT 10", sql.Sql);
     Assert.Contains("OFFSET 0", sql.Sql);
     Assert.Equal("197%", sql.Parameters.First().Value);
@@ -48,8 +48,8 @@ public class MySqlDialectBuilderTests
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
-    Assert.Contains("FROM taskboard.products", sql.Sql);
-    Assert.Contains("WHERE t_products.productname LIKE @V0", sql.Sql);
+    Assert.Contains("FROM `taskboard`.`products`", sql.Sql);
+    Assert.Contains("WHERE t_products.`productname` LIKE @V0", sql.Sql);
     Assert.Contains("LIMIT 10", sql.Sql);
     Assert.Contains("OFFSET 0", sql.Sql);
     Assert.Equal("%Chevy%", sql.Parameters.First().Value);
@@ -74,7 +74,7 @@ public class MySqlDialectBuilderTests
     MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
 
     // Act
-    var sql = sut.BuildGetListSql("Taskboard", "Products", "*", 
+    var sql = sut.BuildGetListSql("Taskboard", "Products", "*",
       "productName ct 'Chevy' OR productName sw '1978' OR (ProductName ct 'Alpine') OR productName ct 'Roadster' OR productName ct 'Benz' " +
       "OR productName ct 'Moto' OR productName ct 'Pickup' OR (pRoductName ct 'Hawk' AND productName ct 'Black') OR productName ct 'Ford' " +
       "OR productName ct 'Hemi' OR productName ct 'Honda' OR produCtName sw '1952' ",
@@ -83,20 +83,20 @@ public class MySqlDialectBuilderTests
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
-    Assert.Contains("FROM taskboard.products", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V0", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V1", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V2", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V3", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V4", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V5", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V6", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V7", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V8", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V9", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V10", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V11", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V12", sql.Sql);
+    Assert.Contains("FROM `taskboard`.`products`", sql.Sql);
+    Assert.Contains("t_products.`productname` LIKE @V0", sql.Sql);
+    Assert.Contains("t_products.`productname` LIKE @V1", sql.Sql);
+    Assert.Contains("t_products.`productname` LIKE @V2", sql.Sql);
+    Assert.Contains("t_products.`productname` LIKE @V3", sql.Sql);
+    Assert.Contains("t_products.`productname` LIKE @V4", sql.Sql);
+    Assert.Contains("t_products.`productname` LIKE @V5", sql.Sql);
+    Assert.Contains("t_products.`productname` LIKE @V6", sql.Sql);
+    Assert.Contains("t_products.`productname` LIKE @V7", sql.Sql);
+    Assert.Contains("t_products.`productname` LIKE @V8", sql.Sql);
+    Assert.Contains("t_products.`productname` LIKE @V9", sql.Sql);
+    Assert.Contains("t_products.`productname` LIKE @V10", sql.Sql);
+    Assert.Contains("t_products.`productname` LIKE @V11", sql.Sql);
+    Assert.Contains("t_products.`productname` LIKE @V12", sql.Sql);
     Assert.Contains("LIMIT 20", sql.Sql);
     Assert.Contains("OFFSET 5", sql.Sql);
     Assert.Equal("%Chevy%", sql.Parameters.First().Value);
@@ -123,17 +123,17 @@ public class MySqlDialectBuilderTests
 
     // Assert
     Assert.NotEmpty(sql1.Sql);
-    Assert.Contains("SELECT t_orders.ordernumber, t_orders.shippeddate, t_orders.status", sql1.Sql);
-    Assert.Contains("FROM taskboard.orders", sql1.Sql);
-    Assert.Contains("WHERE t_orders.status = @V0", sql1.Sql);
+    Assert.Contains("SELECT t_orders.`ordernumber`, t_orders.`shippeddate`, t_orders.`status`", sql1.Sql);
+    Assert.Contains("FROM `taskboard`.`orders`", sql1.Sql);
+    Assert.Contains("WHERE t_orders.`status` = @V0", sql1.Sql);
     Assert.Contains("LIMIT 10", sql1.Sql);
     Assert.Contains("OFFSET 0", sql1.Sql);
     Assert.Equal("shipped", sql1.Parameters.First().Value);
 
     Assert.NotEmpty(sql2.Sql);
-    Assert.Contains("SELECT t_orders.ordernumber, t_orders.shippeddate, t_orders.status", sql2.Sql);
-    Assert.Contains("FROM taskboard.orders", sql2.Sql);
-    Assert.Contains("WHERE t_orders.status = @V0", sql2.Sql);
+    Assert.Contains("SELECT t_orders.`ordernumber`, t_orders.`shippeddate`, t_orders.`status`", sql2.Sql);
+    Assert.Contains("FROM `taskboard`.`orders`", sql2.Sql);
+    Assert.Contains("WHERE t_orders.`status` = @V0", sql2.Sql);
     Assert.Contains("LIMIT 5", sql2.Sql);
     Assert.Contains("OFFSET 5", sql2.Sql);
     Assert.Equal("shipped", sql2.Parameters.First().Value);
@@ -216,7 +216,7 @@ public class MySqlDialectBuilderTests
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
-    Assert.Contains("FROM taskboard.products", sql.Sql);
+    Assert.Contains("FROM `taskboard`.`products`", sql.Sql);
 
     using var connect = new MySqlConnection(ConnectionStringManager.GetMySqlConnectionString());
     connect.Open();
@@ -242,7 +242,7 @@ public class MySqlDialectBuilderTests
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
-    Assert.Contains("FROM taskboard.products", sql.Sql);
+    Assert.Contains("FROM `taskboard`.`products`", sql.Sql);
 
     using var connect = new MySqlConnection(ConnectionStringManager.GetMySqlConnectionString());
     connect.Open();
@@ -252,6 +252,33 @@ public class MySqlDialectBuilderTests
     Assert.Equal("Vintage Cars", found.productLine);
     Assert.Equal("1:24", found.productScale);
     Assert.True(found.quantityOrdered > 0);
+
+    connect.Close();
+  }
+
+  [Fact]
+  public void BuildGetSingleSql_ShouldBuildSelectStatement_IncludeChildRelationshipChain()
+  {
+    // Arrange
+    MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
+
+    // Act
+    var sql = sut.BuildGetSingleSql("Taskboard", "Products", "S24_1937", "*", "orderdetails,orders");
+
+    // Assert
+    Assert.NotEmpty(sql.Sql);
+    Assert.Contains("SELECT *", sql.Sql);
+    Assert.Contains("FROM `taskboard`.`products`", sql.Sql);
+
+    using var connect = new MySqlConnection(ConnectionStringManager.GetMySqlConnectionString());
+    connect.Open();
+    var found = connect.QueryFirst(sql.Sql, sql.Parameters);
+    Assert.Equal("S24_1937", found.productCode);
+    Assert.Equal("1939 Chevrolet Deluxe Coupe", found.productName);
+    Assert.Equal("Vintage Cars", found.productLine);
+    Assert.Equal("1:24", found.productScale);
+    Assert.True(found.quantityOrdered > 0);
+    Assert.False(string.IsNullOrEmpty(found.status));
 
     connect.Close();
   }

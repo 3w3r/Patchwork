@@ -9,7 +9,7 @@ using Patchwork.Paging;
 using Patchwork.Sort;
 using Patchwork.SqlStatements;
 
-namespace Patchwork.SqlDialects
+namespace Patchwork.SqlDialects.MsSql
 {
   public class MsSqlDialectBuilder : SqlDialectBuilderBase
   {
@@ -22,20 +22,7 @@ namespace Patchwork.SqlDialects
       return new SqlConnection(_connectionString);
     }
 
-    public override string BuildPatchListSql(string schemaName, string entityName, JsonPatchDocument jsonPatchRequestBody) { throw new NotImplementedException(); }
-    public override string BuildPutSingleSql(string schemaName, string entityName, string id, string jsonRequestBody) { throw new NotImplementedException(); }
-    public override string BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatchDocument jsonPatchRequestBody) { throw new NotImplementedException(); }
-    public override string BuildDeleteSingleSql(string schemaName, string entityName, string id) { throw new NotImplementedException(); }
-
-    public string BuildGetListSql() { return string.Empty; }
-    public string BuildPatchListSql() { return string.Empty; }
-
-    public string BuildGetSingleSql() { return string.Empty; }
-    public string BuildPutSingleSql() { return string.Empty; }
-    public string BuildPatchSingleSql() { return string.Empty; }
-    public string BuildDeleteSingleSql() { return string.Empty; }
-
-    public override string BuildSelectClause(string fields, string entityName)
+    internal override string BuildSelectClause(string fields, string entityName)
     {
       Entity entity = FindEntity(entityName);
 
@@ -49,7 +36,7 @@ namespace Patchwork.SqlDialects
       return $"SELECT {fieldList} FROM [{entity.SchemaName}].[{entity.Name}] AS [T_{entity.Name}]";
     }
 
-    public override string BuildJoinClause(string includeString, string entityName)
+    internal override string BuildJoinClause(string includeString, string entityName)
     {
       if (string.IsNullOrEmpty(includeString))
         throw new ArgumentException(nameof(includeString));
@@ -60,7 +47,7 @@ namespace Patchwork.SqlDialects
       {
         Entity entity = FindEntity(entityName);
         List<IncludeToken> tokens = GetIncludeTokens(includeString, entity);
-        MsSqlIncludeTokenParser parser = new MsSqlIncludeTokenParser(tokens);
+        var parser = new MsSqlIncludeTokenParser(tokens);
         return parser.Parse();
       }
       catch (Exception ex)
@@ -69,7 +56,7 @@ namespace Patchwork.SqlDialects
       }
     }
 
-    public override FilterStatement BuildWhereClause(string filterString, string entityName)
+    internal override FilterStatement BuildWhereClause(string filterString, string entityName)
     {
       try
       {
@@ -86,13 +73,13 @@ namespace Patchwork.SqlDialects
       }
     }
 
-    public override string BuildGetByPkClause(string entityName)
+    internal override string BuildGetByPkClause(string entityName)
     {
       Entity entity = FindEntity(entityName);
       return $"WHERE [T_{entity.SchemaName}].[{entity.Name}].[{entity.PrimaryKey.Name}] = @Id";
     }
 
-    public override string BuildOrderByClause(string sort, string entityName)
+    internal override string BuildOrderByClause(string sort, string entityName)
     {
       try
       {
@@ -108,7 +95,7 @@ namespace Patchwork.SqlDialects
       }
     }
 
-    public override string BuildLimitOffsetClause(int limit, int offset)
+    internal override string BuildLimitOffsetClause(int limit, int offset)
     {
       try
       {

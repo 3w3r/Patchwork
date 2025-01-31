@@ -1,5 +1,6 @@
 using Patchwork.Sort;
-using Patchwork.SqlDialects;
+using Patchwork.SqlDialects.MsSql;
+using Patchwork.SqlDialects.PostgreSql;
 
 namespace Patchwork.Tests;
 

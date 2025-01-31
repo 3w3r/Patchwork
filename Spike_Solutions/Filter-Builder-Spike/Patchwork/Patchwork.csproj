@@ -7,11 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Expansion\" />
-    <Folder Include="Paging\" />
     <Folder Include="DbSchema\" />
-    <Folder Include="Sort\" />
-    <Folder Include="SqlDialects\" />
+    <Folder Include="SqlDialects\Sqlite\" />
   </ItemGroup>
 
   <ItemGroup>

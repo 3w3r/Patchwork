@@ -1,4 +1,4 @@
-using Patchwork.SqlDialects;
+using Patchwork.SqlDialects.MsSql;
 
 namespace Patchwork.Tests
 {

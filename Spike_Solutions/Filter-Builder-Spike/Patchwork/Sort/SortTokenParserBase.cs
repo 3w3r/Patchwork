@@ -1,11 +1,11 @@
-using System.Text;
+﻿using System.Text;
 
 namespace Patchwork.Sort;
 
-public class MsSortTokenParser
+public abstract class SortTokenParserBase
 {
-  private List<SortToken> _tokens;
-  public MsSortTokenParser(List<SortToken> tokens)
+  protected readonly List<SortToken> _tokens;
+  public SortTokenParserBase(List<SortToken> tokens)
   {
     _tokens = tokens;
   }
@@ -15,7 +15,6 @@ public class MsSortTokenParser
     ParseExpression(orderByClause);
     return orderByClause.ToString();
   }
-
   private void ParseExpression(StringBuilder sb)
   {
     for (int i = 0; i < _tokens.Count; i++)
@@ -26,11 +25,5 @@ public class MsSortTokenParser
     }
   }
 
-  public string RenderToken(SortToken token)
-  {
-    if (token.Direction == SortDirection.Ascending)
-      return $"[T_{token.EntityName}].[{token.Column}]";
-    else
-      return $"[T_{token.EntityName}].[{token.Column}] DESC";
-  }
+  public abstract string RenderToken(SortToken token);
 }

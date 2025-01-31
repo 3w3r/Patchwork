@@ -1,4 +1,4 @@
-using Patchwork.SqlDialects;
+using Patchwork.SqlDialects.PostgreSql;
 
 namespace Patchwork.Tests
 {
@@ -38,7 +38,7 @@ namespace Patchwork.Tests
     [InlineData("ID le 30",
                 "WHERE t_monkeytable.id <= @V0",
                 "30", "30", 1)]
-    [InlineData("Name in ('Bill','Susan','Jack')", 
+    [InlineData("Name in ('Bill','Susan','Jack')",
                 "WHERE t_monkeytable.name IN (@V0, @V1, @V2)",
                 "Bill", "Jack", 3)]
     [InlineData("Name ct 'Bill'",
@@ -47,7 +47,7 @@ namespace Patchwork.Tests
     [InlineData("Name sw 'Bill'",
                 "WHERE t_monkeytable.name ILIKE @V0",
                 "Bill%", "Bill%", 1)]
-    
+
     // Filters that contain dates and times
     [InlineData("skillKey eq 'cdl' AND effectiveStartDate le '2023-11-11T22:00:00-0400' AND effectiveEndDate gt '2023-11-12T06:00:00-0400'",
                 "WHERE t_monkeytable.skillkey = @V0 AND t_monkeytable.effectivestartdate <= @V1 AND t_monkeytable.effectiveenddate > @V2",

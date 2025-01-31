@@ -9,7 +9,7 @@ using Patchwork.Paging;
 using Patchwork.Sort;
 using Patchwork.SqlStatements;
 
-namespace Patchwork.SqlDialects
+namespace Patchwork.SqlDialects.MySql
 {
   public class MySqlDialectBuilder : SqlDialectBuilderBase
   {
@@ -21,25 +21,20 @@ namespace Patchwork.SqlDialects
       return new MySqlConnection(_connectionString);
     }
 
-    public override string BuildPatchListSql(string schemaName, string entityName, JsonPatchDocument jsonPatchRequestBody) { throw new NotImplementedException(); }
-    public override string BuildPutSingleSql(string schemaName, string entityName, string id, string jsonRequestBody) { throw new NotImplementedException(); }
-    public override string BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatchDocument jsonPatchRequestBody) { throw new NotImplementedException(); }
-    public override string BuildDeleteSingleSql(string schemaName, string entityName, string id) { throw new NotImplementedException(); }
-
-    public override string BuildSelectClause(string fields, string entityName)
+    internal override string BuildSelectClause(string fields, string entityName)
     {
       Entity entity = FindEntity(entityName);
 
       if (string.IsNullOrEmpty(fields) || fields.Contains("*"))
-        return $"SELECT * FROM {entity.SchemaName.ToLower()}.{entity.Name.ToLower()} AS t_{entity.Name.ToLower()}";
+        return $"SELECT * FROM `{entity.SchemaName.ToLower()}`.`{entity.Name.ToLower()}` AS t_{entity.Name.ToLower()}";
 
       List<FieldsToken> tokens = GetFieldTokens(fields, entity);
-      PostgreSqlFieldsTokenParser parser = new PostgreSqlFieldsTokenParser(tokens);
+      var parser = new MySqlFieldsTokenParser(tokens);
       string fieldList = parser.Parse();
 
-      return $"SELECT {fieldList} FROM {entity.SchemaName.ToLower()}.{entity.Name.ToLower()} AS t_{entity.Name.ToLower()}";
+      return $"SELECT {fieldList} FROM `{entity.SchemaName.ToLower()}`.`{entity.Name.ToLower()}` AS t_{entity.Name.ToLower()}";
     }
-    public override string BuildJoinClause(string includeString, string entityName)
+    internal override string BuildJoinClause(string includeString, string entityName)
     {
       if (string.IsNullOrEmpty(includeString))
         return string.Empty;
@@ -50,7 +45,7 @@ namespace Patchwork.SqlDialects
       {
         Entity entity = FindEntity(entityName);
         List<IncludeToken> tokens = GetIncludeTokens(includeString, entity);
-        PostgreSqlIncludeTokenParser parser = new PostgreSqlIncludeTokenParser(tokens);
+        MySqlIncludeTokenParser parser = new MySqlIncludeTokenParser(tokens);
         return parser.Parse();
       }
       catch (Exception ex)
@@ -58,7 +53,7 @@ namespace Patchwork.SqlDialects
         throw new ArgumentException($"Invalid include string: {ex.Message}", ex);
       }
     }
-    public override FilterStatement BuildWhereClause(string filterString, string entityName)
+    internal override FilterStatement BuildWhereClause(string filterString, string entityName)
     {
       try
       {
@@ -74,18 +69,18 @@ namespace Patchwork.SqlDialects
         throw new ArgumentException($"Invalid filter string: {ex.Message}", ex);
       }
     }
-    public override string BuildGetByPkClause(string entityName)
+    internal override string BuildGetByPkClause(string entityName)
     {
       Entity entity = FindEntity(entityName);
-      return $"WHERE t_{entity.Name}.{entity.PrimaryKey.Name} = @Id";
+      return $"WHERE t_{entity.Name}.{entity.PrimaryKey?.Name} = @Id";
     }
-    public override string BuildOrderByClause(string sort, string entityName)
+    internal override string BuildOrderByClause(string sort, string entityName)
     {
       try
       {
         Entity entity = FindEntity(entityName);
         List<SortToken> tokens = GetSortTokens(sort, entity);
-        PostgreSqlSortTokenParser parser = new PostgreSqlSortTokenParser(tokens);
+        var parser = new MySqlSortTokenParser(tokens);
         string orderby = parser.Parse();
         return $"ORDER BY {orderby}";
       }
@@ -94,12 +89,12 @@ namespace Patchwork.SqlDialects
         throw new ArgumentException($"Invalid sort string: {ex.Message}", ex);
       }
     }
-    public override string BuildLimitOffsetClause(int limit, int offset)
+    internal override string BuildLimitOffsetClause(int limit, int offset)
     {
       try
       {
         PagingToken token = GetPagingToken(limit, offset);
-        PostgreSqlPagingParser parser = new PostgreSqlPagingParser(token);
+        var parser = new MySqlPagingParser(token);
         return parser.Parse();
       }
       catch (ArgumentException ex)

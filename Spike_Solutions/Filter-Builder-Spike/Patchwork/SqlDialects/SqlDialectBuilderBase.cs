@@ -71,18 +71,18 @@ namespace Patchwork.SqlDialects
 
       return new SelectStatement($"{select} {join} {where}", parameters);
     }
-    
-    public abstract string BuildPatchListSql(string schemaName, string entityName, JsonPatchDocument jsonPatchRequestBody);
-    public abstract string BuildPutSingleSql(string schemaName, string entityName, string id, string jsonResourceRequestBody);
-    public abstract string BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatchDocument jsonPatchRequestBody);
-    public abstract string BuildDeleteSingleSql(string schemaName, string entityName, string id);
 
-    public abstract string BuildSelectClause(string fields, string entityName);
-    public abstract string BuildJoinClause(string includeString, string entityName);
-    public abstract FilterStatement BuildWhereClause(string filterString, string entityName);
-    public abstract string BuildGetByPkClause(string entityName);
-    public abstract string BuildOrderByClause(string sort, string entityName);
-    public abstract string BuildLimitOffsetClause(int limit, int offset);
+    public virtual string BuildPatchListSql(string schemaName, string entityName, JsonPatchDocument jsonPatchRequestBody) { throw new NotImplementedException(); }
+    public virtual string BuildPutSingleSql(string schemaName, string entityName, string id, string jsonResourceRequestBody) { throw new NotImplementedException(); }
+    public virtual string BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatchDocument jsonPatchRequestBody) { throw new NotImplementedException(); }
+    public virtual string BuildDeleteSingleSql(string schemaName, string entityName, string id) { throw new NotImplementedException(); }
+
+    internal abstract string BuildSelectClause(string fields, string entityName);
+    internal abstract string BuildJoinClause(string includeString, string entityName);
+    internal abstract FilterStatement BuildWhereClause(string filterString, string entityName);
+    internal abstract string BuildGetByPkClause(string entityName);
+    internal abstract string BuildOrderByClause(string sort, string entityName);
+    internal abstract string BuildLimitOffsetClause(int limit, int offset);
 
     protected Entity FindEntity(string entityName)
     {

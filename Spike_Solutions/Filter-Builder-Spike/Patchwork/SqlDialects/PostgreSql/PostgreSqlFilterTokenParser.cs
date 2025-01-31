@@ -1,13 +1,11 @@
 ﻿using System.Text;
+using Patchwork.Filters;
 
-namespace Patchwork.Filters
+namespace Patchwork.SqlDialects.PostgreSql
 {
-
-  public class MySqlFilterTokenParser : FilterTokenParserBase
+  public class PostgreSqlFilterTokenParser : FilterTokenParserBase
   {
-
-    public MySqlFilterTokenParser(List<FilterToken> tokens) : base(tokens) { }
-
+    public PostgreSqlFilterTokenParser(List<FilterToken> tokens) : base(tokens) { }
 
     protected override void ParseExpression(StringBuilder sb)
     {
@@ -126,7 +124,7 @@ namespace Patchwork.Filters
           return "IN";
         case "ct":
         case "sw":
-          return "LIKE"; // Use ILIKE for case-insensitive pattern matching
+          return "ILIKE"; // Use ILIKE for case-insensitive pattern matching
         default:
           throw new ArgumentException("Unknown operator");
       }

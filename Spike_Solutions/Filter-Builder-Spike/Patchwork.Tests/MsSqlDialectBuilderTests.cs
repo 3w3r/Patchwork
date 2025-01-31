@@ -1,6 +1,6 @@
-﻿using Patchwork.SqlDialects;
-using Dapper;
+﻿using Dapper;
 using Microsoft.Data.SqlClient;
+using Patchwork.SqlDialects.MsSql;
 
 namespace Patchwork.Tests;
 

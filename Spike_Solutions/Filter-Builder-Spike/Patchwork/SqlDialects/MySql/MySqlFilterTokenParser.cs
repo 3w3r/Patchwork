@@ -1,11 +1,14 @@
 ﻿using System.Text;
+using Patchwork.Filters;
 
-namespace Patchwork.Filters
+namespace Patchwork.SqlDialects.MySql
 {
-  public class MsSqlFilterTokenParser : FilterTokenParserBase
+
+  public class MySqlFilterTokenParser : FilterTokenParserBase
   {
 
-    public MsSqlFilterTokenParser(List<FilterToken> tokens) : base(tokens) { }
+    public MySqlFilterTokenParser(List<FilterToken> tokens) : base(tokens) { }
+
 
     protected override void ParseExpression(StringBuilder sb)
     {
@@ -33,10 +36,8 @@ namespace Patchwork.Filters
       }
 
       if (_position < _tokens.Count &&
-           (_tokens[_position].Value.Equals("AND", StringComparison.OrdinalIgnoreCase)
-           || _tokens[_position].Value.Equals("OR", StringComparison.OrdinalIgnoreCase)
-           )
-         )
+          (_tokens[_position].Value.Equals("AND", StringComparison.OrdinalIgnoreCase)
+           || _tokens[_position].Value.Equals("OR", StringComparison.OrdinalIgnoreCase)))
       {
         sb.Append(" ").Append(_tokens[_position].Value.ToUpper()).Append(" ");
         _position++;
@@ -69,7 +70,7 @@ namespace Patchwork.Filters
 
       FilterToken value = _tokens[_position++];
 
-      // need to handle case where value is open paren when operator is 'in'
+      // Handle case where value is open paren when operator is 'in'
       if (value.Type != FilterTokenType.OpenParen && op.Type == FilterTokenType.Operator && op.Value == "in")
       {
         throw new ArgumentException("Expected open paren to begin list of acceptable values");
@@ -77,7 +78,7 @@ namespace Patchwork.Filters
       else if (op.Value != "in" && !FilterTokenType.Value.HasFlag(value.Type))
         throw new ArgumentException("Expected value");
 
-      sb.Append($"[T_{identifier.EntityName}].[{identifier.Value}] {ConvertOperator(op.Value)} ");
+      sb.Append($"t_{identifier.EntityName.ToLower()}.`{identifier.Value.ToLower()}` {ConvertOperator(op.Value)} ");
 
       if (op.Value == "in")
       {
@@ -93,7 +94,6 @@ namespace Patchwork.Filters
         }
         sb.Append(")");
       }
-      
       else
       {
         if (value.Type == FilterTokenType.DateTime || value.Type == FilterTokenType.Textual || value.Type == FilterTokenType.Numeric)
@@ -127,7 +127,7 @@ namespace Patchwork.Filters
           return "IN";
         case "ct":
         case "sw":
-          return "LIKE";
+          return "LIKE"; // Use ILIKE for case-insensitive pattern matching
         default:
           throw new ArgumentException("Unknown operator");
       }

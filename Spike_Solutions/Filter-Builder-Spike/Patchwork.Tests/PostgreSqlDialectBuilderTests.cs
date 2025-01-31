@@ -1,6 +1,6 @@
-﻿using Patchwork.SqlDialects;
-using Dapper;
+﻿using Dapper;
 using Npgsql;
+using Patchwork.SqlDialects.PostgreSql;
 
 namespace Patchwork.Tests;
 
