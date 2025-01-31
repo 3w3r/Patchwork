@@ -15,7 +15,6 @@ public class MySqlIncludeTokenParser : IncludeTokenParserBase
       sb.AppendLine($"LEFT OUTER JOIN `{token.ChildSchemaName}`.`{token.ChildTableName}` AS t_{token.ChildTableName} ON " +
                     $"t_{token.ParentTableName}.`{token.ParentTableFkName}` = " +
                     $"t_{token.ChildTableName}.`{token.ChildTablePkName}`");
-
     }
     return sb.ToString();
   }

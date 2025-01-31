@@ -1,11 +1,11 @@
 ﻿using System.Text;
 using Patchwork.Expansion;
 
-namespace Patchwork.SqlDialects.PostgreSql;
+namespace Patchwork.SqlDialects.Sqlite;
 
-public class PostgreSqlIncludeTokenParser : IncludeTokenParserBase
+public class SqliteIncludeTokenParser : IncludeTokenParserBase
 {
-  public PostgreSqlIncludeTokenParser(List<IncludeToken> tokens) : base(tokens) { }
+  public SqliteIncludeTokenParser(List<IncludeToken> tokens) : base(tokens) { }
 
   public override string Parse()
   {

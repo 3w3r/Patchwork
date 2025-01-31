@@ -9,5 +9,4 @@ public abstract class IncludeTokenParserBase
   }
 
   public abstract string Parse();
-
 }

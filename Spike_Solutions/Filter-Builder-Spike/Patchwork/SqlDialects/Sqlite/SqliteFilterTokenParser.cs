@@ -1,11 +1,11 @@
 ﻿using System.Text;
 using Patchwork.Filters;
 
-namespace Patchwork.SqlDialects.MySql;
+namespace Patchwork.SqlDialects.Sqlite;
 
-public class MySqlFilterTokenParser : FilterTokenParserBase
+public class SqliteFilterTokenParser : FilterTokenParserBase
 {
-  public MySqlFilterTokenParser(List<FilterToken> tokens) : base(tokens) { }
+  public SqliteFilterTokenParser(List<FilterToken> tokens) : base(tokens) { }
 
   protected override void ParseExpression(StringBuilder sb)
   {
@@ -75,7 +75,7 @@ public class MySqlFilterTokenParser : FilterTokenParserBase
     else if (op.Value != "in" && !FilterTokenType.Value.HasFlag(value.Type))
       throw new ArgumentException("Expected value");
 
-    sb.Append($"t_{identifier.EntityName.ToLower()}.`{identifier.Value.ToLower()}` {ConvertOperator(op.Value)} ");
+    sb.Append($"t_{identifier.EntityName.ToLower()}.{identifier.Value.ToLower()} {ConvertOperator(op.Value)} ");
 
     if (op.Value == "in")
     {

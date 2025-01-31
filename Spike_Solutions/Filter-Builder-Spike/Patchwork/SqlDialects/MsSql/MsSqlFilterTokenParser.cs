@@ -5,7 +5,6 @@ namespace Patchwork.SqlDialects.MsSql
 {
   public class MsSqlFilterTokenParser : FilterTokenParserBase
   {
-
     public MsSqlFilterTokenParser(List<FilterToken> tokens) : base(tokens) { }
 
     protected override void ParseExpression(StringBuilder sb)
@@ -94,7 +93,6 @@ namespace Patchwork.SqlDialects.MsSql
         }
         sb.Append(")");
       }
-
       else
       {
         if (value.Type == FilterTokenType.DateTime || value.Type == FilterTokenType.Textual || value.Type == FilterTokenType.Numeric)
@@ -134,5 +132,4 @@ namespace Patchwork.SqlDialects.MsSql
       }
     }
   }
-
 }

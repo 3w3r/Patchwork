@@ -13,7 +13,6 @@ namespace Patchwork.SqlDialects.PostgreSql
 {
   public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
   {
-
     public PostgreSqlDialectBuilder(string connectionString) : base(connectionString) { }
     public PostgreSqlDialectBuilder(DatabaseMetadata metadata) : base(metadata) { }
 

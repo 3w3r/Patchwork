@@ -50,7 +50,6 @@ public class SchemaDiscoveryBuilder
                            ).ToList();
 
       return new Schema(s.Name, tables, views);
-
     }).ToList());
 
     return metadata;

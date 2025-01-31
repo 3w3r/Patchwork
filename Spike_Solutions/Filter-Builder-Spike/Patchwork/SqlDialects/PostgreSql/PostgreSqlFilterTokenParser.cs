@@ -130,5 +130,4 @@ namespace Patchwork.SqlDialects.PostgreSql
       }
     }
   }
-
 }

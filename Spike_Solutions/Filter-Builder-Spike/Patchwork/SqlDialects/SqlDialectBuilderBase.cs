@@ -12,7 +12,6 @@ namespace Patchwork.SqlDialects
 {
   public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
   {
-
     protected readonly string _connectionString;
     protected static Dictionary<string, DatabaseMetadata> _metadataCache = new Dictionary<string, DatabaseMetadata>();
     protected DatabaseMetadata? _metadata = null;
@@ -151,7 +150,6 @@ namespace Patchwork.SqlDialects
 
       SortLexer lexer = new SortLexer(sort, entity, DiscoverSchema());
       List<SortToken> tokens = lexer.Tokenize();
-
 
       return tokens;
     }

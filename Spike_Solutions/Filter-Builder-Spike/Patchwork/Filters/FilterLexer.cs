@@ -82,7 +82,6 @@ namespace Patchwork.Filters
 
     private void ValidateTokenSyntax(List<FilterToken> tokens)
     {
-
       // Check if the token list starts with an operator or logical operator
       if (tokens.Count > 0 && (tokens[0].Type == FilterTokenType.Operator || tokens[0].Type == FilterTokenType.Logical))
       {

@@ -45,7 +45,7 @@ namespace Patchwork.SqlDialects.MySql
       {
         Entity entity = FindEntity(entityName);
         List<IncludeToken> tokens = GetIncludeTokens(includeString, entity);
-        MySqlIncludeTokenParser parser = new MySqlIncludeTokenParser(tokens);
+        var parser = new MySqlIncludeTokenParser(tokens);
         return parser.Parse();
       }
       catch (Exception ex)
@@ -60,9 +60,7 @@ namespace Patchwork.SqlDialects.MySql
         Entity entity = FindEntity(entityName);
         List<FilterToken> tokens = GetFilterTokens(filterString, entity);
         MySqlFilterTokenParser parser = new MySqlFilterTokenParser(tokens);
-        FilterStatement result = parser.Parse();
-
-        return result;
+        return parser.Parse();
       }
       catch (ArgumentException ex)
       {
@@ -72,7 +70,7 @@ namespace Patchwork.SqlDialects.MySql
     internal override string BuildGetByPkClause(string entityName)
     {
       Entity entity = FindEntity(entityName);
-      return $"WHERE t_{entity.Name}.{entity.PrimaryKey?.Name} = @Id";
+      return $"WHERE t_{entity.Name}.`{entity.PrimaryKey?.Name}` = @Id";
     }
     internal override string BuildOrderByClause(string sort, string entityName)
     {
