@@ -2,9 +2,9 @@
 using Microsoft.Data.SqlClient;
 using Patchwork.SqlDialects.MsSql;
 
-namespace Patchwork.Tests;
+namespace Patchwork.Tests.MsSql_tests;
 
-public class MsSqlDialectBuilderTests
+public class MsSqlDialectBuilder_GetListTests
 {
   [Fact]
   public void BuildGetListSql_ShouldBuildSelectStatement_ForGetListWithLongFilter()

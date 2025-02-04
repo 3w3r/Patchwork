@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.Design;
-using System.Text;
+﻿using System.Text;
 using Patchwork.SqlStatements;
 
 namespace Patchwork.Filters;

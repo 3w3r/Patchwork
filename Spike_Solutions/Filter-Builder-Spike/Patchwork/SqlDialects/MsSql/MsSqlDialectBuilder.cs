@@ -1,5 +1,5 @@
 ﻿using System.Data.Common;
-using Azure;
+using System.Text;
 using Microsoft.Data.SqlClient;
 using Patchwork.DbSchema;
 using Patchwork.Expansion;
@@ -25,7 +25,7 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
   internal override string BuildSelectClause(string fields, string entityName)
   {
     Entity entity = FindEntity(entityName);
-    var schemaPrefix = string.IsNullOrEmpty(entity.SchemaName) ? string.Empty : $"[{entity.SchemaName}].";
+    string schemaPrefix = string.IsNullOrEmpty(entity.SchemaName) ? string.Empty : $"[{entity.SchemaName}].";
 
     if (string.IsNullOrEmpty(fields) || fields.Contains("*"))
       return $"SELECT * FROM {schemaPrefix}[{entity.Name}] AS [T_{entity.Name}]";
@@ -36,7 +36,6 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
 
     return $"SELECT {fieldList} FROM {schemaPrefix}[{entity.Name}] AS [T_{entity.Name}]";
   }
-
   internal override string BuildJoinClause(string includeString, string entityName)
   {
     if (string.IsNullOrEmpty(includeString))
@@ -48,7 +47,7 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
     {
       Entity entity = FindEntity(entityName);
       List<IncludeToken> tokens = GetIncludeTokens(includeString, entity);
-      var parser = new MsSqlIncludeTokenParser(tokens);
+      MsSqlIncludeTokenParser parser = new MsSqlIncludeTokenParser(tokens);
       return parser.Parse();
     }
     catch (Exception ex)
@@ -56,7 +55,6 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
       throw new ArgumentException($"Invalid include string: {ex.Message}", ex);
     }
   }
-
   internal override FilterStatement BuildWhereClause(string filterString, string entityName)
   {
     try
@@ -73,13 +71,11 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
       throw new ArgumentException($"Invalid filter string: {ex.Message}", ex);
     }
   }
-
-  internal override string BuildGetByPkClause(string entityName)
+  internal override string BuildWherePkForGetClause(string entityName)
   {
     Entity entity = FindEntity(entityName);
     return $"WHERE [T_{entity.SchemaName}].[{entity.Name}].[{entity.PrimaryKey!.Name}] = @id";
   }
-
   internal override string BuildOrderByClause(string sort, string entityName)
   {
     try
@@ -95,7 +91,6 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
       throw new ArgumentException($"Invalid sort string: {ex.Message}", ex);
     }
   }
-
   internal override string BuildLimitOffsetClause(int limit, int offset)
   {
     try
@@ -108,5 +103,29 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
     {
       throw new ArgumentException($"Invalid limit or offset: {ex.Message}", ex);
     }
+  }
+
+  internal override string BuildUpdateClause(string entityName)
+  {
+    Entity entity = FindEntity(entityName);
+    string schema = string.IsNullOrEmpty(entity.SchemaName) ? "" : $"[{entity.SchemaName}].";
+    return $"UPDATE {schema}[{entityName}] ";
+  }
+  internal override string BuildSetClause(Dictionary<string, object> parameters, Entity entity)
+  {
+    StringBuilder sb = new StringBuilder();
+    foreach (KeyValuePair<string, object> parameter in parameters)
+    {
+      Column? col = entity.Columns.FirstOrDefault(c => c.Name.Equals(parameter.Key, StringComparison.OrdinalIgnoreCase));
+      if (col == null || col.IsPrimaryKey || col.IsAutoNumber || col.IsComputed)
+        continue;
+      sb.Append($"\n  [{col.Name}] = @{parameter.Key},");
+    }
+    return $"SET {sb.ToString().TrimEnd(',')}\n";
+  }
+  internal override string BuildWherePkForUpdateClause(string entityName)
+  {
+    Entity entity = FindEntity(entityName);
+    return $"WHERE [{entity.PrimaryKey!.Name}] = @id ";
   }
 }

@@ -2,15 +2,15 @@
 using Npgsql;
 using Patchwork.SqlDialects.PostgreSql;
 
-namespace Patchwork.Tests;
+namespace Patchwork.Tests.PostgreSql_tests;
 
-public class PostgreSqlDialectBuilderTests
+public class PostgreSqlDialectBuilder_GetListTests
 {
   [Fact]
   public void BuildGetListSql_ShouldBuildSelectStatement_ForGetListWithLongFilter()
   {
     // Arrange
-   PostgreSqlDialectBuilder sut = new PostgreSqlDialectBuilder(ConnectionStringManager.GetPostgreSqlConnectionString());
+    PostgreSqlDialectBuilder sut = new PostgreSqlDialectBuilder(ConnectionStringManager.GetPostgreSqlConnectionString());
 
     // Act
     var sql = sut.BuildGetListSql("public", "products", "*",

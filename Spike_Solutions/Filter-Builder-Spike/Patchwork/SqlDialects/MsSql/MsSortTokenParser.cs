@@ -1,4 +1,3 @@
-using System.Text;
 using Patchwork.Sort;
 
 namespace Patchwork.SqlDialects.MsSql;

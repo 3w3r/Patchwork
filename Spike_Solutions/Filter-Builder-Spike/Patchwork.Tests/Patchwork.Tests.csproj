@@ -34,6 +34,9 @@
     <None Update="appsettings.local.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Test-Data\Products_Original.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Test-Data\Products.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -2,6 +2,7 @@ using System.Data.Common;
 using Azure;
 using Patchwork.DbSchema;
 using Patchwork.Expansion;
+using Patchwork.Extensions;
 using Patchwork.Fields;
 using Patchwork.Filters;
 using Patchwork.Paging;
@@ -48,9 +49,10 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     if (string.IsNullOrEmpty(entityName))
       throw new ArgumentException("Entity name is required.", nameof(entityName));
 
-    var select = BuildSelectClause(fields, entityName);
-    var where = string.IsNullOrEmpty(filter) ? null : BuildWhereClause(filter, entityName);
-    var orderBy = string.IsNullOrEmpty(sort) ? "" : BuildOrderByClause(sort, entityName);
+    var entity = FindEntity(entityName);
+    var select = BuildSelectClause(fields, entity.Name);
+    var where = string.IsNullOrEmpty(filter) ? null : BuildWhereClause(filter, entity.Name);
+    var orderBy = string.IsNullOrEmpty(sort) ? "" : BuildOrderByClause(sort, entity.Name);
     var paging = BuildLimitOffsetClause(limit, offset);
 
     return new SelectStatement($"{select} {where?.Sql} {orderBy} {paging}", where?.Parameters ?? new Dictionary<string, object>());
@@ -62,26 +64,51 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     if (string.IsNullOrEmpty(entityName))
       throw new ArgumentException("Entity name is required.", nameof(entityName));
 
-    Entity entity = FindEntity(entityName);
-    string select = BuildSelectClause(fields, entityName);
-    string join = BuildJoinClause(include, entityName);
-    string where = BuildGetByPkClause(entityName);
+    var entity = FindEntity(entityName);
+    string select = BuildSelectClause(fields, entity.Name);
+    string join = BuildJoinClause(include, entity.Name);
+    string where = BuildWherePkForGetClause(entity.Name);
     var parameters = new Dictionary<string, object> { { "id", id } };
 
     return new SelectStatement($"{select} {join} {where}", parameters);
   }
 
   public virtual string BuildPatchListSql(string schemaName, string entityName, JsonPatchDocument jsonPatchRequestBody) { throw new NotImplementedException(); }
-  public virtual string BuildPutSingleSql(string schemaName, string entityName, string id, string jsonResourceRequestBody) { throw new NotImplementedException(); }
+  public virtual UpdateStatement BuildPutSingleSql(string schemaName, string entityName, string id, string jsonResourceRequestBody)
+  {
+    if (string.IsNullOrEmpty(schemaName))
+      throw new ArgumentException("Schema name is required.", nameof(schemaName));
+    if (string.IsNullOrEmpty(entityName))
+      throw new ArgumentException("Entity name is required.", nameof(entityName));
+    if (string.IsNullOrEmpty(id))
+      throw new ArgumentException("Entity Id name is required.", nameof(id));
+    if (string.IsNullOrEmpty(jsonResourceRequestBody))
+      throw new ArgumentException("JsonResourceRequestBody name is required.", nameof(jsonResourceRequestBody));
+
+    Entity entity = FindEntity(entityName);
+    string update = BuildUpdateClause(entity.Name);
+    string where = BuildWherePkForUpdateClause(entity.Name);
+
+    var parameters = new Dictionary<string, object>() { { "id", id } };
+    parameters.AddJsonResourceToDictionary(jsonResourceRequestBody);
+    parameters.SetParameterDataTypes(entity);
+    string sets = BuildSetClause(parameters, entity);
+
+    return new UpdateStatement($"{update} {sets} {where}", parameters);
+  }
   public virtual string BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatchDocument jsonPatchRequestBody) { throw new NotImplementedException(); }
   public virtual string BuildDeleteSingleSql(string schemaName, string entityName, string id) { throw new NotImplementedException(); }
 
   internal abstract string BuildSelectClause(string fields, string entityName);
   internal abstract string BuildJoinClause(string includeString, string entityName);
   internal abstract FilterStatement BuildWhereClause(string filterString, string entityName);
-  internal abstract string BuildGetByPkClause(string entityName);
+  internal abstract string BuildWherePkForGetClause(string entityName);
   internal abstract string BuildOrderByClause(string sort, string entityName);
   internal abstract string BuildLimitOffsetClause(int limit, int offset);
+
+  internal abstract string BuildUpdateClause(string entityName);
+  internal abstract string BuildSetClause(Dictionary<string, object> parameters, Entity entity);
+  internal abstract string BuildWherePkForUpdateClause(string entityName);
 
   protected Entity FindEntity(string entityName)
   {
@@ -156,5 +183,10 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
   protected PagingToken GetPagingToken(int limit, int offset)
   {
     return new PagingToken(limit, offset);
+  }
+
+  protected object CastParameterValue(Type dataFormat, object value)
+  {
+    return Convert.ChangeType(value, dataFormat);
   }
 }

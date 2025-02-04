@@ -12,7 +12,7 @@ public interface ISqlDialectBuilder
   SelectStatement BuildGetSingleSql(string schemaName, string entityName, string id, string fields = "", string include = "", DateTimeOffset? asOf = null);
 
   string BuildPatchListSql(string schemaName, string entityName, JsonPatchDocument jsonPatchRequestBody);
-  string BuildPutSingleSql(string schemaName, string entityName, string id, string jsonResourceRequestBody);
+  UpdateStatement BuildPutSingleSql(string schemaName, string entityName, string id, string jsonResourceRequestBody);
   string BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatchDocument jsonPatchRequestBody);
   string BuildDeleteSingleSql(string schemaName, string entityName, string id);
 

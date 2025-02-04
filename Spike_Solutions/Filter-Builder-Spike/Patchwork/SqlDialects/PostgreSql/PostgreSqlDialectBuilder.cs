@@ -1,5 +1,5 @@
 ﻿using System.Data.Common;
-using Azure;
+using System.Text;
 using Npgsql;
 using Patchwork.DbSchema;
 using Patchwork.Expansion;
@@ -73,7 +73,7 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
     }
   }
 
-  internal override string BuildGetByPkClause(string entityName)
+  internal override string BuildWherePkForGetClause(string entityName)
   {
     Entity entity = FindEntity(entityName);
     return $"WHERE t_{entity.SchemaName.ToLower()}.{entity.Name.ToLower()}.{entity.PrimaryKey!.Name} = @id";
@@ -107,5 +107,33 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
     {
       throw new ArgumentException($"Invalid limit or offset: {ex.Message}", ex);
     }
+  }
+
+
+  internal override string BuildUpdateClause(string entityName)
+  {
+    Entity entity = FindEntity(entityName);
+    string schema = string.IsNullOrEmpty(entity.SchemaName) ? "" : $"{entity.SchemaName.ToLower()}.";
+    return $"UPDATE {schema}{entityName} ";
+  }
+  internal override string BuildSetClause(Dictionary<string, object> parameters, Entity entity)
+  {
+    StringBuilder sb = new StringBuilder();
+    foreach (KeyValuePair<string, object> parameter in parameters)
+    {
+      Column? col = entity.Columns.FirstOrDefault(c => c.Name.Equals(parameter.Key, StringComparison.OrdinalIgnoreCase));
+      if (col == null || col.IsAutoNumber || col.IsComputed || col.IsPrimaryKey)
+        continue;
+      sb.Append($"\n  {col.Name.ToLower()} = @{parameter.Key},");
+    }
+    return $"SET {sb.ToString().TrimEnd(',')}\n";
+  }
+
+  static readonly string StringType = typeof(string).Name;
+
+  internal override string BuildWherePkForUpdateClause(string entityName)
+  {
+    Entity entity = FindEntity(entityName);
+    return $"WHERE {entity.PrimaryKey!.Name.ToLower()} = @id ";
   }
 }

@@ -1,5 +1,5 @@
 using System.Data.Common;
-using Azure;
+using System.Text;
 using MySqlConnector;
 using Patchwork.DbSchema;
 using Patchwork.Expansion;
@@ -68,7 +68,7 @@ public class MySqlDialectBuilder : SqlDialectBuilderBase
       throw new ArgumentException($"Invalid filter string: {ex.Message}", ex);
     }
   }
-  internal override string BuildGetByPkClause(string entityName)
+  internal override string BuildWherePkForGetClause(string entityName)
   {
     Entity entity = FindEntity(entityName);
     return $"WHERE t_{entity.Name}.`{entity.PrimaryKey!.Name}` = @id";
@@ -100,5 +100,29 @@ public class MySqlDialectBuilder : SqlDialectBuilderBase
     {
       throw new ArgumentException($"Invalid limit or offset: {ex.Message}", ex);
     }
+  }
+
+  internal override string BuildUpdateClause(string entityName)
+  {
+    Entity entity = FindEntity(entityName);
+    string schema = string.IsNullOrEmpty(entity.SchemaName) ? "" : $"`{entity.SchemaName}`.";
+    return $"UPDATE {schema}`{entityName}` ";
+  }
+  internal override string BuildSetClause(Dictionary<string, object> parameters, Entity entity)
+  {
+    StringBuilder sb = new StringBuilder();
+    foreach (KeyValuePair<string, object> parameter in parameters)
+    {
+      Column? col = entity.Columns.FirstOrDefault(c => c.Name.Equals(parameter.Key, StringComparison.OrdinalIgnoreCase));
+      if (col == null || col.IsPrimaryKey || col.IsAutoNumber || col.IsComputed)
+        continue;
+      sb.Append($"\n  `{col.Name}` = @{parameter.Key},");
+    }
+    return $"SET {sb.ToString().TrimEnd(',')}\n";
+  }
+  internal override string BuildWherePkForUpdateClause(string entityName)
+  {
+    Entity entity = FindEntity(entityName);
+    return $"WHERE `{entity.PrimaryKey!.Name}` = @id ";
   }
 }

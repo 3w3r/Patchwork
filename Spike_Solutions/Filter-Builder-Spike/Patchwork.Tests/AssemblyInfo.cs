@@ -1,4 +1,2 @@
-﻿using System.Runtime.CompilerServices;
-
-[assembly: System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+﻿[assembly: System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 

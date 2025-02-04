@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Data.Common;
+using System.Text;
 using Microsoft.Data.Sqlite;
-using MySqlConnector;
 using Patchwork.DbSchema;
 using Patchwork.Expansion;
 using Patchwork.Fields;
 using Patchwork.Filters;
 using Patchwork.Paging;
 using Patchwork.Sort;
-using Patchwork.SqlDialects.MySql;
 using Patchwork.SqlStatements;
 
 namespace Patchwork.SqlDialects.Sqlite;
@@ -30,13 +25,13 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
   internal override string BuildSelectClause(string fields, string entityName)
   {
     Entity entity = FindEntity(entityName);
-    var schemaPrefix = string.IsNullOrEmpty(entity.SchemaName) ? string.Empty : $"{entity.SchemaName}.";
+    string schemaPrefix = string.IsNullOrEmpty(entity.SchemaName) ? string.Empty : $"{entity.SchemaName}.";
 
     if (string.IsNullOrEmpty(fields) || fields.Contains("*"))
       return $"SELECT * FROM {schemaPrefix}{entity.Name} AS t_{entity.Name}";
 
     List<FieldsToken> tokens = GetFieldTokens(fields, entity);
-    var parser = new SqliteFieldsTokenParser(tokens);
+    SqliteFieldsTokenParser parser = new SqliteFieldsTokenParser(tokens);
     string fieldList = parser.Parse();
 
     return $"SELECT {fieldList} FROM {schemaPrefix}{entity.Name} AS t_{entity.Name}";
@@ -52,7 +47,7 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
     {
       Entity entity = FindEntity(entityName);
       List<IncludeToken> tokens = GetIncludeTokens(includeString, entity);
-      var parser = new SqliteIncludeTokenParser(tokens);
+      SqliteIncludeTokenParser parser = new SqliteIncludeTokenParser(tokens);
       return parser.Parse();
     }
     catch (Exception ex)
@@ -66,7 +61,7 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
     {
       Entity entity = FindEntity(entityName);
       List<FilterToken> tokens = GetFilterTokens(filterString, entity);
-      var parser = new SqliteFilterTokenParser(tokens);
+      SqliteFilterTokenParser parser = new SqliteFilterTokenParser(tokens);
       return parser.Parse();
     }
     catch (ArgumentException ex)
@@ -74,7 +69,7 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
       throw new ArgumentException($"Invalid filter string: {ex.Message}", ex);
     }
   }
-  internal override string BuildGetByPkClause(string entityName)
+  internal override string BuildWherePkForGetClause(string entityName)
   {
     Entity entity = FindEntity(entityName);
     return $"WHERE t_{entity.Name}.{entity.PrimaryKey!.Name} = @id";
@@ -85,7 +80,7 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
     {
       Entity entity = FindEntity(entityName);
       List<SortToken> tokens = GetSortTokens(sort, entity);
-      var parser = new SqliteSortTokenParser(tokens);
+      SqliteSortTokenParser parser = new SqliteSortTokenParser(tokens);
       string orderby = parser.Parse();
       return $"ORDER BY {orderby}";
     }
@@ -99,12 +94,36 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
     try
     {
       PagingToken token = GetPagingToken(limit, offset);
-      var parser = new SqlitePagingParser(token);
+      SqlitePagingParser parser = new SqlitePagingParser(token);
       return parser.Parse();
     }
     catch (ArgumentException ex)
     {
       throw new ArgumentException($"Invalid limit or offset: {ex.Message}", ex);
     }
+  }
+
+  internal override string BuildUpdateClause(string entityName)
+  {
+    Entity entity = FindEntity(entityName);
+    string schema = string.IsNullOrEmpty(entity.SchemaName) ? "" : $"{entity.SchemaName}.";
+    return $"UPDATE {schema}{entityName} ";
+  }
+  internal override string BuildSetClause(Dictionary<string, object> parameters, Entity entity)
+  {
+    StringBuilder sb = new StringBuilder();
+    foreach (KeyValuePair<string, object> parameter in parameters)
+    {
+      Column? col = entity.Columns.FirstOrDefault(c => c.Name.Equals(parameter.Key, StringComparison.OrdinalIgnoreCase));
+      if (col == null || col.IsPrimaryKey || col.IsAutoNumber || col.IsComputed)
+        continue;
+      sb.Append($"\n  {col.Name} = @{parameter.Key},");
+    }
+    return $"SET {sb.ToString().TrimEnd(',')}\n";
+  }
+  internal override string BuildWherePkForUpdateClause(string entityName)
+  {
+    Entity entity = FindEntity(entityName);
+    return $"WHERE {entity.PrimaryKey!.Name} = @id ";
   }
 }
