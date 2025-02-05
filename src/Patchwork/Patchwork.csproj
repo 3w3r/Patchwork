@@ -8,6 +8,18 @@
 
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="DatabaseSchemaReader" Version="2.12.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.1" />
+    <PackageReference Include="mysqlConnector" Version="2.4.0" />
+    <PackageReference Include="npgsql" Version="9.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="FilterBuilder\Filters\Patchwork.Filters.csproj" />
+    <None Include="FilterBuilder\Paging\Patchwork.Paging.csproj" />
+    <None Include="FilterBuilder\Sort\Patchwork.Sort.csproj" />
+    <None Include="FilterBuilder\SqlDialects\Patchwork.SqlDialects.csproj" />
   </ItemGroup>
 
 </Project>
