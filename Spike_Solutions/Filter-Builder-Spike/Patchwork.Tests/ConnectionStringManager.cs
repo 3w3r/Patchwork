@@ -2,7 +2,7 @@
 
 namespace Patchwork.Tests;
 
-public static class  ConnectionStringManager
+public static class ConnectionStringManager
 {
   private static JsonDocument? Configfile { get; set; } = null;
 

@@ -23,7 +23,7 @@ public class IncludeLexer
     {
       string child = ReadIdentifier(segment);
       Entity childTable = GetChildTableName(child);
-      Column? fk = GetEntityForeignKeyToInclude(parent,child, childTable);
+      Column? fk = GetEntityForeignKeyToInclude(parent, child, childTable);
       if (fk != null)
       {
         Column pk = GetPrimaryKeyColumn(childTable);

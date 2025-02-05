@@ -14,6 +14,6 @@ public interface ISqlDialectBuilder
   string BuildPatchListSql(string schemaName, string entityName, JsonPatchDocument jsonPatchRequestBody);
   UpdateStatement BuildPutSingleSql(string schemaName, string entityName, string id, string jsonResourceRequestBody);
   string BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatchDocument jsonPatchRequestBody);
-  string BuildDeleteSingleSql(string schemaName, string entityName, string id);
+  DeleteStatement BuildDeleteSingleSql(string schemaName, string entityName, string id);
 
 }

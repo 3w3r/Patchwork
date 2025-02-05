@@ -2,6 +2,7 @@
 using Microsoft.Data.SqlClient;
 using Patchwork.SqlDialects;
 using Patchwork.SqlDialects.MsSql;
+using Patchwork.SqlStatements;
 
 namespace Patchwork.Tests.MsSql_tests;
 
@@ -36,7 +37,7 @@ public class MsSqlDialectBuilder_PutTests
     ISqlDialectBuilder sut = new MsSqlDialectBuilder(ConnectionStringManager.GetMsSqlConnectionString());
 
     // Act
-    SqlStatements.UpdateStatement sql = sut.BuildPutSingleSql("classicmodels", "employees", "1625", katoJsonUpdate);
+    UpdateStatement sql = sut.BuildPutSingleSql("classicmodels", "employees", "1625", katoJsonUpdate);
 
     // Assert
     Assert.NotEmpty(sql.Sql);
@@ -48,9 +49,9 @@ public class MsSqlDialectBuilder_PutTests
     Assert.Contains("[email] = @email", sql.Sql);
     Assert.Contains("[extension] = @extension", sql.Sql);
 
-    using var connect = new SqlConnection(ConnectionStringManager.GetMsSqlConnectionString());
+    using SqlConnection connect = new SqlConnection(ConnectionStringManager.GetMsSqlConnectionString());
     connect.Open();
-    using var transaction = connect.BeginTransaction();
+    using SqlTransaction transaction = connect.BeginTransaction();
     try
     {
       int changeCount = connect.Execute(sql.Sql, sql.Parameters, transaction);

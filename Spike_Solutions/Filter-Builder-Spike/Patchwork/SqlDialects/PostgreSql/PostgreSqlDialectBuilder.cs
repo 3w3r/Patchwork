@@ -13,6 +13,8 @@ namespace Patchwork.SqlDialects.PostgreSql;
 
 public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
 {
+  static readonly string StringType = typeof(string).Name;
+
   public PostgreSqlDialectBuilder(string connectionString) : base(connectionString) { }
   public PostgreSqlDialectBuilder(DatabaseMetadata metadata) : base(metadata) { }
 
@@ -21,9 +23,8 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
     return new NpgsqlConnection(_connectionString);
   }
 
-  internal override string BuildSelectClause(string fields, string entityName)
+  internal override string BuildSelectClause(string fields, Entity entity)
   {
-    Entity entity = FindEntity(entityName);
     var schemaPrefix = string.IsNullOrEmpty(entity.SchemaName) ? string.Empty : $"{entity.SchemaName.ToLower()}.";
 
     if (string.IsNullOrEmpty(fields) || fields.Contains("*"))
@@ -35,17 +36,13 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
 
     return $"SELECT {fieldList} FROM {schemaPrefix}{entity.Name.ToLower()} AS t_{entity.Name.ToLower()}";
   }
-
-  internal override string BuildJoinClause(string includeString, string entityName)
+  internal override string BuildJoinClause(string includeString, Entity entity)
   {
     if (string.IsNullOrEmpty(includeString))
       throw new ArgumentException(nameof(includeString));
-    if (string.IsNullOrEmpty(entityName))
-      throw new ArgumentException(nameof(entityName));
 
     try
     {
-      Entity entity = FindEntity(entityName);
       List<IncludeToken> tokens = GetIncludeTokens(includeString, entity);
       PostgreSqlIncludeTokenParser parser = new PostgreSqlIncludeTokenParser(tokens);
       return parser.Parse();
@@ -55,12 +52,10 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
       throw new ArgumentException($"Invalid include string: {ex.Message}", ex);
     }
   }
-
-  internal override FilterStatement BuildWhereClause(string filterString, string entityName)
+  internal override FilterStatement BuildWhereClause(string filterString, Entity entity)
   {
     try
     {
-      Entity entity = FindEntity(entityName);
       List<FilterToken> tokens = GetFilterTokens(filterString, entity);
       PostgreSqlFilterTokenParser parser = new PostgreSqlFilterTokenParser(tokens);
       FilterStatement result = parser.Parse();
@@ -72,18 +67,14 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
       throw new ArgumentException($"Invalid filter string: {ex.Message}", ex);
     }
   }
-
-  internal override string BuildWherePkForGetClause(string entityName)
+  internal override string BuildWherePkForGetClause(Entity entity)
   {
-    Entity entity = FindEntity(entityName);
     return $"WHERE t_{entity.SchemaName.ToLower()}.{entity.Name.ToLower()}.{entity.PrimaryKey!.Name} = @id";
   }
-
-  internal override string BuildOrderByClause(string sort, string entityName)
+  internal override string BuildOrderByClause(string sort, Entity entity)
   {
     try
     {
-      Entity entity = FindEntity(entityName);
       List<SortToken> tokens = GetSortTokens(sort, entity);
       PostgreSqlSortTokenParser parser = new PostgreSqlSortTokenParser(tokens);
       string orderby = parser.Parse();
@@ -94,7 +85,6 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
       throw new ArgumentException($"Invalid sort string: {ex.Message}", ex);
     }
   }
-
   internal override string BuildLimitOffsetClause(int limit, int offset)
   {
     try
@@ -110,11 +100,10 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
   }
 
 
-  internal override string BuildUpdateClause(string entityName)
+  internal override string BuildUpdateClause(Entity entity)
   {
-    Entity entity = FindEntity(entityName);
     string schema = string.IsNullOrEmpty(entity.SchemaName) ? "" : $"{entity.SchemaName.ToLower()}.";
-    return $"UPDATE {schema}{entityName} ";
+    return $"UPDATE {schema}{entity.Name} ";
   }
   internal override string BuildSetClause(Dictionary<string, object> parameters, Entity entity)
   {
@@ -129,11 +118,15 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
     return $"SET {sb.ToString().TrimEnd(',')}\n";
   }
 
-  static readonly string StringType = typeof(string).Name;
-
-  internal override string BuildWherePkForUpdateClause(string entityName)
+  internal override string BuildWherePkForUpdateClause(Entity entity)
   {
-    Entity entity = FindEntity(entityName);
     return $"WHERE {entity.PrimaryKey!.Name.ToLower()} = @id ";
   }
+
+  internal override string BuildDeleteClause(Entity entity)
+  {
+    string schema = string.IsNullOrEmpty(entity.SchemaName) ? "" : $"{entity.SchemaName.ToLower()}.";
+    return $"DELETE FROM {schema}{entity.Name.ToLower()} ";
+  }
+  internal override string BuildWherePkForDeleteClause(Entity entity) => BuildWherePkForUpdateClause(entity);
 }

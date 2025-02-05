@@ -58,7 +58,7 @@ public class FilterTokenizer_PostgreSql_Tests
     PostgreSqlDialectBuilder sut = new PostgreSqlDialectBuilder(TestSampleData.DB);
 
     // Act
-    var actual = sut.BuildWhereClause(filterString, "MonkeyTable");
+    var actual = sut.BuildWhereClause(filterString, sut.FindEntity("MonkeyTable"));
 
     // Assert
     Assert.Equal(expected, actual.Sql);
@@ -83,7 +83,7 @@ public class FilterTokenizer_PostgreSql_Tests
     PostgreSqlDialectBuilder sut = new PostgreSqlDialectBuilder(TestSampleData.DB);
 
     // Act
-    ArgumentException ex = Assert.ThrowsAny<ArgumentException>(() => sut.BuildWhereClause(filterString, "MonkeyTable"));
+    ArgumentException ex = Assert.ThrowsAny<ArgumentException>(() => sut.BuildWhereClause(filterString, sut.FindEntity("MonkeyTable")));
 
     if (ex == null)
       throw new Exception(error);

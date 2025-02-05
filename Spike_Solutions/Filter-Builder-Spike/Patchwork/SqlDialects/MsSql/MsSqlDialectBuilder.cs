@@ -22,9 +22,8 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
     return new SqlConnection(_connectionString);
   }
 
-  internal override string BuildSelectClause(string fields, string entityName)
+  internal override string BuildSelectClause(string fields, Entity entity)
   {
-    Entity entity = FindEntity(entityName);
     string schemaPrefix = string.IsNullOrEmpty(entity.SchemaName) ? string.Empty : $"[{entity.SchemaName}].";
 
     if (string.IsNullOrEmpty(fields) || fields.Contains("*"))
@@ -36,16 +35,13 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
 
     return $"SELECT {fieldList} FROM {schemaPrefix}[{entity.Name}] AS [T_{entity.Name}]";
   }
-  internal override string BuildJoinClause(string includeString, string entityName)
+  internal override string BuildJoinClause(string includeString, Entity entity)
   {
     if (string.IsNullOrEmpty(includeString))
       throw new ArgumentException(nameof(includeString));
-    if (string.IsNullOrEmpty(entityName))
-      throw new ArgumentException(nameof(entityName));
 
     try
     {
-      Entity entity = FindEntity(entityName);
       List<IncludeToken> tokens = GetIncludeTokens(includeString, entity);
       MsSqlIncludeTokenParser parser = new MsSqlIncludeTokenParser(tokens);
       return parser.Parse();
@@ -55,11 +51,10 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
       throw new ArgumentException($"Invalid include string: {ex.Message}", ex);
     }
   }
-  internal override FilterStatement BuildWhereClause(string filterString, string entityName)
+  internal override FilterStatement BuildWhereClause(string filterString, Entity entity)
   {
     try
     {
-      Entity entity = FindEntity(entityName);
       List<FilterToken> tokens = GetFilterTokens(filterString, entity);
       MsSqlFilterTokenParser parser = new MsSqlFilterTokenParser(tokens);
       FilterStatement result = parser.Parse();
@@ -71,16 +66,14 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
       throw new ArgumentException($"Invalid filter string: {ex.Message}", ex);
     }
   }
-  internal override string BuildWherePkForGetClause(string entityName)
+  internal override string BuildWherePkForGetClause(Entity entity)
   {
-    Entity entity = FindEntity(entityName);
     return $"WHERE [T_{entity.SchemaName}].[{entity.Name}].[{entity.PrimaryKey!.Name}] = @id";
   }
-  internal override string BuildOrderByClause(string sort, string entityName)
+  internal override string BuildOrderByClause(string sort, Entity entity)
   {
     try
     {
-      Entity entity = FindEntity(entityName);
       List<SortToken> tokens = GetSortTokens(sort, entity);
       MsSortTokenParser parser = new MsSortTokenParser(tokens);
       string orderby = parser.Parse();
@@ -105,11 +98,10 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
     }
   }
 
-  internal override string BuildUpdateClause(string entityName)
+  internal override string BuildUpdateClause(Entity entity)
   {
-    Entity entity = FindEntity(entityName);
     string schema = string.IsNullOrEmpty(entity.SchemaName) ? "" : $"[{entity.SchemaName}].";
-    return $"UPDATE {schema}[{entityName}] ";
+    return $"UPDATE {schema}[{entity.Name}] ";
   }
   internal override string BuildSetClause(Dictionary<string, object> parameters, Entity entity)
   {
@@ -123,9 +115,15 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
     }
     return $"SET {sb.ToString().TrimEnd(',')}\n";
   }
-  internal override string BuildWherePkForUpdateClause(string entityName)
+  internal override string BuildWherePkForUpdateClause(Entity entity)
   {
-    Entity entity = FindEntity(entityName);
     return $"WHERE [{entity.PrimaryKey!.Name}] = @id ";
   }
+
+  internal override string BuildDeleteClause(Entity entity)
+  {
+    string schema = string.IsNullOrEmpty(entity.SchemaName) ? "" : $"[{entity.SchemaName}].";
+    return $"DELETE FROM {schema}[{entity.Name}] ";
+  }
+  internal override string BuildWherePkForDeleteClause(Entity entity) => BuildWherePkForUpdateClause(entity);
 }

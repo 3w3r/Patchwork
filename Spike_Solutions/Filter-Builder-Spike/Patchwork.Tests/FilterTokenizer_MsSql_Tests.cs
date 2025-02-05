@@ -13,7 +13,7 @@ public class FilterTokenizer_MsSql_Tests
               "WHERE [T_MonkeyTable].[Name] = @V0 OR [T_MonkeyTable].[foo] = @V1", "jack", "bar", 2)]
   [InlineData("(ID eq 42 AND Name eq 'Jack') OR (ID      eq    38 AND     Name   eq 'Bill') OR ([Name] eq 'Susan' AND [ID] eq 88)",
               "WHERE ([T_MonkeyTable].[ID] = @V0 AND [T_MonkeyTable].[Name] = @V1) OR ([T_MonkeyTable].[ID] = @V2 AND [T_MonkeyTable].[Name] = @V3) OR ([T_MonkeyTable].[Name] = @V4 AND [T_MonkeyTable].[ID] = @V5)",
-              "42","88",6)]
+              "42", "88", 6)]
   [InlineData("Price gt 10 AND Price lt 40",
               "WHERE [T_MonkeyTable].[Price] > @V0 AND [T_MonkeyTable].[Price] < @V1",
               "10", "40", 2)]
@@ -39,7 +39,7 @@ public class FilterTokenizer_MsSql_Tests
     MsSqlDialectBuilder sut = new MsSqlDialectBuilder(TestSampleData.DB);
 
     // Act
-    var actual = sut.BuildWhereClause(filterString, "MonkeyTable");
+    var actual = sut.BuildWhereClause(filterString, sut.FindEntity("MonkeyTable"));
 
     // Assert
     Assert.Equal(expected, actual.Sql);
@@ -66,7 +66,7 @@ public class FilterTokenizer_MsSql_Tests
     MsSqlDialectBuilder sut = new MsSqlDialectBuilder(TestSampleData.DB);
 
     // Act
-    ArgumentException ex = Assert.ThrowsAny<ArgumentException>(() => sut.BuildWhereClause(filterString, "MonkeyTable"));
+    ArgumentException ex = Assert.ThrowsAny<ArgumentException>(() => sut.BuildWhereClause(filterString, sut.FindEntity("MonkeyTable")));
 
     if (ex == null)
       throw new Exception(error);
