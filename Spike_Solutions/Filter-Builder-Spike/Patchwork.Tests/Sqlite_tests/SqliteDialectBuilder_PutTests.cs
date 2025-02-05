@@ -1,9 +1,9 @@
 ﻿using Dapper;
 using Microsoft.Data.Sqlite;
 using Patchwork.SqlDialects.Sqlite;
+using Patchwork.SqlStatements;
 
 namespace Patchwork.Tests.Sqlite_tests;
-
 public class SqliteDialectBuilder_PutTests
 {
   private readonly string katoJsonOriginal = "{ \n" +
@@ -35,7 +35,7 @@ public class SqliteDialectBuilder_PutTests
     SqliteDialectBuilder sut = new SqliteDialectBuilder(ConnectionStringManager.GetSqliteConnectionString());
 
     // Act
-    SqlStatements.UpdateStatement sql = sut.BuildPutSingleSql("dbo", "employees", "1625", katoJsonUpdate);
+    UpdateStatement sql = sut.BuildPutSingleSql("dbo", "employees", "1625", katoJsonUpdate);
 
     // Assert
     Assert.NotEmpty(sql.Sql);

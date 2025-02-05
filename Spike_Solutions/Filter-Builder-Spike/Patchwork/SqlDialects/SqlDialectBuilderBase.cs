@@ -1,5 +1,6 @@
+using System.Collections.Concurrent;
 using System.Data.Common;
-using Azure;
+using Json.Patch;
 using Patchwork.DbSchema;
 using Patchwork.Expansion;
 using Patchwork.Extensions;
@@ -14,7 +15,7 @@ namespace Patchwork.SqlDialects;
 public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
 {
   protected readonly string _connectionString;
-  protected static Dictionary<string, DatabaseMetadata> _metadataCache = new Dictionary<string, DatabaseMetadata>();
+  protected static ConcurrentDictionary<string, DatabaseMetadata> _metadataCache = new ConcurrentDictionary<string, DatabaseMetadata>();
   protected DatabaseMetadata? _metadata = null;
 
   public SqlDialectBuilderBase(string connectionString)
@@ -38,7 +39,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     SchemaDiscoveryBuilder schemaDiscoveryBuilder = new SchemaDiscoveryBuilder();
     using DbConnection connection = GetConnection();
     _metadata = schemaDiscoveryBuilder.ReadSchema(connection);
-    _metadataCache[_connectionString] = _metadata;
+    _metadataCache.TryAdd(_connectionString, _metadata);
     return _metadata;
   }
 
@@ -73,7 +74,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     return new SelectStatement($"{select} {join} {where}", parameters);
   }
 
-  public virtual string BuildPatchListSql(string schemaName, string entityName, JsonPatchDocument jsonPatchRequestBody) { throw new NotImplementedException(); }
+  public virtual PatchStatement BuildPatchListSql(string schemaName, string entityName, JsonPatch jsonPatchRequestBody) { throw new NotImplementedException(); }
   public virtual UpdateStatement BuildPutSingleSql(string schemaName, string entityName, string id, string jsonResourceRequestBody)
   {
     if (string.IsNullOrEmpty(schemaName))
@@ -96,7 +97,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
 
     return new UpdateStatement($"{update} {sets} {where}", parameters);
   }
-  public virtual string BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatchDocument jsonPatchRequestBody) { throw new NotImplementedException(); }
+  public virtual PatchStatement BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatch jsonPatchRequestBody) { throw new NotImplementedException(); }
   public virtual DeleteStatement BuildDeleteSingleSql(string schemaName, string entityName, string id)
   {
     if (string.IsNullOrEmpty(schemaName))
@@ -110,6 +111,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     string delete = BuildDeleteClause(entity);
     string where = BuildWherePkForDeleteClause(entity);
     var parameters = new Dictionary<string, object>() { { "id", id } };
+    parameters.SetParameterDataTypes(entity);
 
     return new DeleteStatement($"{delete} {where}", parameters);
   }

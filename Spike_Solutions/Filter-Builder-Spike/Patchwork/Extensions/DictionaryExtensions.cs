@@ -9,13 +9,14 @@ public static class DictionaryExtensions
   {
     foreach (Column col in entity.Columns)
     {
-      string? key = keyValuePairs.Keys.FirstOrDefault(k => k.Equals(col.Name, StringComparison.OrdinalIgnoreCase));
+      string? key = col.IsPrimaryKey
+                  ? "id"
+                  : keyValuePairs.Keys.FirstOrDefault(k => k.Equals(col.Name, StringComparison.OrdinalIgnoreCase));
+
       if (string.IsNullOrEmpty(key))
         continue;
-      if (col.IsPrimaryKey)
-        keyValuePairs["id"] = Convert.ChangeType(keyValuePairs["id"], col.DataFormat);
-      else
-        keyValuePairs[key] = Convert.ChangeType(keyValuePairs[key], col.DataFormat);
+
+      keyValuePairs[key] = Convert.ChangeType(keyValuePairs[key], col.DataFormat);
     }
   }
 

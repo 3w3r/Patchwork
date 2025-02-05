@@ -51,7 +51,7 @@ public class MsSqlDialectBuilder_PutTests
 
     using SqlConnection connect = new SqlConnection(ConnectionStringManager.GetMsSqlConnectionString());
     connect.Open();
-    using SqlTransaction transaction = connect.BeginTransaction();
+    using var transaction = connect.BeginTransaction();
     try
     {
       int changeCount = connect.Execute(sql.Sql, sql.Parameters, transaction);
