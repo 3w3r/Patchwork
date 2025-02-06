@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.Data.Common;
+using Dapper;
 using Npgsql;
 using Patchwork.SqlDialects.PostgreSql;
 
@@ -41,7 +42,7 @@ public class PostgreSqlDialectBuilder_GetListTests
     Assert.Equal("%Chevy%", sql.Parameters.First().Value);
     Assert.Equal("1952%", sql.Parameters.Last().Value);
 
-    using var connect = new NpgsqlConnection(ConnectionStringManager.GetPostgreSqlConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
 
     var found = connect.Query(sql.Sql, sql.Parameters);

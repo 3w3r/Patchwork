@@ -1,6 +1,7 @@
 using MySqlConnector;
 using Dapper;
 using Patchwork.SqlDialects.MySql;
+using System.Data.Common;
 
 namespace Patchwork.Tests.MySql_tests;
 public class MySqlDialectBuilder_GetListTests
@@ -24,7 +25,7 @@ public class MySqlDialectBuilder_GetListTests
     Assert.Contains("OFFSET 0", sql.Sql);
     Assert.Equal("197%", sql.Parameters.First().Value);
 
-    using var connect = new MySqlConnection(ConnectionStringManager.GetMySqlConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
 
     var found = connect.Query(sql.Sql, sql.Parameters);
@@ -55,7 +56,7 @@ public class MySqlDialectBuilder_GetListTests
     Assert.Contains("OFFSET 0", sql.Sql);
     Assert.Equal("%Chevy%", sql.Parameters.First().Value);
 
-    using var connect = new MySqlConnection(ConnectionStringManager.GetMySqlConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
 
     var found = connect.Query(sql.Sql, sql.Parameters);
@@ -103,7 +104,7 @@ public class MySqlDialectBuilder_GetListTests
     Assert.Equal("%Chevy%", sql.Parameters.First().Value);
     Assert.Equal("1952%", sql.Parameters.Last().Value);
 
-    using var connect = new MySqlConnection(ConnectionStringManager.GetMySqlConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
 
     var found = connect.Query(sql.Sql, sql.Parameters);
@@ -139,7 +140,7 @@ public class MySqlDialectBuilder_GetListTests
     Assert.Contains("OFFSET 5", sql2.Sql);
     Assert.Equal("shipped", sql2.Parameters.First().Value);
 
-    using var connect = new MySqlConnection(ConnectionStringManager.GetMySqlConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
 
     var found1 = connect.Query(sql1.Sql, sql1.Parameters).ToArray();

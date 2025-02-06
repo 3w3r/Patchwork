@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.Data.Common;
+using Dapper;
 using MySqlConnector;
 using Patchwork.SqlDialects.MySql;
 using Patchwork.SqlStatements;
@@ -21,7 +22,7 @@ public class MySqlDialectBuilder_DeleteTests
     Assert.Contains("DELETE FROM `taskboard`.`employees`", sql.Sql);
     Assert.Contains("`employeeNumber` = @id", sql.Sql);
 
-    using var connect = new MySqlConnection(ConnectionStringManager.GetMySqlConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
     using var transaction = connect.BeginTransaction();
     try

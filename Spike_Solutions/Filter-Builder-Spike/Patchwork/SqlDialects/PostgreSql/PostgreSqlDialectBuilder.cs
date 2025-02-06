@@ -18,7 +18,7 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
   public PostgreSqlDialectBuilder(string connectionString) : base(connectionString) { }
   public PostgreSqlDialectBuilder(DatabaseMetadata metadata) : base(metadata) { }
 
-  protected override DbConnection GetConnection()
+  public override DbConnection GetConnection()
   {
     return new NpgsqlConnection(_connectionString);
   }

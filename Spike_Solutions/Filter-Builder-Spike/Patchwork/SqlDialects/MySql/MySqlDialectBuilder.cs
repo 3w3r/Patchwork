@@ -16,7 +16,7 @@ public class MySqlDialectBuilder : SqlDialectBuilderBase
   public MySqlDialectBuilder(string connectionString) : base(connectionString) { }
   public MySqlDialectBuilder(DatabaseMetadata metadata) : base(metadata) { }
 
-  protected override DbConnection GetConnection()
+  public override DbConnection GetConnection()
   {
     return new MySqlConnection(_connectionString);
   }

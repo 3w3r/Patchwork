@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.Data.Common;
+using Dapper;
 using MySqlConnector;
 using Patchwork.SqlDialects;
 using Patchwork.SqlDialects.MySql;
@@ -48,7 +49,7 @@ public class MySqlDialectBuilder_PutTests
     Assert.Contains("`email` = @email", sql.Sql);
     Assert.Contains("`extension` = @extension", sql.Sql);
 
-    using var connect = new MySqlConnection(ConnectionStringManager.GetMySqlConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
     using var transaction = connect.BeginTransaction();
     try

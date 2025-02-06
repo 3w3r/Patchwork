@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.Data.Common;
+using Dapper;
 using Microsoft.Data.SqlClient;
 using Patchwork.SqlDialects;
 using Patchwork.SqlDialects.MsSql;
@@ -49,7 +50,7 @@ public class MsSqlDialectBuilder_PutTests
     Assert.Contains("[email] = @email", sql.Sql);
     Assert.Contains("[extension] = @extension", sql.Sql);
 
-    using SqlConnection connect = new SqlConnection(ConnectionStringManager.GetMsSqlConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
     using var transaction = connect.BeginTransaction();
     try

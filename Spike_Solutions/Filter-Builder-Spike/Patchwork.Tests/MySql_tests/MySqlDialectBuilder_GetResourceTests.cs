@@ -1,6 +1,7 @@
 ﻿using MySqlConnector;
 using Dapper;
 using Patchwork.SqlDialects.MySql;
+using System.Data.Common;
 
 namespace Patchwork.Tests.MySql_tests;
 
@@ -20,7 +21,7 @@ public class MySqlDialectBuilder_GetResourceTests
     Assert.Contains("SELECT *", sql.Sql);
     Assert.Contains("FROM `taskboard`.`products`", sql.Sql);
 
-    using var connect = new MySqlConnection(ConnectionStringManager.GetMySqlConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
     var found = connect.QueryFirst(sql.Sql, sql.Parameters);
     Assert.Equal("S24_1937", found.productCode);
@@ -46,7 +47,7 @@ public class MySqlDialectBuilder_GetResourceTests
     Assert.Contains("SELECT *", sql.Sql);
     Assert.Contains("FROM `taskboard`.`products`", sql.Sql);
 
-    using var connect = new MySqlConnection(ConnectionStringManager.GetMySqlConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
     var found = connect.QueryFirst(sql.Sql, sql.Parameters);
     Assert.Equal("S24_1937", found.productCode);
@@ -72,7 +73,7 @@ public class MySqlDialectBuilder_GetResourceTests
     Assert.Contains("SELECT *", sql.Sql);
     Assert.Contains("FROM `taskboard`.`products`", sql.Sql);
 
-    using var connect = new MySqlConnection(ConnectionStringManager.GetMySqlConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
     var found = connect.QueryFirst(sql.Sql, sql.Parameters);
     Assert.Equal("S24_1937", found.productCode);

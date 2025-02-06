@@ -17,7 +17,7 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
   public SqliteDialectBuilder(string connectionString) : base(connectionString) { }
   public SqliteDialectBuilder(DatabaseMetadata metadata) : base(metadata) { }
 
-  protected override DbConnection GetConnection()
+  public override DbConnection GetConnection()
   {
     return new SqliteConnection(_connectionString);
   }

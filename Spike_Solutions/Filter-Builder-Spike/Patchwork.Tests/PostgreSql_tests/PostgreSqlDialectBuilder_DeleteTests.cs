@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.Data.Common;
+using Dapper;
 using Npgsql;
 using Patchwork.SqlDialects.PostgreSql;
 using Patchwork.SqlStatements;
@@ -21,7 +22,7 @@ public class PostgreSqlDialectBuilder_DeleteTests
     Assert.Contains("DELETE FROM public.employees", sql.Sql);
     Assert.Contains("employeenumber = @id", sql.Sql);
 
-    using var connect = new NpgsqlConnection(ConnectionStringManager.GetPostgreSqlConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
     using var transaction = connect.BeginTransaction();
     try

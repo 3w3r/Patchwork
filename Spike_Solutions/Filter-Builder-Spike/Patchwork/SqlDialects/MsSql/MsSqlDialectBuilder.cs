@@ -17,7 +17,7 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
 
   public MsSqlDialectBuilder(DatabaseMetadata metadata) : base(metadata) { }
 
-  protected override DbConnection GetConnection()
+  public override DbConnection GetConnection()
   {
     return new SqlConnection(_connectionString);
   }

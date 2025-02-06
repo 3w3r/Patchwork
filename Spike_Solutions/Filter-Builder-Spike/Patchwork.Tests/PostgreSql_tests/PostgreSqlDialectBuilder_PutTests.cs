@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.Data.Common;
+using Dapper;
 using Npgsql;
 using Patchwork.SqlDialects;
 using Patchwork.SqlDialects.PostgreSql;
@@ -48,7 +49,7 @@ public class PostgreSqlDialectBuilder_PutTests
     Assert.Contains("email = @email", sql.Sql);
     Assert.Contains("extension = @extension", sql.Sql);
 
-    using var connect = new NpgsqlConnection(ConnectionStringManager.GetPostgreSqlConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
     using var transaction = connect.BeginTransaction();
     try

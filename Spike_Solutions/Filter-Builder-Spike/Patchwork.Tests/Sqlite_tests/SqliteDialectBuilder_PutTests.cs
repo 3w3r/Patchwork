@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.Data.Common;
+using Dapper;
 using Microsoft.Data.Sqlite;
 using Patchwork.SqlDialects.Sqlite;
 using Patchwork.SqlStatements;
@@ -47,9 +48,10 @@ public class SqliteDialectBuilder_PutTests
     Assert.Contains("email = @email", sql.Sql);
     Assert.Contains("extension = @extension", sql.Sql);
 
-    using SqliteConnection connect = new SqliteConnection(ConnectionStringManager.GetSqliteConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
-    using SqliteTransaction transaction = connect.BeginTransaction();
+    using var transaction = connect.BeginTransaction();
+
     try
     {
       int changeCount = connect.Execute(sql.Sql, sql.Parameters, transaction);

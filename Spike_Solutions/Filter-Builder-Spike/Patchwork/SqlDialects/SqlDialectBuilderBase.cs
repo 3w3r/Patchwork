@@ -28,7 +28,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     _metadata = metadata;
   }
 
-  protected abstract DbConnection GetConnection();
+  public abstract DbConnection GetConnection();
   public virtual DatabaseMetadata DiscoverSchema()
   {
     if (_metadata != null || _metadataCache.TryGetValue(_connectionString, out _metadata))
@@ -74,7 +74,6 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     return new SelectStatement($"{select} {join} {where}", parameters);
   }
 
-  public virtual PatchStatement BuildPatchListSql(string schemaName, string entityName, JsonPatch jsonPatchRequestBody) { throw new NotImplementedException(); }
   public virtual UpdateStatement BuildPutSingleSql(string schemaName, string entityName, string id, string jsonResourceRequestBody)
   {
     if (string.IsNullOrEmpty(schemaName))
@@ -97,7 +96,6 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
 
     return new UpdateStatement($"{update} {sets} {where}", parameters);
   }
-  public virtual PatchStatement BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatch jsonPatchRequestBody) { throw new NotImplementedException(); }
   public virtual DeleteStatement BuildDeleteSingleSql(string schemaName, string entityName, string id)
   {
     if (string.IsNullOrEmpty(schemaName))
@@ -115,6 +113,9 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
 
     return new DeleteStatement($"{delete} {where}", parameters);
   }
+
+  public virtual PatchStatement BuildPatchListSql(string schemaName, string entityName, JsonPatch jsonPatchRequestBody) { throw new NotImplementedException(); }
+  public virtual PatchStatement BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatch jsonPatchRequestBody) { throw new NotImplementedException(); }
 
   internal abstract string BuildSelectClause(string fields, Entity entity);
   internal abstract string BuildJoinClause(string includeString, Entity entity);

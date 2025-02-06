@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.Data.Common;
+using Dapper;
 using Microsoft.Data.SqlClient;
 using Patchwork.SqlDialects.MsSql;
 
@@ -41,7 +42,7 @@ public class MsSqlDialectBuilder_GetListTests
     Assert.Equal("%Chevy%", sql.Parameters.First().Value);
     Assert.Equal("1952%", sql.Parameters.Last().Value);
 
-    using var connect = new SqlConnection(ConnectionStringManager.GetMsSqlConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
 
     var found = connect.Query(sql.Sql, sql.Parameters);

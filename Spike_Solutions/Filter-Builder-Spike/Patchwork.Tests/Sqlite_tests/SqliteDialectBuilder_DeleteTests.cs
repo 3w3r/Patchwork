@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.Data.Common;
+using Dapper;
 using Microsoft.Data.Sqlite;
 using Patchwork.SqlDialects.Sqlite;
 using Patchwork.SqlStatements;
@@ -21,9 +22,9 @@ public class SqliteDialectBuilder_DeleteTests
     Assert.Contains("DELETE FROM employees", sql.Sql);
     Assert.Contains("employeeNumber = @id", sql.Sql);
 
-    using SqliteConnection connect = new SqliteConnection(ConnectionStringManager.GetSqliteConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
-    using SqliteTransaction transaction = connect.BeginTransaction();
+    using var transaction = connect.BeginTransaction();
     try
     {
       int changeCount = connect.Execute(sql.Sql, sql.Parameters, transaction);

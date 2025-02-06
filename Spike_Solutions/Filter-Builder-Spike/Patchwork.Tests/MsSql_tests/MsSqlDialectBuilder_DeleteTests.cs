@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.Data.Common;
+using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
 using Patchwork.SqlDialects.MsSql;
@@ -22,8 +23,9 @@ public class MsSqlDialectBuilder_DeleteTests
     Assert.Contains("DELETE FROM [classicmodels].[employees]", sql.Sql);
     Assert.Contains("[employeeNumber] = @id", sql.Sql);
 
-    using var connect = new SqlConnection(ConnectionStringManager.GetMsSqlConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
+
     using var transaction = connect.BeginTransaction();
     try
     {

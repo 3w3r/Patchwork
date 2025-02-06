@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Patchwork.SqlDialects.Sqlite;
 using Microsoft.Data.Sqlite;
+using System.Data.Common;
 
 namespace Patchwork.Tests.Sqlite_tests;
 
@@ -20,8 +21,9 @@ public class SqliteDialectBuilder_GetResourceTests
     Assert.Contains("SELECT *", sql.Sql);
     Assert.Contains("FROM products", sql.Sql);
 
-    using var connect = new SqliteConnection(ConnectionStringManager.GetSqliteConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
+
     var found = connect.QueryFirst(sql.Sql, sql.Parameters);
     Assert.Equal("S24_1937", found.productCode);
     Assert.Equal("1939 Chevrolet Deluxe Coupe", found.productName);
@@ -46,8 +48,9 @@ public class SqliteDialectBuilder_GetResourceTests
     Assert.Contains("SELECT *", sql.Sql);
     Assert.Contains("FROM products", sql.Sql);
 
-    using var connect = new SqliteConnection(ConnectionStringManager.GetSqliteConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
+
     var found = connect.QueryFirst(sql.Sql, sql.Parameters);
     Assert.Equal("S24_1937", found.productCode);
     Assert.Equal("1939 Chevrolet Deluxe Coupe", found.productName);
@@ -72,8 +75,9 @@ public class SqliteDialectBuilder_GetResourceTests
     Assert.Contains("SELECT *", sql.Sql);
     Assert.Contains("FROM products", sql.Sql);
 
-    using var connect = new SqliteConnection(ConnectionStringManager.GetSqliteConnectionString());
+    using DbConnection connect = sut.GetConnection();
     connect.Open();
+
     var found = connect.QueryFirst(sql.Sql, sql.Parameters);
     Assert.Equal("S24_1937", found.productCode);
     Assert.Equal("1939 Chevrolet Deluxe Coupe", found.productName);
