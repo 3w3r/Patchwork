@@ -74,6 +74,10 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     return new SelectStatement($"{select} {join} {where}", parameters);
   }
 
+  public virtual InsertStatement BuildPostSingleSql(string schemaName, string entityName, string jsonResourceRequestBody)
+  {
+    throw new NotImplementedException();
+  }
   public virtual UpdateStatement BuildPutSingleSql(string schemaName, string entityName, string id, string jsonResourceRequestBody)
   {
     if (string.IsNullOrEmpty(schemaName))
