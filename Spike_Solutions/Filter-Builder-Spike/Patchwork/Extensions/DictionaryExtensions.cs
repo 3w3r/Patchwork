@@ -9,13 +9,16 @@ public static class DictionaryExtensions
   {
     foreach (Column col in entity.Columns)
     {
-      string? key = col.IsPrimaryKey
+      string? key = col.IsPrimaryKey && keyValuePairs.ContainsKey("id")
                   ? "id"
                   : keyValuePairs.Keys.FirstOrDefault(k => k.Equals(col.Name, StringComparison.OrdinalIgnoreCase));
 
       if (string.IsNullOrEmpty(key))
         continue;
 
+      // TODO: We may be able to expand this method to handle more complex data types. For example, if the column is
+      // a string we may be able to convert it to a Dapper DbType with the appropirate maximium character length. This
+      // could avoid unnecessary cast conversions in the database.
       keyValuePairs[key] = Convert.ChangeType(keyValuePairs[key], col.DataFormat);
     }
   }

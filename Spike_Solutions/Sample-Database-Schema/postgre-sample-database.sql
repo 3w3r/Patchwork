@@ -43,7 +43,7 @@ CREATE TABLE offices (
 );
 
 CREATE TABLE employees (
-  employeeNumber INTEGER PRIMARY KEY,
+  employeeNumber SERIAL PRIMARY KEY,
   lastName VARCHAR(50) NOT NULL,
   firstName VARCHAR(50) NOT NULL,
   extension VARCHAR(10) NOT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE employees (
 );
 
 CREATE TABLE customers (
-  customerNumber INTEGER PRIMARY KEY,
+  customerNumber SERIAL PRIMARY KEY,
   customerName VARCHAR(50) NOT NULL,
   contactLastName VARCHAR(50) NOT NULL,
   contactFirstName VARCHAR(50) NOT NULL,
@@ -79,7 +79,7 @@ CREATE TABLE payments (
 );
 
 CREATE TABLE orders (
-  orderNumber INTEGER PRIMARY KEY,
+  orderNumber SERIAL PRIMARY KEY,
   orderDate DATE NOT NULL,
   requiredDate DATE NOT NULL,
   shippedDate DATE,

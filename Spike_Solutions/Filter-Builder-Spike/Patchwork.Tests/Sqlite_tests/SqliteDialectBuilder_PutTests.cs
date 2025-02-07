@@ -5,6 +5,8 @@ using Patchwork.SqlDialects.Sqlite;
 using Patchwork.SqlStatements;
 
 namespace Patchwork.Tests.Sqlite_tests;
+
+
 public class SqliteDialectBuilder_PutTests
 {
   private readonly string katoJsonOriginal = "{ \n" +

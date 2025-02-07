@@ -76,8 +76,25 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
 
   public virtual InsertStatement BuildPostSingleSql(string schemaName, string entityName, string jsonResourceRequestBody)
   {
-    throw new NotImplementedException();
+    if (string.IsNullOrEmpty(schemaName))
+      throw new ArgumentException("Schema name is required.", nameof(schemaName));
+    if (string.IsNullOrEmpty(entityName))
+      throw new ArgumentException("Entity name is required.", nameof(entityName));
+    if (string.IsNullOrEmpty(jsonResourceRequestBody))
+      throw new ArgumentException("JsonResourceRequestBody name is required.", nameof(jsonResourceRequestBody));
+
+    Entity entity = FindEntity(entityName);
+    var insert = BuildInsertClause(entity);
+    var columnList = BuildColumnListForInsert(entity);
+    var paramsList = BuildParameterListForInsert(entity);
+
+    var parameters = new Dictionary<string, object>();
+    parameters.AddJsonResourceToDictionary(jsonResourceRequestBody);
+    parameters.SetParameterDataTypes(entity);
+
+    return new InsertStatement($"{insert} {columnList} {paramsList}", parameters);
   }
+
   public virtual UpdateStatement BuildPutSingleSql(string schemaName, string entityName, string id, string jsonResourceRequestBody)
   {
     if (string.IsNullOrEmpty(schemaName))
@@ -127,6 +144,10 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
   internal abstract string BuildWherePkForGetClause(Entity entity);
   internal abstract string BuildOrderByClause(string sort, Entity entity);
   internal abstract string BuildLimitOffsetClause(int limit, int offset);
+
+  internal abstract string BuildInsertClause(Entity entity);
+  internal abstract string BuildColumnListForInsert(Entity entity);
+  internal abstract string BuildParameterListForInsert(Entity entity);
 
   internal abstract string BuildUpdateClause(Entity entity);
   internal abstract string BuildSetClause(Dictionary<string, object> parameters, Entity entity);

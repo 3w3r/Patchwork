@@ -95,6 +95,30 @@ public class MySqlDialectBuilder : SqlDialectBuilderBase
     }
   }
 
+  internal override string BuildInsertClause(Entity entity)
+  {
+    string schema = string.IsNullOrEmpty(entity.SchemaName) ? "" : $"`{entity.SchemaName}`.";
+    return $"INSERT INTO {schema}`{entity.Name}` ";
+  }
+  internal override string BuildColumnListForInsert(Entity entity)
+  {
+    var list = entity.Columns
+                     .Where(x => !x.IsComputed && !x.IsAutoNumber)
+                     .OrderBy(x => x.IsPrimaryKey)
+                     .ThenBy(x => x.Name)
+                     .Select(x => $"`{x.Name}`");
+    return $"({string.Join(", ", list)})";
+  }
+  internal override string BuildParameterListForInsert(Entity entity)
+  {
+    var list = entity.Columns
+                     .Where(x => !x.IsComputed && !x.IsAutoNumber)
+                     .OrderBy(x => x.IsPrimaryKey)
+                     .ThenBy(x => x.Name)
+                     .Select(x => $"@{x.Name}");
+    return $"VALUES ({string.Join(", ", list)})";
+  }
+
   internal override string BuildUpdateClause(Entity entity)
   {
     string schema = string.IsNullOrEmpty(entity.SchemaName) ? "" : $"`{entity.SchemaName}`.";
