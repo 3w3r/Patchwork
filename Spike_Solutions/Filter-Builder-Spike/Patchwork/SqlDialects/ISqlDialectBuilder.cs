@@ -1,4 +1,5 @@
 ﻿using System.Data.Common;
+using System.Text.Json;
 using Json.Patch;
 using Patchwork.DbSchema;
 using Patchwork.SqlStatements;
@@ -19,6 +20,9 @@ public interface ISqlDialectBuilder
 
   PatchStatement BuildPatchListSql(string schemaName, string entityName, JsonPatch jsonPatchRequestBody);
   PatchStatement BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatch jsonPatchRequestBody);
+
+  JsonPatch BuildDiffAsJsonPatch(string original, string modified);
+  JsonPatch BuildDiffAsJsonPatch(JsonDocument original, JsonDocument modified);
 
   // TODO: Add OPTIONS command for security discovery
   // Not sure how we do this one yet. This will return the current user's access to the requested resource.

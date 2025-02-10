@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Data.Common;
+using System.Text.Json;
 using Json.Patch;
 using Patchwork.DbSchema;
 using Patchwork.Expansion;
@@ -137,6 +138,16 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
 
   public virtual PatchStatement BuildPatchListSql(string schemaName, string entityName, JsonPatch jsonPatchRequestBody) { throw new NotImplementedException(); }
   public virtual PatchStatement BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatch jsonPatchRequestBody) { throw new NotImplementedException(); }
+
+  public virtual JsonPatch BuildDiffAsJsonPatch(string original, string modified)
+  {
+    return BuildDiffAsJsonPatch(JsonDocument.Parse(original), JsonDocument.Parse(modified));
+  }
+  public virtual JsonPatch BuildDiffAsJsonPatch(JsonDocument original, JsonDocument modified)
+  {
+    var patch = original.CreatePatch(modified);
+    return patch;
+  }
 
   internal abstract string BuildSelectClause(string fields, Entity entity);
   internal abstract string BuildJoinClause(string includeString, Entity entity);
