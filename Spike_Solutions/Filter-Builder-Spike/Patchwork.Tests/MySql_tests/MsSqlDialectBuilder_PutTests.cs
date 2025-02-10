@@ -4,7 +4,7 @@ using MySqlConnector;
 using Patchwork.SqlDialects;
 using Patchwork.SqlDialects.MySql;
 
-namespace Patchwork.Tests.MsSql_tests;
+namespace Patchwork.Tests.MySql_tests;
 
 public class MySqlDialectBuilder_PutTests
 {
@@ -51,7 +51,7 @@ public class MySqlDialectBuilder_PutTests
 
     using DbConnection connect = sut.GetConnection();
     connect.Open();
-    using var transaction = connect.BeginTransaction();
+    using var transaction = connect.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
     try
     {
       int changeCount = connect.Execute(sql.Sql, sql.Parameters, transaction);

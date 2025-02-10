@@ -3,7 +3,7 @@ using Dapper;
 using Patchwork.SqlDialects.MsSql;
 using Patchwork.SqlStatements;
 
-namespace Patchwork.Tests.Sqlite_tests;
+namespace Patchwork.Tests.MsSql_tests;
 
 public class MsSqlDialectBuilder_PostTests
 {
@@ -41,8 +41,8 @@ public class MsSqlDialectBuilder_PostTests
 
     using DbConnection connect = sut.GetConnection();
     connect.Open();
-    using var transaction = connect.BeginTransaction();
-
+    using var transaction = connect.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
+    
     try
     {
       int changeCount = connect.Execute(sql.Sql, sql.Parameters, transaction);

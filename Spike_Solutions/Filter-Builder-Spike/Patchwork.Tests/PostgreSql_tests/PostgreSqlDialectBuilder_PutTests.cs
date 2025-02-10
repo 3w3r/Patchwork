@@ -51,7 +51,7 @@ public class PostgreSqlDialectBuilder_PutTests
 
     using DbConnection connect = sut.GetConnection();
     connect.Open();
-    using var transaction = connect.BeginTransaction();
+    using var transaction = connect.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
     try
     {
       int changeCount = connect.Execute(sql.Sql, sql.Parameters, transaction);

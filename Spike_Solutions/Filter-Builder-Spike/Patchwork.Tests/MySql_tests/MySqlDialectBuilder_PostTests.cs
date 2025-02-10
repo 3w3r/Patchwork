@@ -3,7 +3,7 @@ using Dapper;
 using Patchwork.SqlDialects.MySql;
 using Patchwork.SqlStatements;
 
-namespace Patchwork.Tests.Sqlite_tests;
+namespace Patchwork.Tests.MySql_tests;
 
 public class MySqlDialectBuilder_PostTests
 {
@@ -41,7 +41,7 @@ public class MySqlDialectBuilder_PostTests
 
     using DbConnection connect = sut.GetConnection();
     connect.Open();
-    using var transaction = connect.BeginTransaction();
+    using var transaction = connect.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
 
     try
     {

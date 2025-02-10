@@ -3,7 +3,7 @@ using Dapper;
 using Patchwork.SqlDialects.PostgreSql;
 using Patchwork.SqlStatements;
 
-namespace Patchwork.Tests.Sqlite_tests;
+namespace Patchwork.Tests.PostgreSql_tests;
 
 public class PostgreSqlDialectBuilder_PostTests
 {
@@ -41,7 +41,7 @@ public class PostgreSqlDialectBuilder_PostTests
 
     using DbConnection connect = sut.GetConnection();
     connect.Open();
-    using var transaction = connect.BeginTransaction();
+    using var transaction = connect.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
 
     try
     {

@@ -52,7 +52,7 @@ public class SqliteDialectBuilder_PutTests
 
     using DbConnection connect = sut.GetConnection();
     connect.Open();
-    using var transaction = connect.BeginTransaction();
+    using var transaction = connect.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
 
     try
     {

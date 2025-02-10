@@ -16,7 +16,7 @@ public class MsSqlDialectBuilder_DeleteTests
     MsSqlDialectBuilder sut = new MsSqlDialectBuilder(ConnectionStringManager.GetMsSqlConnectionString());
 
     // Act
-    DeleteStatement sql = sut.BuildDeleteSingleSql("dbo", "employees", "1625");
+    DeleteStatement sql = sut.BuildDeleteSingleSql("dbo", "employees", "1216");
 
     // Assert
     Assert.NotEmpty(sql.Sql);
@@ -26,7 +26,7 @@ public class MsSqlDialectBuilder_DeleteTests
     using DbConnection connect = sut.GetConnection();
     connect.Open();
 
-    using var transaction = connect.BeginTransaction();
+    using var transaction = connect.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
     try
     {
       int changeCount = connect.Execute(sql.Sql, sql.Parameters, transaction);
