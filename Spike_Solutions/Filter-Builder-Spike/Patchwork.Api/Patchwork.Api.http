@@ -1,0 +1,24 @@
+@Patchwork.Api_HostAddress = https://localhost:65218
+
+GET {{Patchwork.Api_HostAddress}}/api/public/employees?filter=firstName%20eq%20'Leslie'
+Accept: application/json
+
+###
+
+
+GET {{Patchwork.Api_HostAddress}}/api/public/employees?filter=jobTitle%20eq%20'Sales%20Rep'
+Accept: application/json
+
+###
+
+
+GET {{Patchwork.Api_HostAddress}}/api/public/products?filter=quantityInStock%20gt%20100
+Accept: application/json
+
+###
+
+
+GET {{Patchwork.Api_HostAddress}}/api/public/employees/1625
+Accept: application/json
+
+###

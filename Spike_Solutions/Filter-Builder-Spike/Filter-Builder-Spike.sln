@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patchwork.Tests", "Patchwor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patchwork", "Patchwork\Patchwork.csproj", "{ADE75754-C5CE-4703-9140-8CC8DDF9FC50}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patchwork.Api", "Patchwork.Api\Patchwork.Api.csproj", "{0878C1FD-F8DC-4708-9351-DC86CA697D96}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{DAB022EA-C7D1-4DA8-B362-37764C0B9C47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{ADE75754-C5CE-4703-9140-8CC8DDF9FC50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADE75754-C5CE-4703-9140-8CC8DDF9FC50}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADE75754-C5CE-4703-9140-8CC8DDF9FC50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0878C1FD-F8DC-4708-9351-DC86CA697D96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0878C1FD-F8DC-4708-9351-DC86CA697D96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0878C1FD-F8DC-4708-9351-DC86CA697D96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0878C1FD-F8DC-4708-9351-DC86CA697D96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAB022EA-C7D1-4DA8-B362-37764C0B9C47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAB022EA-C7D1-4DA8-B362-37764C0B9C47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAB022EA-C7D1-4DA8-B362-37764C0B9C47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAB022EA-C7D1-4DA8-B362-37764C0B9C47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

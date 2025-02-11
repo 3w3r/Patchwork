@@ -1,0 +1,13 @@
+services:
+  patchwork.api:
+    image: ${DOCKER_REGISTRY-}patchworkapi
+    build:
+      context: .
+      dockerfile: Patchwork.Api/Dockerfile
+    networks:
+      - pctynetwork
+
+networks:
+  pctynetwork:
+    external: true
+    

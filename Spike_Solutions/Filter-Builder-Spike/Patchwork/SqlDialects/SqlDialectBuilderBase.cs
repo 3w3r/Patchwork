@@ -56,6 +56,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     var where = string.IsNullOrEmpty(filter) ? null : BuildWhereClause(filter, entity);
     var orderBy = string.IsNullOrEmpty(sort) ? "" : BuildOrderByClause(sort, entity);
     var paging = BuildLimitOffsetClause(limit, offset);
+    where?.Parameters.SetParameterDataTypes(entity);
 
     return new SelectStatement($"{select} {where?.Sql} {orderBy} {paging}", where?.Parameters ?? new Dictionary<string, object>());
   }
@@ -71,6 +72,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     string join = BuildJoinClause(include, entity);
     string where = BuildWherePkForGetClause(entity);
     var parameters = new Dictionary<string, object> { { "id", id } };
+    parameters.SetParameterDataTypes(entity);
 
     return new SelectStatement($"{select} {join} {where}", parameters);
   }
@@ -240,10 +242,5 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
   protected PagingToken GetPagingToken(int limit, int offset)
   {
     return new PagingToken(limit, offset);
-  }
-
-  protected object CastParameterValue(Type dataFormat, object value)
-  {
-    return Convert.ChangeType(value, dataFormat);
   }
 }

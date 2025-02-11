@@ -39,7 +39,7 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
   internal override string BuildJoinClause(string includeString, Entity entity)
   {
     if (string.IsNullOrEmpty(includeString))
-      throw new ArgumentException(nameof(includeString));
+      return "";
 
     try
     {
@@ -69,7 +69,7 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
   }
   internal override string BuildWherePkForGetClause(Entity entity)
   {
-    return $"WHERE t_{entity.SchemaName.ToLower()}.{entity.Name.ToLower()}.{entity.PrimaryKey!.Name} = @id";
+    return $"WHERE t_{entity.Name.ToLower()}.{entity.PrimaryKey!.Name} = @id";
   }
   internal override string BuildOrderByClause(string sort, Entity entity)
   {
