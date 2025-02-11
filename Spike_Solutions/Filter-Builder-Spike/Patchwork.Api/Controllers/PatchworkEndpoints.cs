@@ -79,9 +79,17 @@ public class PatchworkEndpoints : Controller
     // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Post))
     //   return this.Unauthorized();
 
-    InsertStatement sql = this.sqlDialect.BuildPostSingleSql("dbo", "employees", jsonResourceRequestBody);
+    InsertStatement sql = this.sqlDialect.BuildPostSingleSql(schemaName, entityName, jsonResourceRequestBody);
 
-    return Json(new { });
+    using DbConnection connect = this.sqlDialect.GetConnection();
+    connect.Open();
+    using var transaction = connect.BeginTransaction();
+    var found = connect.Query(sql.Sql, sql.Parameters, transaction);
+
+    transaction.Rollback();
+    connect.Close();
+    
+    return Json(found);
   }
 
   [HttpPut]

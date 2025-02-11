@@ -16,7 +16,7 @@ public class MsSqlDialectBuilder_DeleteTests
     MsSqlDialectBuilder sut = new MsSqlDialectBuilder(ConnectionStringManager.GetMsSqlConnectionString());
 
     // Act
-    DeleteStatement sql = sut.BuildDeleteSingleSql("dbo", "employees", "1216");
+    DeleteStatement sql = sut.BuildDeleteSingleSql("classicmodels", "employees", "1216");
 
     // Assert
     Assert.NotEmpty(sql.Sql);

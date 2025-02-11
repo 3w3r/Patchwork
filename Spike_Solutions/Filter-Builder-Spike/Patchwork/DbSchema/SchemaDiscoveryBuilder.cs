@@ -23,7 +23,7 @@ public class SchemaDiscoveryBuilder
     dbV = dbV.Where(v => !v.SchemaOwner.Equals("information_schema", StringComparison.OrdinalIgnoreCase)).ToList();
     dbV = dbV.Where(v => !(connection.GetType().Name.Contains("npgsql", StringComparison.OrdinalIgnoreCase) && v.Name.StartsWith("pg_"))).ToList();
 
-    DatabaseMetadata metadata = new DatabaseMetadata(dbS.Select(s =>
+    var schemas = dbS.Select(s =>
     {
       List<Entity> tables = dbT.Where(t => t.SchemaOwner == s.Name || (t.SchemaOwner == "" && s.Name == "dbo"))
                       .Select(t => new Entity(t.Name, t.Description, t.SchemaOwner, false,
@@ -54,8 +54,9 @@ public class SchemaDiscoveryBuilder
                            ).ToList();
 
       return new Schema(s.Name, tables, views);
-    }).ToList());
+    }).ToList();
 
-    return metadata;
+    // ensure we do not return any empty schemas
+    return new DatabaseMetadata(schemas.Where(s=>s.Tables.Any() || s.Views.Any()).ToList());
   }
 }

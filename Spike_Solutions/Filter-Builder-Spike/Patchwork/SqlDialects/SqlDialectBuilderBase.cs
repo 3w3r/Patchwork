@@ -51,7 +51,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     if (string.IsNullOrEmpty(entityName))
       throw new ArgumentException("Entity name is required.", nameof(entityName));
 
-    var entity = FindEntity(entityName);
+    var entity = FindEntity(schemaName, entityName);
     var select = BuildSelectClause(fields, entity);
     var where = string.IsNullOrEmpty(filter) ? null : BuildWhereClause(filter, entity);
     var orderBy = BuildOrderByClause(sort, entity);
@@ -67,7 +67,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     if (string.IsNullOrEmpty(entityName))
       throw new ArgumentException("Entity name is required.", nameof(entityName));
 
-    var entity = FindEntity(entityName);
+    var entity = FindEntity(schemaName, entityName);
     string select = BuildSelectClause(fields, entity);
     string join = string.IsNullOrEmpty(include) ? "" : BuildJoinClause(include, entity);
     string where = BuildWherePkForGetClause(entity);
@@ -86,7 +86,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     if (jsonResourceRequestBody == null)
       throw new ArgumentException("JsonResourceRequestBody name is required.", nameof(jsonResourceRequestBody));
 
-    Entity entity = FindEntity(entityName);
+    Entity entity = FindEntity(schemaName, entityName);
     var insert = BuildInsertClause(entity);
     var columnList = BuildColumnListForInsert(entity);
     var paramsList = BuildParameterListForInsert(entity);
@@ -109,7 +109,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     if (jsonResourceRequestBody==null)
       throw new ArgumentException("JsonResourceRequestBody name is required.", nameof(jsonResourceRequestBody));
 
-    Entity entity = FindEntity(entityName);
+    Entity entity = FindEntity(schemaName, entityName);
     string update = BuildUpdateClause(entity);
     string where = BuildWherePkForUpdateClause(entity);
 
@@ -129,7 +129,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     if (string.IsNullOrEmpty(id))
       throw new ArgumentException("Entity Id name is required.", nameof(id));
 
-    Entity entity = FindEntity(entityName);
+    Entity entity = FindEntity(schemaName, entityName);
     string delete = BuildDeleteClause(entity);
     string where = BuildWherePkForDeleteClause(entity);
     var parameters = new Dictionary<string, object>() { { "id", id } };
@@ -169,20 +169,23 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
   internal abstract string BuildDeleteClause(Entity entity);
   internal abstract string BuildWherePkForDeleteClause(Entity entity);
 
-  internal Entity FindEntity(string entityName)
+  internal Entity FindEntity(string schemaName, string entityName)
   {
     if (string.IsNullOrEmpty(entityName))
       throw new ArgumentException(nameof(entityName));
     DiscoverSchema();
     if (_metadata == null)
       throw new ArgumentException("Cannot access database schema");
+
     Entity? entity = _metadata.Schemas
-                          .SelectMany(x => x.Tables)
-                          .FirstOrDefault(t => t.Name.Equals(entityName, StringComparison.OrdinalIgnoreCase));
+                              .Where(s=>s.Name.Equals(schemaName, StringComparison.OrdinalIgnoreCase))
+                              .SelectMany(x => x.Tables)
+                              .FirstOrDefault(t => t.Name.Equals(entityName, StringComparison.OrdinalIgnoreCase));
     if (entity == null)
       entity = _metadata.Schemas
-                          .SelectMany(x => x.Views)
-                          .FirstOrDefault(t => t.Name.Equals(entityName, StringComparison.OrdinalIgnoreCase));
+                        .Where(s => s.Name.Equals(schemaName, StringComparison.OrdinalIgnoreCase))
+                        .SelectMany(x => x.Views)
+                        .FirstOrDefault(t => t.Name.Equals(entityName, StringComparison.OrdinalIgnoreCase));
     if (entity == null)
       throw new ArgumentException($"Invalid Table or View Name: {entityName}");
     return entity;

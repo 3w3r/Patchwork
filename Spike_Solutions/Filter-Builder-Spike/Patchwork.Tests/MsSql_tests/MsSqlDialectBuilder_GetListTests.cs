@@ -14,7 +14,7 @@ public class MsSqlDialectBuilder_GetListTests
     MsSqlDialectBuilder sut = new MsSqlDialectBuilder(ConnectionStringManager.GetMsSqlConnectionString());
 
     // Act
-    var sql = sut.BuildGetListSql("public", "products", "*",
+    var sql = sut.BuildGetListSql("classicmodels", "products", "*",
       "productName ct 'Chevy' OR productName sw '1978' OR (productName ct 'Alpine') OR productName ct 'Roadster' OR productName ct 'Benz' " +
       "OR productName ct 'Moto' OR productName ct 'Pickup' OR (productName ct 'Hawk' AND productName ct 'Black') OR productName ct 'Ford' " +
       "OR productName ct 'Hemi' OR productName ct 'Honda' OR productName sw '1952' ",

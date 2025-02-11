@@ -34,7 +34,7 @@ public class FilterTokenizer_MsSql_Tests
     MsSqlDialectBuilder sut = new MsSqlDialectBuilder(TestSampleData.DB);
 
     // Act
-    var actual = sut.BuildWhereClause(filterString, sut.FindEntity("MonkeyTable"));
+    var actual = sut.BuildWhereClause(filterString, sut.FindEntity("dbo", "MonkeyTable"));
 
     // Assert
     Assert.Equal(expected, actual.Sql);
@@ -53,7 +53,7 @@ public class FilterTokenizer_MsSql_Tests
     MsSqlDialectBuilder sut = new MsSqlDialectBuilder(TestSampleData.DB);
 
     // Act
-    var actual = sut.BuildWhereClause(filterString, sut.FindEntity("MonkeyTable"));
+    var actual = sut.BuildWhereClause(filterString, sut.FindEntity("dbo", "MonkeyTable"));
 
     // Assert
     Assert.Equal(expected, actual.Sql);
@@ -81,7 +81,7 @@ public class FilterTokenizer_MsSql_Tests
     MsSqlDialectBuilder sut = new MsSqlDialectBuilder(TestSampleData.DB);
 
     // Act
-    ArgumentException ex = Assert.ThrowsAny<ArgumentException>(() => sut.BuildWhereClause(filterString, sut.FindEntity("MonkeyTable")));
+    ArgumentException ex = Assert.ThrowsAny<ArgumentException>(() => sut.BuildWhereClause(filterString, sut.FindEntity("dbo", "MonkeyTable")));
 
     if (ex == null)
       throw new Exception(error);
