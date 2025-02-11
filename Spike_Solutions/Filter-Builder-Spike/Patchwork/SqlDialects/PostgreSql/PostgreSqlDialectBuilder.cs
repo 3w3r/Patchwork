@@ -39,7 +39,7 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
   internal override string BuildJoinClause(string includeString, Entity entity)
   {
     if (string.IsNullOrEmpty(includeString))
-      return "";
+      throw new ArgumentException(includeString, nameof(includeString));
 
     try
     {

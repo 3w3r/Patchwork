@@ -1,4 +1,5 @@
 ﻿using System.Data.Common;
+using System.Text.Json;
 using Dapper;
 using Npgsql;
 using Patchwork.SqlDialects;
@@ -8,27 +9,27 @@ namespace Patchwork.Tests.PostgreSql_tests;
 
 public class PostgreSqlDialectBuilder_PutTests
 {
-  private readonly string katoJsonOriginal = "{ \n" +
-    "  \"employeeNumber\": \"1625\", \n" +
-    "  \"lastName\": \"Kato\", \n" +
-    "  \"firstName\": \"Yoshimi\", \n" +
-    "  \"extension\": \"x102\", \n" +
-    "  \"email\": \"ykato@classicmodelcars.com\", \n" +
-    "  \"officeCode\": \"5\", \n" +
-    "  \"reportsTo\": \"1621\", \n" +
-    "  \"jobTitle\": \"Sales Rep\" \n" +
-    "}";
+  private readonly JsonDocument katoJsonOriginal = JsonDocument.Parse("{ \n" +
+                                                                      "  \"employeeNumber\": \"1625\", \n" +
+                                                                      "  \"lastName\": \"Kato\", \n" +
+                                                                      "  \"firstName\": \"Yoshimi\", \n" +
+                                                                      "  \"extension\": \"x102\", \n" +
+                                                                      "  \"email\": \"ykato@classicmodelcars.com\", \n" +
+                                                                      "  \"officeCode\": \"5\", \n" +
+                                                                      "  \"reportsTo\": \"1621\", \n" +
+                                                                      "  \"jobTitle\": \"Sales Rep\" \n" +
+                                                                      "}");
 
-  private readonly string katoJsonUpdate = "{ \n" +
-  "  \"employeeNumber\": \"1625\", \n" +
-  "  \"lastName\": \"Kato\", \n" +
-  "  \"firstName\": \"Yoshimi\", \n" +
-  "  \"extension\": \"x104\", \n" +
-  "  \"email\": \"ykato@classicmodelcars.com\", \n" +
-  "  \"officeCode\": \"5\", \n" +
-  "  \"reportsTo\": \"1621\", \n" +
-  "  \"jobTitle\": \"Sales Rep\" \n" +
-  "}";
+  private readonly JsonDocument katoJsonUpdate = JsonDocument.Parse("{ \n" +
+                                                                    "  \"employeeNumber\": \"1625\", \n" +
+                                                                    "  \"lastName\": \"Kato\", \n" +
+                                                                    "  \"firstName\": \"Yoshimi\", \n" +
+                                                                    "  \"extension\": \"x104\", \n" +
+                                                                    "  \"email\": \"ykato@classicmodelcars.com\", \n" +
+                                                                    "  \"officeCode\": \"5\", \n" +
+                                                                    "  \"reportsTo\": \"1621\", \n" +
+                                                                    "  \"jobTitle\": \"Sales Rep\" \n" +
+                                                                    "}");
 
   [Fact]
   public void BuildPutSql_ShouldUpdateResource_WhenJsonIsChanged()

@@ -5,9 +5,16 @@ using Patchwork.SqlDialects;
 using Dapper;
 using DatabaseSchemaReader.Filters;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using System.Text.Json;
+using Json.Patch;
+using Patchwork.SqlStatements;
+using System.Text.Json.Serialization;
 
 namespace Patchwork.Api.Controllers;
 
+// [Authorize]
 public class PatchworkEndpoints : Controller
 {
   protected readonly IPatchworkAuthorization authorization;
@@ -30,6 +37,9 @@ public class PatchworkEndpoints : Controller
     [FromQuery] int limit = 0,
     [FromQuery] int offset = 0)
   {
+    // if (!authorization.GetPermissionToCollection(schemaName, entityName, this.User).HasFlag(Permission.Get))
+    //   return this.Unauthorized();
+
     var select = this.sqlDialect.BuildGetListSql(schemaName, entityName, fields, filter, sort, limit, offset);
     using DbConnection connect = this.sqlDialect.GetConnection();
     connect.Open();
@@ -48,6 +58,9 @@ public class PatchworkEndpoints : Controller
     [FromQuery] string include = "",
     [FromQuery] DateTimeOffset? asOf = null)
   {
+    // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Get))
+    //   return this.Unauthorized();
+
     var select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id, fields, include, asOf);
     using DbConnection connect = this.sqlDialect.GetConnection();
     connect.Open();
@@ -57,13 +70,18 @@ public class PatchworkEndpoints : Controller
   }
 
   [HttpPost]
-  [Route("api/{schemaName}/{entityName}/{id}")]
+  [Route("api/{schemaName}/{entityName}")]
   public IActionResult PostResourceEndpoint(
     [FromRoute] string schemaName,
     [FromRoute] string entityName,
-    [FromBody] string jsonResourceRequestBody)
+    [FromBody] JsonDocument jsonResourceRequestBody)
   {
-    return View();
+    // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Post))
+    //   return this.Unauthorized();
+
+    InsertStatement sql = this.sqlDialect.BuildPostSingleSql("dbo", "employees", jsonResourceRequestBody);
+
+    return Json(new { });
   }
 
   [HttpPut]
@@ -72,9 +90,12 @@ public class PatchworkEndpoints : Controller
     [FromRoute] string schemaName,
     [FromRoute] string entityName,
     [FromRoute] string id,
-    [FromBody] string jsonResourceRequestBody)
+    [FromBody] JsonDocument jsonResourceRequestBody)
   {
-    return View();
+    // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Put))
+    //   return this.Unauthorized();
+
+    return Json(new { });
   }
 
   [HttpDelete]
@@ -84,7 +105,10 @@ public class PatchworkEndpoints : Controller
     [FromRoute] string entityName,
     [FromRoute] string id)
   {
-    return View();
+    // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Delete))
+    //   return this.Unauthorized();
+
+    return NoContent();
   }
 
   [HttpPatch]
@@ -92,8 +116,25 @@ public class PatchworkEndpoints : Controller
   public IActionResult PatchListEndpoint(
     [FromRoute] string schemaName,
     [FromRoute] string entityName,
-    [FromBody] string jsonPatchRequestBody)
+    [FromBody] JsonPatch jsonPatchRequestBody)
   {
-    return View();
+    // if (!authorization.GetPermissionToCollection(schemaName, entityName, this.User).HasFlag(Permission.Patch))
+    //   return this.Unauthorized();
+
+    return Accepted();
+  }
+
+  [HttpPatch]
+  [Route("api/{schemaName}/{entityName}/{id}")]
+  public IActionResult PatchResourceEndpoint(
+    [FromRoute] string schemaName,
+    [FromRoute] string entityName,
+    [FromRoute] string id,
+    [FromBody] JsonPatch jsonPatchRequestBody)
+  {
+    // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Patch))
+    //   return this.Unauthorized();
+
+    return Accepted();
   }
 }

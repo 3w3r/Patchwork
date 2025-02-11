@@ -54,7 +54,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     var entity = FindEntity(entityName);
     var select = BuildSelectClause(fields, entity);
     var where = string.IsNullOrEmpty(filter) ? null : BuildWhereClause(filter, entity);
-    var orderBy = string.IsNullOrEmpty(sort) ? "" : BuildOrderByClause(sort, entity);
+    var orderBy = BuildOrderByClause(sort, entity);
     var paging = BuildLimitOffsetClause(limit, offset);
     where?.Parameters.SetParameterDataTypes(entity);
 
@@ -69,7 +69,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
 
     var entity = FindEntity(entityName);
     string select = BuildSelectClause(fields, entity);
-    string join = BuildJoinClause(include, entity);
+    string join = string.IsNullOrEmpty(include) ? "" : BuildJoinClause(include, entity);
     string where = BuildWherePkForGetClause(entity);
     var parameters = new Dictionary<string, object> { { "id", id } };
     parameters.SetParameterDataTypes(entity);
@@ -77,13 +77,13 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     return new SelectStatement($"{select} {join} {where}", parameters);
   }
 
-  public virtual InsertStatement BuildPostSingleSql(string schemaName, string entityName, string jsonResourceRequestBody)
+  public virtual InsertStatement BuildPostSingleSql(string schemaName, string entityName, JsonDocument jsonResourceRequestBody)
   {
     if (string.IsNullOrEmpty(schemaName))
       throw new ArgumentException("Schema name is required.", nameof(schemaName));
     if (string.IsNullOrEmpty(entityName))
       throw new ArgumentException("Entity name is required.", nameof(entityName));
-    if (string.IsNullOrEmpty(jsonResourceRequestBody))
+    if (jsonResourceRequestBody == null)
       throw new ArgumentException("JsonResourceRequestBody name is required.", nameof(jsonResourceRequestBody));
 
     Entity entity = FindEntity(entityName);
@@ -98,7 +98,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     return new InsertStatement($"{insert} {columnList} {paramsList}", parameters);
   }
 
-  public virtual UpdateStatement BuildPutSingleSql(string schemaName, string entityName, string id, string jsonResourceRequestBody)
+  public virtual UpdateStatement BuildPutSingleSql(string schemaName, string entityName, string id, JsonDocument jsonResourceRequestBody)
   {
     if (string.IsNullOrEmpty(schemaName))
       throw new ArgumentException("Schema name is required.", nameof(schemaName));
@@ -106,7 +106,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
       throw new ArgumentException("Entity name is required.", nameof(entityName));
     if (string.IsNullOrEmpty(id))
       throw new ArgumentException("Entity Id name is required.", nameof(id));
-    if (string.IsNullOrEmpty(jsonResourceRequestBody))
+    if (jsonResourceRequestBody==null)
       throw new ArgumentException("JsonResourceRequestBody name is required.", nameof(jsonResourceRequestBody));
 
     Entity entity = FindEntity(entityName);

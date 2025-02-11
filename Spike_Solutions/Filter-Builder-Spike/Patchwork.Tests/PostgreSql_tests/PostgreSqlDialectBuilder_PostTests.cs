@@ -1,4 +1,5 @@
 ﻿using System.Data.Common;
+using System.Text.Json;
 using Dapper;
 using Patchwork.SqlDialects.PostgreSql;
 using Patchwork.SqlStatements;
@@ -7,16 +8,16 @@ namespace Patchwork.Tests.PostgreSql_tests;
 
 public class PostgreSqlDialectBuilder_PostTests
 {
-  private readonly string cageJson = "{ \n" +
-"  \"employeeNumber\": \"9999\", \n" +
-"  \"lastName\": \"Cage\", \n" +
-"  \"firstName\": \"Johnny\", \n" +
-"  \"extension\": \"x99\", \n" +
-"  \"email\": \"jcage@classicmodelcars.com\", \n" +
-"  \"officeCode\": \"5\", \n" +
-"  \"reportsTo\": \"1621\", \n" +
-"  \"jobTitle\": \"Sales Rep\" \n" +
-"}";
+  private readonly JsonDocument cageJson = JsonDocument.Parse("{ \n" +
+                                                              "  \"employeeNumber\": \"9999\", \n" +
+                                                              "  \"lastName\": \"Cage\", \n" +
+                                                              "  \"firstName\": \"Johnny\", \n" +
+                                                              "  \"extension\": \"x99\", \n" +
+                                                              "  \"email\": \"jcage@classicmodelcars.com\", \n" +
+                                                              "  \"officeCode\": \"5\", \n" +
+                                                              "  \"reportsTo\": \"1621\", \n" +
+                                                              "  \"jobTitle\": \"Sales Rep\" \n" +
+                                                              "}");
   [Fact]
   public void BuildPostSql_ShouldInsertResource()
   {

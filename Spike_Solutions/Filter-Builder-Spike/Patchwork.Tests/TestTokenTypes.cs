@@ -1,4 +1,5 @@
-﻿using Patchwork.Extensions;
+﻿using System.Text.Json;
+using Patchwork.Extensions;
 using Patchwork.Filters;
 
 namespace Patchwork.Tests;
@@ -19,7 +20,7 @@ public class TestDictionaryExtensionsMethods
   public void DictionaryExtensionTests_WhenConvertingRandomJson_ShouldCreateDictionaryEntries()
   {
     // Arrange
-    var json = "{\"name\": \"John\", \"age\": 35, \"scores\": [90, 85, 95], \"address\": { \"street\": \"Main St\", \"zip\": 12345 }}";
+    var json = JsonDocument.Parse("{\"name\": \"John\", \"age\": 35, \"scores\": [90, 85, 95], \"address\": { \"street\": \"Main St\", \"zip\": 12345 }}");
     var SUT = new Dictionary<string, object>();
 
     // Act

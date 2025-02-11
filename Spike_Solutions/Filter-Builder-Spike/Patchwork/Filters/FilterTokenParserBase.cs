@@ -69,6 +69,8 @@ public abstract class FilterTokenParserBase
 
   protected object CastParameterValue(Type dataFormat, object value)
   {
+    if (dataFormat == _dateTimeOffset)
+      return DateTimeOffset.Parse(value.ToString());
     return Convert.ChangeType(value, dataFormat);
   }
 }

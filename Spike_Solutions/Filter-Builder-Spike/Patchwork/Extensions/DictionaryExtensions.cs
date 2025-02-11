@@ -23,18 +23,14 @@ public static class DictionaryExtensions
     }
   }
 
-  public static void AddJsonResourceToDictionary(this Dictionary<string, object> keyValuePairs, string jsonResource)
+  public static void AddJsonResourceToDictionary(this Dictionary<string, object> keyValuePairs, JsonDocument jsonResource)
   {
     if (keyValuePairs == null)
       throw new ArgumentNullException(nameof(keyValuePairs));
-    if (string.IsNullOrEmpty(jsonResource))
+    if (jsonResource==null)
       throw new ArgumentNullException(nameof(jsonResource));
 
-    using JsonDocument? json = JsonSerializer.Deserialize<JsonDocument>(jsonResource);
-    if (json == null)
-      throw new ArgumentException($"Invalid JSON resource: {jsonResource}", nameof(jsonResource));
-
-    foreach (JsonProperty prop in json.RootElement.EnumerateObject())
+    foreach (JsonProperty prop in jsonResource.RootElement.EnumerateObject())
     {
       object? obj = ConvertJsonElement(prop.Value);
       if (obj != null)

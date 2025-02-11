@@ -28,11 +28,6 @@ public class FilterTokenizer_MsSql_Tests
   [InlineData("Name in ('Bill','Susan','Jack')", "WHERE [T_MonkeyTable].[Name] IN (@V0, @V1, @V2)", "Bill", "Jack", 3)]
   [InlineData("Name ct 'Bill'", "WHERE [T_MonkeyTable].[Name] LIKE @V0", "%Bill%", "%Bill%", 1)]
   [InlineData("Name sw 'Bill'", "WHERE [T_MonkeyTable].[Name] LIKE @V0", "Bill%", "Bill%", 1)]
-
-  // Filters that contain dates and times
-  [InlineData("skillKey eq 'cdl' AND effectiveStartDate le '2023-11-11T22:00:00-0400' AND effectiveEndDate gt '2023-11-12T06:00:00-0400'",
-              "WHERE [T_MonkeyTable].[skillKey] = @V0 AND [T_MonkeyTable].[effectiveStartDate] <= @V1 AND [T_MonkeyTable].[effectiveEndDate] > @V2",
-              "cdl", "2023-11-12T10:00:00.0000000Z", 3)]
   public void ConvertToSqlWhereClause_HandlesCommonCases(string filterString, string expected, string first, string last, int count)
   {
     // Arrange
@@ -45,6 +40,26 @@ public class FilterTokenizer_MsSql_Tests
     Assert.Equal(expected, actual.Sql);
     Assert.Equal(first, actual.Parameters.First().Value.ToString());
     Assert.Equal(last, actual.Parameters.Last().Value.ToString());
+    Assert.Equal(count, actual.Parameters.Count);
+  }
+
+  // Filters that contain dates and times
+  [InlineData("skillKey eq 'cdl' AND effectiveStartDate le '2023-11-11T22:00:00-0400' AND effectiveEndDate gt '2023-11-12T06:00:00-0400'",
+              "WHERE [T_MonkeyTable].[skillKey] = @V0 AND [T_MonkeyTable].[effectiveStartDate] <= @V1 AND [T_MonkeyTable].[effectiveEndDate] > @V2",
+              "cdl", "2023-11-12T10:00:00.0000000Z", 3)]
+  public void ConvertToSqlWhereClause_HandlesDateTimeCases(string filterString, string expected, string first, string last, int count)
+  {
+    // Arrange
+    MsSqlDialectBuilder sut = new MsSqlDialectBuilder(TestSampleData.DB);
+
+    // Act
+    var actual = sut.BuildWhereClause(filterString, sut.FindEntity("MonkeyTable"));
+
+    // Assert
+    Assert.Equal(expected, actual.Sql);
+    Assert.Equal(first, actual.Parameters.First().Value.ToString());
+    var l = (DateTimeOffset)actual.Parameters.Last().Value;
+    Assert.Equal(last, l.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ"));
     Assert.Equal(count, actual.Parameters.Count);
   }
 

@@ -68,7 +68,7 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
   }
   internal override string BuildWherePkForGetClause(Entity entity)
   {
-    return $"WHERE [T_{entity.SchemaName}].[{entity.Name}].[{entity.PrimaryKey!.Name}] = @id";
+    return $"WHERE [T_{entity.Name}].[{entity.PrimaryKey!.Name}] = @id";
   }
   internal override string BuildOrderByClause(string sort, Entity entity)
   {

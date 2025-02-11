@@ -22,6 +22,8 @@ public class SortLexer
     foreach (string token in split)
     {
       string tokenValue = token.Trim();
+      if (string.IsNullOrEmpty(tokenValue))
+        continue;
       SortToken t = MakeValidToken(tokenValue);
       tokens.Add(t);
     }

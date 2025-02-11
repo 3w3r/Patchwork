@@ -1,4 +1,5 @@
 ﻿using System.Data.Common;
+using System.Text.Json;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Patchwork.SqlDialects;
@@ -9,7 +10,7 @@ namespace Patchwork.Tests.MsSql_tests;
 
 public class MsSqlDialectBuilder_PutTests
 {
-  private readonly string katoJsonOriginal = "{ \n" +
+  private readonly JsonDocument katoJsonOriginal = JsonDocument.Parse("{ \n" +
     "  \"employeeNumber\": \"1625\", \n" +
     "  \"lastName\": \"Kato\", \n" +
     "  \"firstName\": \"Yoshimi\", \n" +
@@ -18,9 +19,9 @@ public class MsSqlDialectBuilder_PutTests
     "  \"officeCode\": \"5\", \n" +
     "  \"reportsTo\": \"1621\", \n" +
     "  \"jobTitle\": \"Sales Rep\" \n" +
-    "}";
+    "}");
 
-  private readonly string katoJsonUpdate = "{ \n" +
+  private readonly JsonDocument katoJsonUpdate = JsonDocument.Parse("{ \n" +
   "  \"employeeNumber\": \"1625\", \n" +
   "  \"lastName\": \"Kato\", \n" +
   "  \"firstName\": \"Yoshimi\", \n" +
@@ -29,7 +30,7 @@ public class MsSqlDialectBuilder_PutTests
   "  \"officeCode\": \"5\", \n" +
   "  \"reportsTo\": \"1621\", \n" +
   "  \"jobTitle\": \"Sales Rep\" \n" +
-  "}";
+  "}");
 
   [Fact]
   public void BuildPutSql_ShouldUpdateResource_WhenJsonIsChanged()

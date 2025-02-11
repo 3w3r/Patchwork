@@ -1,4 +1,5 @@
 ﻿using System.Data.Common;
+using System.Text.Json;
 using Dapper;
 using Patchwork.SqlDialects.MySql;
 using Patchwork.SqlStatements;
@@ -7,21 +8,21 @@ namespace Patchwork.Tests.MySql_tests;
 
 public class MySqlDialectBuilder_PostTests
 {
-  private readonly string cageJson = "{ \n" +
-"  \"employeeNumber\": \"9999\", \n" +
-"  \"lastName\": \"Cage\", \n" +
-"  \"firstName\": \"Johnny\", \n" +
-"  \"extension\": \"x99\", \n" +
-"  \"email\": \"jcage@classicmodelcars.com\", \n" +
-"  \"officeCode\": \"5\", \n" +
-"  \"reportsTo\": \"1621\", \n" +
-"  \"jobTitle\": \"Sales Rep\" \n" +
-"}";
+  private readonly JsonDocument cageJson = JsonDocument.Parse("{ \n" +
+                                                              "  \"employeeNumber\": \"9999\", \n" +
+                                                              "  \"lastName\": \"Cage\", \n" +
+                                                              "  \"firstName\": \"Johnny\", \n" +
+                                                              "  \"extension\": \"x99\", \n" +
+                                                              "  \"email\": \"jcage@classicmodelcars.com\", \n" +
+                                                              "  \"officeCode\": \"5\", \n" +
+                                                              "  \"reportsTo\": \"1621\", \n" +
+                                                              "  \"jobTitle\": \"Sales Rep\" \n" +
+                                                              "}");
   [Fact]
   public void BuildPostSql_ShouldInsertResource()
   {
     // Arrange
-    var sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
+    MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
 
     // Act
     InsertStatement sql = sut.BuildPostSingleSql("Taskboard", "employees", cageJson);
@@ -41,7 +42,7 @@ public class MySqlDialectBuilder_PostTests
 
     using DbConnection connect = sut.GetConnection();
     connect.Open();
-    using var transaction = connect.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
+    using DbTransaction transaction = connect.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
 
     try
     {
