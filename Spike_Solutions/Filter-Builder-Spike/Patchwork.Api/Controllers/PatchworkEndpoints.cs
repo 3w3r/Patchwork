@@ -186,6 +186,12 @@ public class PatchworkEndpoints : Controller
     // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Patch))
     //   return this.Unauthorized();
 
+    //TODO:
+    // 1. Read current entity
+    // 2. Apply patch document to entity
+    // 3. Perform a PUT with the updated entity
+    // 4. Return updated entity as `entity` and Patch as `changes` like the PUT does.
+
     return Accepted();
   }
 }
