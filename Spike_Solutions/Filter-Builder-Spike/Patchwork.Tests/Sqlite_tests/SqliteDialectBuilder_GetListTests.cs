@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using Patchwork.SqlDialects.Sqlite;
 using Microsoft.Data.Sqlite;
-using System.Data.Common;
 
 namespace Patchwork.Tests.Sqlite_tests;
 

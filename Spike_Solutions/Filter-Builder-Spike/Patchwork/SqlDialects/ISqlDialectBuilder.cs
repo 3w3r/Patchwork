@@ -1,5 +1,4 @@
-﻿using System.Data.Common;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Json.Patch;
 using Patchwork.DbSchema;
 using Patchwork.SqlStatements;

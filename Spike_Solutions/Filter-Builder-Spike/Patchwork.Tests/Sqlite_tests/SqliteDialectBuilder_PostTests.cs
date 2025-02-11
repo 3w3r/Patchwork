@@ -1,5 +1,4 @@
-﻿using System.Data.Common;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Dapper;
 using Patchwork.SqlDialects.Sqlite;
 using Patchwork.SqlStatements;

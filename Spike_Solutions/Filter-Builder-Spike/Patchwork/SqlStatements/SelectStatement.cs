@@ -1,6 +1,4 @@
-﻿using Azure;
-
-namespace Patchwork.SqlStatements;
+﻿namespace Patchwork.SqlStatements;
 
 // PRIMARY SQL COMMANDS
 public record class SelectStatement(string Sql, Dictionary<string, object> Parameters);

@@ -1,7 +1,5 @@
-﻿using System.Data.Common;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Dapper;
-using Microsoft.Data.SqlClient;
 using Patchwork.SqlDialects;
 using Patchwork.SqlDialects.MsSql;
 using Patchwork.SqlStatements;

@@ -1,6 +1,4 @@
-﻿using System.Data.Common;
-using Dapper;
-using Npgsql;
+﻿using Dapper;
 using Patchwork.SqlDialects.PostgreSql;
 
 namespace Patchwork.Tests.PostgreSql_tests;

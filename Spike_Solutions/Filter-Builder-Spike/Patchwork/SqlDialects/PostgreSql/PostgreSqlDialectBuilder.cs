@@ -1,6 +1,5 @@
 ﻿using System.Data.Common;
 using System.Text;
-using MySqlConnector;
 using Npgsql;
 using Patchwork.DbSchema;
 using Patchwork.Expansion;

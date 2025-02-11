@@ -1,6 +1,4 @@
-﻿using System.Data.Common;
-using Dapper;
-using MySqlConnector;
+﻿using Dapper;
 using Patchwork.SqlDialects.MySql;
 using Patchwork.SqlStatements;
 

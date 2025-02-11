@@ -1,7 +1,4 @@
-﻿using System.Data.Common;
-using Dapper;
-using Microsoft.Data.SqlClient;
-using Microsoft.Data.Sqlite;
+﻿using Dapper;
 using Patchwork.SqlDialects.MsSql;
 using Patchwork.SqlStatements;
 

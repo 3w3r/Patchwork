@@ -1,7 +1,5 @@
-﻿using System.Data.Common;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Dapper;
-using Npgsql;
 using Patchwork.SqlDialects;
 using Patchwork.SqlDialects.PostgreSql;
 

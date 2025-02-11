@@ -1,7 +1,5 @@
-﻿using MySqlConnector;
-using Dapper;
+﻿using Dapper;
 using Patchwork.SqlDialects.MySql;
-using System.Data.Common;
 
 namespace Patchwork.Tests.MySql_tests;
 
