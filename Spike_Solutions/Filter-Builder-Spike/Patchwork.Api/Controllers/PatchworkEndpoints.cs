@@ -34,9 +34,9 @@ public class PatchworkEndpoints : Controller
     // if (!authorization.GetPermissionToCollection(schemaName, entityName, this.User).HasFlag(Permission.Get))
     //   return this.Unauthorized();
 
-    var select = this.sqlDialect.BuildGetListSql(schemaName, entityName, fields, filter, sort, limit, offset);
-    using var connect = this.sqlDialect.GetConnection();
-    var found = connect.Connection.Query(select.Sql, select.Parameters);
+    SelectStatement select = this.sqlDialect.BuildGetListSql(schemaName, entityName, fields, filter, sort, limit, offset);
+    using ActiveConnection connect = this.sqlDialect.GetConnection();
+    IEnumerable<dynamic> found = connect.Connection.Query(select.Sql, select.Parameters, connect.Transaction);
     return Json(found);
   }
 
@@ -53,9 +53,11 @@ public class PatchworkEndpoints : Controller
     // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Get))
     //   return this.Unauthorized();
 
-    var select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id, fields, include, asOf);
-    using var connect = this.sqlDialect.GetConnection();
-    var found = connect.Connection.Query(select.Sql, select.Parameters);
+    SelectStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id, fields, include, asOf);
+    using ActiveConnection connect = this.sqlDialect.GetConnection();
+    var found = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
+    if (found == null)
+      return NotFound();
     return Json(found);
   }
 
@@ -66,16 +68,25 @@ public class PatchworkEndpoints : Controller
     [FromRoute] string entityName,
     [FromBody] JsonDocument jsonResourceRequestBody)
   {
-    // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Post))
+    // if (!authorization.GetPermissionToResource(schemaName, entityName, this.User).HasFlag(Permission.Post))
     //   return this.Unauthorized();
 
     InsertStatement sql = this.sqlDialect.BuildPostSingleSql(schemaName, entityName, jsonResourceRequestBody);
+    using ActiveConnection connect = this.sqlDialect.GetConnection();
+    try
+    {
+      var found = connect.Connection.Execute(sql.Sql, sql.Parameters, connect.Transaction);
 
-    using var connect = this.sqlDialect.GetConnection();
-    var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
+      //TODO: Need to create Patchwork Log entry
 
-    connect.Transaction.Rollback();
-    return Json(found);
+      connect.Transaction.Commit();
+      return Json(found);
+    }
+    catch (Exception)
+    {
+      connect.Transaction.Rollback();
+      throw;
+    }
   }
 
   [HttpPut]
@@ -89,7 +100,35 @@ public class PatchworkEndpoints : Controller
     // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Put))
     //   return this.Unauthorized();
 
-    return Json(new { });
+    SelectStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id);
+    UpdateStatement update = this.sqlDialect.BuildPutSingleSql(schemaName, entityName, id, jsonResourceRequestBody);
+    using ActiveConnection connect = this.sqlDialect.GetConnection();
+    try
+    {
+
+      var beforeObject = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
+      if (beforeObject == null)
+        return NotFound();
+      var beforeUpdate = JsonSerializer.Serialize(beforeObject);
+      var updated = connect.Connection.Execute(update.Sql, update.Parameters, connect.Transaction);
+      var afterObject = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
+      if (afterObject == null)
+        return BadRequest($"Failed to insert the object {jsonResourceRequestBody}");
+      var afterString = JsonSerializer.Serialize(afterObject);
+
+      JsonPatch patch = this.sqlDialect.BuildDiffAsJsonPatch(beforeUpdate, afterString);
+
+      //TODO: Append this patch to the Patchwork Log
+
+      connect.Transaction.Commit();
+
+      return Json(new { entity = afterObject, changes = patch });
+    }
+    catch (Exception)
+    {
+      connect.Transaction.Rollback();
+      throw;
+    }
   }
 
   [HttpDelete]
@@ -102,7 +141,25 @@ public class PatchworkEndpoints : Controller
     // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Delete))
     //   return this.Unauthorized();
 
-    return NoContent();
+    var delete = this.sqlDialect.BuildDeleteSingleSql(schemaName, entityName, id);
+    using ActiveConnection connect = this.sqlDialect.GetConnection();
+    try
+    {
+
+      var updated = connect.Connection.Execute(delete.Sql, delete.Parameters, connect.Transaction);
+
+      //TODO: Need to create Patchwork Log entry
+
+      connect.Transaction.Commit();
+
+      return NoContent();
+    }
+    catch (Exception)
+    {
+      connect.Transaction.Rollback();
+      throw;
+    }
+
   }
 
   [HttpPatch]
