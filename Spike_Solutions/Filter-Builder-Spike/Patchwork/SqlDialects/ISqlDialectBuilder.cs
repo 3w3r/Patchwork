@@ -8,7 +8,7 @@ namespace Patchwork.SqlDialects;
 
 public interface ISqlDialectBuilder
 {
-  DbConnection GetConnection();
+  ActiveConnection GetConnection();
   DatabaseMetadata DiscoverSchema();
 
   SelectStatement BuildGetListSql(string schemaName, string entityName, string fields = "", string filter = "", string sort = "", int limit = 0, int offset = 0);

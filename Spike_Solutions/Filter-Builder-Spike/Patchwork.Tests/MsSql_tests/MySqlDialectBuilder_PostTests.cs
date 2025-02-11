@@ -40,14 +40,11 @@ public class MsSqlDialectBuilder_PostTests
     Assert.Contains("@email", sql.Sql);
     Assert.Contains("@extension", sql.Sql);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
-    using var transaction = connect.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
-    
+    using var connect = sut.GetConnection();
     try
     {
-      int changeCount = connect.Execute(sql.Sql, sql.Parameters, transaction);
-      dynamic found = connect.QueryFirst("SELECT * FROM [classicmodels].[employees] WHERE [lastName] = @lastName AND [firstName] = @firstName", sql.Parameters, transaction);
+      int changeCount = connect.Connection.Execute(sql.Sql, sql.Parameters, connect.Transaction);
+      dynamic found = connect.Connection.QueryFirst("SELECT * FROM [classicmodels].[employees] WHERE [lastName] = @lastName AND [firstName] = @firstName", sql.Parameters, connect.Transaction);
 
       Assert.Equal(1, changeCount);
       Assert.Equal("Cage", found.lastName);
@@ -55,8 +52,7 @@ public class MsSqlDialectBuilder_PostTests
     }
     finally
     {
-      transaction.Rollback();
-      connect.Close();
+      connect.Transaction.Rollback();
     }
   }
 }

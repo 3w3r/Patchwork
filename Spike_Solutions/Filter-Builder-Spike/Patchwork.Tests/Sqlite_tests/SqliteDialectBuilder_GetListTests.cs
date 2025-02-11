@@ -33,15 +33,13 @@ public class SqliteDialectBuilder_GetListTests
     // Act
     var sql = sut.BuildGetListSql("dbo", "customers", "*", "country ne 'USA'", "contactFirstName", 100, 0);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found = connect.Query(sql.Sql, sql.Parameters);
+    var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
 
     // Assert
     Assert.Equal(86, found.Count());
     Assert.DoesNotContain(found, x => x.country == "USA");
-    connect.Close();
   }
   [Fact]
   public void BuildGetListSql_UsingOperator_gt()
@@ -52,15 +50,13 @@ public class SqliteDialectBuilder_GetListTests
     // Act
     var sql = sut.BuildGetListSql("dbo", "customers", "*", "creditLimit gt '100000'", "phone", 100, 0);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found = connect.Query(sql.Sql, sql.Parameters);
+    var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
 
     // Assert
     Assert.Equal(25, found.Count());
     Assert.DoesNotContain(found, x => x.creditLimit <= 100000);
-    connect.Close();
   }
   [Fact]
   public void BuildGetListSql_UsingOperator_ge()
@@ -70,16 +66,14 @@ public class SqliteDialectBuilder_GetListTests
 
     // Act
     var sql = sut.BuildGetListSql("dbo", "customers", "*", "creditLimit ge '96800'", "city:desc", 100, 0);
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found = connect.Query(sql.Sql, sql.Parameters);
+    var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
 
     // Assert
     Assert.Equal(28, found.Count());
     Assert.Contains(found, x => x.creditLimit == 96800);
     Assert.DoesNotContain(found, x => x.creditLimit < 96800);
-    connect.Close();
   }
   [Fact]
   public void BuildGetListSql_UsingOperator_lt()
@@ -89,15 +83,13 @@ public class SqliteDialectBuilder_GetListTests
 
     // Act
     var sql = sut.BuildGetListSql("dbo", "customers", "*", "contactLastName lt 'F'", "state, postalCode:desc, city:asc", 100, 0);
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found = connect.Query(sql.Sql, sql.Parameters);
+    var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
 
     // Assert
     Assert.Equal(30, found.Count());
     Assert.DoesNotContain(found, x => string.Compare(x.contactLastName, "F") >= 0);
-    connect.Close();
   }
   [Fact]
   public void BuildGetListSql_UsingOperator_le()
@@ -107,16 +99,14 @@ public class SqliteDialectBuilder_GetListTests
 
     // Act
     var sql = sut.BuildGetListSql("dbo", "customers", "*", "contactLastName le 'Frick'", "creditLimit", 100, 0);
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found = connect.Query(sql.Sql, sql.Parameters);
+    var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
 
     // Assert
     Assert.Equal(41, found.Count());
     Assert.DoesNotContain(found, x => string.Compare(x.contactLastName, "Frick") > 0);
     Assert.Contains(found, x => string.Equals(x.contactLastName, "Frick"));
-    connect.Close();
   }
   [Fact]
   public void BuildGetListSql_UsingOperator_in()
@@ -126,10 +116,9 @@ public class SqliteDialectBuilder_GetListTests
 
     // Act
     var sql = sut.BuildGetListSql("dbo", "customers", "*", "postalCode in ('44000', '97562', '08022', 'S-844 67' )", "country", 100, 0);
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found = connect.Query(sql.Sql, sql.Parameters);
+    var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
 
     // Assert
     Assert.Equal(6, found.Count());
@@ -137,7 +126,6 @@ public class SqliteDialectBuilder_GetListTests
     Assert.Contains(found, x => string.Equals(x.postalCode, "97562"));
     Assert.Contains(found, x => string.Equals(x.postalCode, "08022"));
     Assert.Contains(found, x => string.Equals(x.postalCode, "S-844 67"));
-    connect.Close();
   }
   [Fact]
   public void BuildGetListSql_UsingOperator_ct()
@@ -147,15 +135,13 @@ public class SqliteDialectBuilder_GetListTests
 
     // Act
     var sql = sut.BuildGetListSql("dbo", "customers", "*", "customerName ct '.com'", "customerNumber", 100, 0);
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found = connect.Query(sql.Sql, sql.Parameters);
+    var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
 
     // Assert
     Assert.Equal(4, found.Count());
     Assert.DoesNotContain(found, x => !x.customerName.Contains(".com"));
-    connect.Close();
   }
   [Fact]
   public void BuildGetListSql_UsingOperator_sw()
@@ -165,15 +151,13 @@ public class SqliteDialectBuilder_GetListTests
 
     // Act
     var sql = sut.BuildGetListSql("dbo", "customers", "*", "addressLine1 sw '24'", "salesRepEmployeeNumber", 100, 0);
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found = connect.Query(sql.Sql, sql.Parameters);
+    var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
 
     // Assert
     Assert.Equal(2, found.Count());
     Assert.DoesNotContain(found, x => !x.addressLine1.StartsWith("24"));
-    connect.Close();
   }
 
   [Fact]
@@ -194,17 +178,14 @@ public class SqliteDialectBuilder_GetListTests
     Assert.Contains("OFFSET 0", sql.Sql);
     Assert.Equal("197%", sql.Parameters.First().Value);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found = connect.Query(sql.Sql, sql.Parameters);
+    var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal(8, found.Count());
     foreach (var item in found)
     {
       Assert.StartsWith("197", item.productName);
     }
-
-    connect.Close();
   }
 
   [Fact]
@@ -225,17 +206,14 @@ public class SqliteDialectBuilder_GetListTests
     Assert.Contains("OFFSET 0", sql.Sql);
     Assert.Equal("%Chevy%", sql.Parameters.First().Value);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found = connect.Query(sql.Sql, sql.Parameters);
+    var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal(4, found.Count());
     foreach (var item in found)
     {
       Assert.Contains("Chevy", item.productName);
     }
-
-    connect.Close();
   }
 
   [Fact]
@@ -273,13 +251,10 @@ public class SqliteDialectBuilder_GetListTests
     Assert.Equal("%Chevy%", sql.Parameters.First().Value);
     Assert.Equal("1952%", sql.Parameters.Last().Value);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found = connect.Query(sql.Sql, sql.Parameters);
+    var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal(20, found.Count());
-
-    connect.Close();
   }
 
   [Fact]
@@ -309,11 +284,10 @@ public class SqliteDialectBuilder_GetListTests
     Assert.Contains("OFFSET 5", sql2.Sql);
     Assert.Equal("shipped", sql2.Parameters.First().Value);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found1 = connect.Query(sql1.Sql, sql1.Parameters).ToArray();
-    var found2 = connect.Query(sql2.Sql, sql2.Parameters).ToArray();
+    var found1 = connect.Connection.Query(sql1.Sql, sql1.Parameters, connect.Transaction).ToArray();
+    var found2 = connect.Connection.Query(sql2.Sql, sql2.Parameters, connect.Transaction).ToArray();
 
     Assert.Equal(10, found1.Length);
     Assert.Equal(5, found2.Length);
@@ -328,8 +302,6 @@ public class SqliteDialectBuilder_GetListTests
       Assert.Equal(found2[i].shippedDate.ToString(), found1[i + 5].shippedDate.ToString());
       Assert.Equal(found2[i].status.ToString(), found1[i + 5].status.ToString());
     }
-
-    connect.Close();
   }
 
   [Fact]

@@ -1,5 +1,6 @@
 using System.Data.Common;
 using System.Text;
+using Microsoft.Data.SqlClient;
 using MySqlConnector;
 using Patchwork.DbSchema;
 using Patchwork.Expansion;
@@ -16,9 +17,12 @@ public class MySqlDialectBuilder : SqlDialectBuilderBase
   public MySqlDialectBuilder(string connectionString) : base(connectionString) { }
   public MySqlDialectBuilder(DatabaseMetadata metadata) : base(metadata) { }
 
-  public override DbConnection GetConnection()
+  public override ActiveConnection GetConnection()
   {
-    return new MySqlConnection(_connectionString);
+    var c = new MySqlConnection(_connectionString);
+    c.Open();
+    DbTransaction t = c.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
+    return new ActiveConnection(c, t);
   }
 
   internal override string BuildSelectClause(string fields, Entity entity)

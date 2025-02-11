@@ -21,17 +21,14 @@ public class SqliteDialectBuilder_GetResourceTests
     Assert.Contains("SELECT *", sql.Sql);
     Assert.Contains("FROM products", sql.Sql);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found = connect.QueryFirst(sql.Sql, sql.Parameters);
+    var found = connect.Connection.QueryFirst(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal("S24_1937", found.productCode);
     Assert.Equal("1939 Chevrolet Deluxe Coupe", found.productName);
     Assert.Equal("Vintage Cars", found.productLine);
     Assert.Equal("1:24", found.productScale);
     Assert.False(string.IsNullOrEmpty(found.textDescription));
-
-    connect.Close();
   }
 
   [Fact]
@@ -48,17 +45,14 @@ public class SqliteDialectBuilder_GetResourceTests
     Assert.Contains("SELECT *", sql.Sql);
     Assert.Contains("FROM products", sql.Sql);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found = connect.QueryFirst(sql.Sql, sql.Parameters);
+    var found = connect.Connection.QueryFirst(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal("S24_1937", found.productCode);
     Assert.Equal("1939 Chevrolet Deluxe Coupe", found.productName);
     Assert.Equal("Vintage Cars", found.productLine);
     Assert.Equal("1:24", found.productScale);
     Assert.True(found.quantityOrdered > 0);
-
-    connect.Close();
   }
 
   [Fact]
@@ -75,18 +69,15 @@ public class SqliteDialectBuilder_GetResourceTests
     Assert.Contains("SELECT *", sql.Sql);
     Assert.Contains("FROM products", sql.Sql);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found = connect.QueryFirst(sql.Sql, sql.Parameters);
+    var found = connect.Connection.QueryFirst(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal("S24_1937", found.productCode);
     Assert.Equal("1939 Chevrolet Deluxe Coupe", found.productName);
     Assert.Equal("Vintage Cars", found.productLine);
     Assert.Equal("1:24", found.productScale);
     Assert.True(found.quantityOrdered > 0);
     Assert.False(string.IsNullOrEmpty(found.status));
-
-    connect.Close();
   }
 
   [Fact]

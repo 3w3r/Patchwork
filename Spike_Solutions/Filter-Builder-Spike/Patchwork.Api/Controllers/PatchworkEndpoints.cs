@@ -1,16 +1,11 @@
 ﻿using System.Data.Common;
+using System.Text.Json;
+using Dapper;
+using Json.Patch;
 using Microsoft.AspNetCore.Mvc;
 using Patchwork.Authorization;
 using Patchwork.SqlDialects;
-using Dapper;
-using DatabaseSchemaReader.Filters;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using System.Text.Json;
-using Json.Patch;
 using Patchwork.SqlStatements;
-using System.Text.Json.Serialization;
 
 namespace Patchwork.Api.Controllers;
 
@@ -41,10 +36,8 @@ public class PatchworkEndpoints : Controller
     //   return this.Unauthorized();
 
     var select = this.sqlDialect.BuildGetListSql(schemaName, entityName, fields, filter, sort, limit, offset);
-    using DbConnection connect = this.sqlDialect.GetConnection();
-    connect.Open();
-    var found = connect.Query(select.Sql, select.Parameters);
-    connect.Close();
+    using var connect = this.sqlDialect.GetConnection();
+    var found = connect.Connection.Query(select.Sql, select.Parameters);
     return Json(found);
   }
 
@@ -62,10 +55,8 @@ public class PatchworkEndpoints : Controller
     //   return this.Unauthorized();
 
     var select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id, fields, include, asOf);
-    using DbConnection connect = this.sqlDialect.GetConnection();
-    connect.Open();
-    var found = connect.Query(select.Sql, select.Parameters);
-    connect.Close();
+    using var connect = this.sqlDialect.GetConnection();
+    var found = connect.Connection.Query(select.Sql, select.Parameters);
     return Json(found);
   }
 
@@ -81,14 +72,10 @@ public class PatchworkEndpoints : Controller
 
     InsertStatement sql = this.sqlDialect.BuildPostSingleSql(schemaName, entityName, jsonResourceRequestBody);
 
-    using DbConnection connect = this.sqlDialect.GetConnection();
-    connect.Open();
-    using var transaction = connect.BeginTransaction();
-    var found = connect.Query(sql.Sql, sql.Parameters, transaction);
+    using var connect = this.sqlDialect.GetConnection();
+    var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
 
-    transaction.Rollback();
-    connect.Close();
-    
+    connect.Transaction.Rollback();
     return Json(found);
   }
 

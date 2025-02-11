@@ -22,21 +22,19 @@ public class SqliteDialectBuilder_DeleteTests
     Assert.Contains("DELETE FROM employees", sql.Sql);
     Assert.Contains("employeeNumber = @id", sql.Sql);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
-    using var transaction = connect.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
+    using var connect = sut.GetConnection();
+
     try
     {
-      int changeCount = connect.Execute(sql.Sql, sql.Parameters, transaction);
-      dynamic? found = connect.QueryFirstOrDefault("SELECT * FROM employees WHERE employeeNumber = @id", sql.Parameters, transaction);
+      int changeCount = connect.Connection.Execute(sql.Sql, sql.Parameters, connect.Transaction);
+      dynamic? found = connect.Connection.QueryFirstOrDefault("SELECT * FROM employees WHERE employeeNumber = @id", sql.Parameters, connect.Transaction);
 
       Assert.Equal(1, changeCount);
       Assert.Null(found);
     }
     finally
     {
-      transaction.Rollback();
-      connect.Close();
+      connect.Transaction.Rollback();
     }
   }
 }

@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using System.Data.Common;
 using System.Text.Json;
 using Json.Patch;
 using Patchwork.DbSchema;
@@ -12,7 +11,6 @@ using Patchwork.Sort;
 using Patchwork.SqlStatements;
 
 namespace Patchwork.SqlDialects;
-
 public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
 {
   protected readonly string _connectionString;
@@ -29,7 +27,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     _metadata = metadata;
   }
 
-  public abstract DbConnection GetConnection();
+  public abstract ActiveConnection GetConnection();
   public virtual DatabaseMetadata DiscoverSchema()
   {
     if (_metadata != null || _metadataCache.TryGetValue(_connectionString, out _metadata))
@@ -38,7 +36,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     }
 
     SchemaDiscoveryBuilder schemaDiscoveryBuilder = new SchemaDiscoveryBuilder();
-    using DbConnection connection = GetConnection();
+    using ActiveConnection connection = GetConnection();
     _metadata = schemaDiscoveryBuilder.ReadSchema(connection);
     _metadataCache.TryAdd(_connectionString, _metadata);
     return _metadata;

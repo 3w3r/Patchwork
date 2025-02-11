@@ -42,12 +42,9 @@ public class PostgreSqlDialectBuilder_GetListTests
     Assert.Equal("%Chevy%", sql.Parameters.First().Value);
     Assert.Equal("1952%", sql.Parameters.Last().Value);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found = connect.Query(sql.Sql, sql.Parameters);
+    var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal(20, found.Count());
-
-    connect.Close();
   }
 }

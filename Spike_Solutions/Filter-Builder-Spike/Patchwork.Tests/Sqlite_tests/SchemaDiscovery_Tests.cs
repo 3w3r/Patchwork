@@ -11,10 +11,11 @@ public class SchemaDiscovery_Tests
     // Arrange
     using SqliteConnection connection = new SqliteConnection(ConnectionStringManager.GetSqliteConnectionString());
     connection.Open();
+    var transaction = connection.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
 
     // Act
     SchemaDiscoveryBuilder builder = new SchemaDiscoveryBuilder();
-    DatabaseMetadata metadata = builder.ReadSchema(connection);
+    DatabaseMetadata metadata = builder.ReadSchema(new SqlDialects.ActiveConnection(connection, transaction));
 
     // Assert
     Assert.NotNull(metadata);

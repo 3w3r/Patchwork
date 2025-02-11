@@ -1,5 +1,4 @@
-﻿using System.Data.Common;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Dapper;
 using Patchwork.SqlDialects.MySql;
 using Patchwork.SqlStatements;
@@ -40,14 +39,13 @@ public class MySqlDialectBuilder_PostTests
     Assert.Contains("@email", sql.Sql);
     Assert.Contains("@extension", sql.Sql);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
-    using DbTransaction transaction = connect.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
+    using SqlDialects.ActiveConnection connect = sut.GetConnection();
 
     try
     {
-      int changeCount = connect.Execute(sql.Sql, sql.Parameters, transaction);
-      dynamic found = connect.QueryFirst("SELECT * FROM `taskboard`.`employees` WHERE `lastName` = @lastName AND `firstName` = @firstName", sql.Parameters, transaction);
+      int changeCount = connect.Connection.Execute(sql.Sql, sql.Parameters, connect.Transaction);
+      dynamic found = connect.Connection.QueryFirst("SELECT * FROM `taskboard`.`employees` WHERE `lastName` = @lastName AND `firstName` = @firstName",
+                                                    sql.Parameters, connect.Transaction);
 
       Assert.Equal(1, changeCount);
       Assert.Equal("Cage", found.lastName);
@@ -55,8 +53,7 @@ public class MySqlDialectBuilder_PostTests
     }
     finally
     {
-      transaction.Rollback();
-      connect.Close();
+      connect.Transaction.Rollback();
     }
   }
 }

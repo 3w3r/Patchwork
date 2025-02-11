@@ -1,5 +1,6 @@
 ﻿using System.Data.Common;
 using System.Text;
+using MySqlConnector;
 using Npgsql;
 using Patchwork.DbSchema;
 using Patchwork.Expansion;
@@ -18,9 +19,12 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
   public PostgreSqlDialectBuilder(string connectionString) : base(connectionString) { }
   public PostgreSqlDialectBuilder(DatabaseMetadata metadata) : base(metadata) { }
 
-  public override DbConnection GetConnection()
+  public override ActiveConnection GetConnection()
   {
-    return new NpgsqlConnection(_connectionString);
+    var c = new NpgsqlConnection(_connectionString);
+    c.Open();
+    DbTransaction t = c.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
+    return new ActiveConnection(c, t);
   }
 
   internal override string BuildSelectClause(string fields, Entity entity)

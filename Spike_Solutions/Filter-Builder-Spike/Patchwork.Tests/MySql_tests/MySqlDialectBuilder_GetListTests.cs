@@ -25,17 +25,14 @@ public class MySqlDialectBuilder_GetListTests
     Assert.Contains("OFFSET 0", sql.Sql);
     Assert.Equal("197%", sql.Parameters.First().Value);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found = connect.Query(sql.Sql, sql.Parameters);
+    var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal(8, found.Count());
     foreach (var item in found)
     {
       Assert.StartsWith("197", item.productName);
     }
-
-    connect.Close();
   }
 
   [Fact]
@@ -56,17 +53,14 @@ public class MySqlDialectBuilder_GetListTests
     Assert.Contains("OFFSET 0", sql.Sql);
     Assert.Equal("%Chevy%", sql.Parameters.First().Value);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found = connect.Query(sql.Sql, sql.Parameters);
+    var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal(4, found.Count());
     foreach (var item in found)
     {
       Assert.Contains("Chevy", item.productName);
     }
-
-    connect.Close();
   }
 
   [Fact]
@@ -104,13 +98,10 @@ public class MySqlDialectBuilder_GetListTests
     Assert.Equal("%Chevy%", sql.Parameters.First().Value);
     Assert.Equal("1952%", sql.Parameters.Last().Value);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found = connect.Query(sql.Sql, sql.Parameters);
+    var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal(20, found.Count());
-
-    connect.Close();
   }
 
   [Fact]
@@ -140,11 +131,10 @@ public class MySqlDialectBuilder_GetListTests
     Assert.Contains("OFFSET 5", sql2.Sql);
     Assert.Equal("shipped", sql2.Parameters.First().Value);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
+    using var connect = sut.GetConnection();
 
-    var found1 = connect.Query(sql1.Sql, sql1.Parameters).ToArray();
-    var found2 = connect.Query(sql2.Sql, sql2.Parameters).ToArray();
+    var found1 = connect.Connection.Query(sql1.Sql, sql1.Parameters, connect.Transaction).ToArray();
+    var found2 = connect.Connection.Query(sql2.Sql, sql2.Parameters, connect.Transaction).ToArray();
 
     Assert.Equal(10, found1.Length);
     Assert.Equal(5, found2.Length);
@@ -159,8 +149,6 @@ public class MySqlDialectBuilder_GetListTests
       Assert.Equal(found2[i].shippeddate.ToString(), found1[i + 5].shippeddate.ToString());
       Assert.Equal(found2[i].status.ToString(), found1[i + 5].status.ToString());
     }
-
-    connect.Close();
   }
 
   [Fact]

@@ -21,16 +21,14 @@ public class MySqlDialectBuilder_GetResourceTests
     Assert.Contains("SELECT *", sql.Sql);
     Assert.Contains("FROM `taskboard`.`products`", sql.Sql);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
-    var found = connect.QueryFirst(sql.Sql, sql.Parameters);
+    using var connect = sut.GetConnection();
+
+    var found = connect.Connection.QueryFirst(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal("S24_1937", found.productCode);
     Assert.Equal("1939 Chevrolet Deluxe Coupe", found.productName);
     Assert.Equal("Vintage Cars", found.productLine);
     Assert.Equal("1:24", found.productScale);
     Assert.False(string.IsNullOrEmpty(found.textDescription));
-
-    connect.Close();
   }
 
   [Fact]
@@ -47,16 +45,14 @@ public class MySqlDialectBuilder_GetResourceTests
     Assert.Contains("SELECT *", sql.Sql);
     Assert.Contains("FROM `taskboard`.`products`", sql.Sql);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
-    var found = connect.QueryFirst(sql.Sql, sql.Parameters);
+    using var connect = sut.GetConnection();
+
+    var found = connect.Connection.QueryFirst(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal("S24_1937", found.productCode);
     Assert.Equal("1939 Chevrolet Deluxe Coupe", found.productName);
     Assert.Equal("Vintage Cars", found.productLine);
     Assert.Equal("1:24", found.productScale);
     Assert.True(found.quantityOrdered > 0);
-
-    connect.Close();
   }
 
   [Fact]
@@ -73,16 +69,14 @@ public class MySqlDialectBuilder_GetResourceTests
     Assert.Contains("SELECT *", sql.Sql);
     Assert.Contains("FROM `taskboard`.`products`", sql.Sql);
 
-    using DbConnection connect = sut.GetConnection();
-    connect.Open();
-    var found = connect.QueryFirst(sql.Sql, sql.Parameters);
+    using var connect = sut.GetConnection();
+
+    var found = connect.Connection.QueryFirst(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal("S24_1937", found.productCode);
     Assert.Equal("1939 Chevrolet Deluxe Coupe", found.productName);
     Assert.Equal("Vintage Cars", found.productLine);
     Assert.Equal("1:24", found.productScale);
     Assert.True(found.quantityOrdered > 0);
     Assert.False(string.IsNullOrEmpty(found.status));
-
-    connect.Close();
   }
 }

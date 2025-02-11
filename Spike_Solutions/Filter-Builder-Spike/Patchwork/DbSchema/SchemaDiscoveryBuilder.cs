@@ -2,14 +2,15 @@
 using System.Data.Common;
 using System.Linq;
 using DatabaseSchemaReader.DataSchema;
+using Patchwork.SqlDialects;
 
 namespace Patchwork.DbSchema;
 
 public class SchemaDiscoveryBuilder
 {
-  public DatabaseMetadata ReadSchema(DbConnection connection)
+  public DatabaseMetadata ReadSchema(ActiveConnection connection)
   {
-    DatabaseSchemaReader.DatabaseReader dbReader = new DatabaseSchemaReader.DatabaseReader(connection);
+    DatabaseSchemaReader.DatabaseReader dbReader = new DatabaseSchemaReader.DatabaseReader(connection.Transaction);
 
     IList<DatabaseDbSchema> dbS = dbReader.AllSchemas();
     if (dbS.Count == 0)
