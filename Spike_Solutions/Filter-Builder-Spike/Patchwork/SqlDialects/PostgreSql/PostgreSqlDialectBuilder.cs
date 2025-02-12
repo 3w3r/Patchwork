@@ -123,7 +123,7 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
                      .OrderBy(x => x.IsPrimaryKey)
                      .ThenBy(x => x.Name)
                      .Select(x => $"@{x.Name.ToLower()}");
-    return $"VALUES ({string.Join(", ", list)})";
+    return $"VALUES ({string.Join(", ", list)}) RETURNING *";
   }
 
 

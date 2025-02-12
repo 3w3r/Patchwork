@@ -38,6 +38,7 @@ public class MsSqlDialectBuilder_PostTests
     Assert.Contains("@firstName", sql.Sql);
     Assert.Contains("@email", sql.Sql);
     Assert.Contains("@extension", sql.Sql);
+    Assert.Contains("OUTPUT inserted.*", sql.Sql);
 
     using var connect = sut.GetConnection();
     try

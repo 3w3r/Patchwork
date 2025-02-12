@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patchwork.Api", "Patchwork.
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{DAB022EA-C7D1-4DA8-B362-37764C0B9C47}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patchwork.Db", "Patchwork.Db\Patchwork.Db.csproj", "{A4A9CBC3-E564-4E75-AD0E-3A53C4F32ACD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{DAB022EA-C7D1-4DA8-B362-37764C0B9C47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DAB022EA-C7D1-4DA8-B362-37764C0B9C47}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DAB022EA-C7D1-4DA8-B362-37764C0B9C47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4A9CBC3-E564-4E75-AD0E-3A53C4F32ACD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4A9CBC3-E564-4E75-AD0E-3A53C4F32ACD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4A9CBC3-E564-4E75-AD0E-3A53C4F32ACD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4A9CBC3-E564-4E75-AD0E-3A53C4F32ACD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

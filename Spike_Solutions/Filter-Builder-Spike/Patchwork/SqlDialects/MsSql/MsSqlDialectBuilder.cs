@@ -113,7 +113,7 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
                      .OrderBy(x => x.IsPrimaryKey)
                      .ThenBy(x => x.Name)
                      .Select(x => $"[{x.Name}]");
-    return $"({string.Join(", ", list)})";
+    return $"({string.Join(", ", list)}) OUTPUT inserted.*";
   }
   internal override string BuildParameterListForInsert(Entity entity)
   {

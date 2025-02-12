@@ -38,6 +38,7 @@ public class PostgreSqlDialectBuilder_PostTests
     Assert.Contains("@firstname", sql.Sql);
     Assert.Contains("@email", sql.Sql);
     Assert.Contains("@extension", sql.Sql);
+    Assert.Contains("RETURNING *", sql.Sql);
 
     using var connect = sut.GetConnection();
 

@@ -1,46 +1,25 @@
-@Patchwork.Api_HostAddress = https://localhost:65218
+@Patchwork.Api_HostAddress = https://localhost:56850
 
-GET {{Patchwork.Api_HostAddress}}/api/dbo/Surveys
+GET {{Patchwork.Api_HostAddress}}/api/dbo/Surveys?filter=archived%20eq%20'false'%20AND%20active%20eq%20'true'
 Accept: application/json
 
 ###
 
 
-GET {{Patchwork.Api_HostAddress}}/api/dbo/Surveys?filter=jobTitle%20eq%20'Sales%20Rep'
+GET {{Patchwork.Api_HostAddress}}/api/dbo/Surveys?filter=CompanyId%20eq%20'B6001'%&limit=10&offset=30
 Accept: application/json
 
 ###
 
 
-GET {{Patchwork.Api_HostAddress}}/api/dbo/Surveys?filter=quantityInStock%20gt%20100
+GET {{Patchwork.Api_HostAddress}}/api/dbo/LaunchedSurveyBatches?filter=SurveyName%20sw%'EWER'
 Accept: application/json
 
 ###
 
 
-GET {{Patchwork.Api_HostAddress}}/api/dbo/Surveys/1625
+GET {{Patchwork.Api_HostAddress}}/api/dbo/LaunchedSurveyBatches/15
 Accept: application/json
 
 
 ###
-
-POST {{Patchwork.Api_HostAddress}}/api/dbo/Surveys
-Content-Type: application/json
-Accept: application/json
-
-{
-  "productCode": "ME_9999",
-  "productName": "2024 Factory 5 MK2 Roadster",
-  "productLine": "Classic Cars",
-  "productScale": "1:10",
-  "productVendor": "Motor City Art Classics",
-  "productDescription": "Features include: Turnable front wheels; steering function; detailed interior; detailed engine; opening hood; opening trunk; opening doors; and detailed chassis.",
-  "quantityInStock": 19,
-  "buyPrice": 45.68,
-  "MSRP": 64.99
-}
-
-###
-
-GET {{Patchwork.Api_HostAddress}}/api/dbo/Surveys/ME_9999
-Accept: applicaiton/json
