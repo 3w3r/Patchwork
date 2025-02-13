@@ -7,6 +7,23 @@
     <UserSecretsId>1fb0483b-aa42-4c49-86d2-60a591842222</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
+    <Configurations>Debug;Release;PostgreSql;MySql;MsSql</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);SQLITE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PostgreSql|AnyCPU'">
+    <DefineConstants>$(DefineConstants);POSTGRESQL</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MySql|AnyCPU'">
+    <DefineConstants>$(DefineConstants);MYSQL</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MsSql|AnyCPU'">
+    <DefineConstants>$(DefineConstants);MSSQL</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

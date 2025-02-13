@@ -9,6 +9,10 @@
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
     <DockerServiceName>patchwork.api</DockerServiceName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PostgreSql|AnyCPU'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MySql|AnyCPU'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MsSql|AnyCPU'" />
   <ItemGroup>
     <None Include="docker-compose.override.yml">
       <DependentUpon>docker-compose.yml</DependentUpon>

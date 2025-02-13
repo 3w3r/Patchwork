@@ -1,7 +1,9 @@
 using Patchwork.Authorization;
 using Patchwork.SqlDialects;
 using Patchwork.SqlDialects.MsSql;
+using Patchwork.SqlDialects.Sqlite;
 using Patchwork.SqlDialects.PostgreSql;
+using Patchwork.SqlDialects.MySql;
 
 namespace Patchwork.Api;
 
@@ -14,10 +16,18 @@ public static class Program
     // Add services to the container.
     builder.Services.AddSingleton<IPatchworkAuthorization, DefaultPatchworkAuthorization>();
     builder.Services.AddSingleton<ISqlDialectBuilder>(
-      //new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString())
+#if SQLITE
+      new SqliteDialectBuilder(ConnectionStringManager.GetSqliteConnectionString())
+#endif
+#if POSTGRESQL
       new PostgreSqlDialectBuilder(ConnectionStringManager.GetPostgreSqlConnectionString())
-      //new SqliteDialectBuilder(ConnectionStringManager.GetSqliteConnectionString())
-      //new MsSqlDialectBuilder(ConnectionStringManager.GetMsSqlConnectionString())
+#endif
+#if MYSQL
+      new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString())
+#endif
+#if MSSQL
+      new MsSqlDialectBuilder(ConnectionStringManager.GetMsSqlConnectionString())
+#endif
       //new MsSqlDialectBuilder(ConnectionStringManager.GetMsSqlSurveysConnectionString())
       );
 
