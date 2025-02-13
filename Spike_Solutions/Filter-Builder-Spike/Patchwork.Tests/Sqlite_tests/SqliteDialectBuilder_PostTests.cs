@@ -38,16 +38,17 @@ public class SqliteDialectBuilder_PostTests
     Assert.Contains("@firstName", sql.Sql);
     Assert.Contains("@email", sql.Sql);
     Assert.Contains("@extension", sql.Sql);
+    Assert.Contains("RETURNING *", sql.Sql);
 
     using var connect = sut.GetConnection();
 
     try
     {
-      int changeCount = connect.Connection.Execute(sql.Sql, sql.Parameters, connect.Transaction);
-      dynamic found = connect.Connection.QueryFirst("SELECT * FROM employees WHERE lastName = @lastName AND firstName = @firstName", 
-                                                    sql.Parameters, connect.Transaction);
+      IEnumerable<dynamic> changeCount = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
+      var found = changeCount.First();
 
-      Assert.Equal(1, changeCount);
+      Assert.Single(changeCount);
+      Assert.NotNull(found);
       Assert.Equal("Cage", found.lastName);
       Assert.Equal("x99", found.extension);
     }

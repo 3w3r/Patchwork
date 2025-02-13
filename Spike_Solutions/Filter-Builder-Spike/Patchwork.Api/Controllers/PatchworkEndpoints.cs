@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Dapper;
+using Json.More;
 using Json.Patch;
 using Microsoft.AspNetCore.Mvc;
 using Patchwork.Authorization;
@@ -21,9 +22,10 @@ public class PatchworkEndpoints : Controller
   }
 
   [HttpGet]
-  [Route("api/{schemaName}/{entityName}")]
+  [Route("api/{schemaName}/v{version}/{entityName}")]
   public IActionResult GetListEndpoint(
     [FromRoute] string schemaName,
+    [FromRoute] int version,
     [FromRoute] string entityName,
     [FromQuery] string fields = "",
     [FromQuery] string filter = "",
@@ -33,6 +35,7 @@ public class PatchworkEndpoints : Controller
   {
     // if (!authorization.GetPermissionToCollection(schemaName, entityName, this.User).HasFlag(Permission.Get))
     //   return this.Unauthorized();
+    schemaName = NormalizeSchemaName(schemaName);
 
     SelectStatement select = this.sqlDialect.BuildGetListSql(schemaName, entityName, fields, filter, sort, limit, offset);
     using ActiveConnection connect = this.sqlDialect.GetConnection();
@@ -41,9 +44,10 @@ public class PatchworkEndpoints : Controller
   }
 
   [HttpGet]
-  [Route("api/{schemaName}/{entityName}/{id}")]
+  [Route("api/{schemaName}/v{version}/{entityName}/{id}")]
   public IActionResult GetResourceEndpoint(
     [FromRoute] string schemaName,
+    [FromRoute] int version,
     [FromRoute] string entityName,
     [FromRoute] string id,
     [FromQuery] string fields = "",
@@ -52,6 +56,7 @@ public class PatchworkEndpoints : Controller
   {
     // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Get))
     //   return this.Unauthorized();
+    schemaName = NormalizeSchemaName(schemaName);
 
     SelectStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id, fields, include, asOf);
     using ActiveConnection connect = this.sqlDialect.GetConnection();
@@ -62,14 +67,16 @@ public class PatchworkEndpoints : Controller
   }
 
   [HttpPost]
-  [Route("api/{schemaName}/{entityName}")]
+  [Route("api/{schemaName}/v{version}/{entityName}")]
   public IActionResult PostResourceEndpoint(
     [FromRoute] string schemaName,
+    [FromRoute] int version,
     [FromRoute] string entityName,
     [FromBody] JsonDocument jsonResourceRequestBody)
   {
     // if (!authorization.GetPermissionToResource(schemaName, entityName, this.User).HasFlag(Permission.Post))
     //   return this.Unauthorized();
+    schemaName = NormalizeSchemaName(schemaName);
 
     InsertStatement sql = this.sqlDialect.BuildPostSingleSql(schemaName, entityName, jsonResourceRequestBody);
     using ActiveConnection connect = this.sqlDialect.GetConnection();
@@ -91,15 +98,17 @@ public class PatchworkEndpoints : Controller
   }
 
   [HttpPut]
-  [Route("api/{schemaName}/{entityName}/{id}")]
+  [Route("api/{schemaName}/v{version}/{entityName}/{id}")]
   public IActionResult PutResourceEndpoint(
     [FromRoute] string schemaName,
+    [FromRoute] int version,
     [FromRoute] string entityName,
     [FromRoute] string id,
     [FromBody] JsonDocument jsonResourceRequestBody)
   {
     // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Put))
     //   return this.Unauthorized();
+    schemaName = NormalizeSchemaName(schemaName);
 
     SelectStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id);
     UpdateStatement update = this.sqlDialect.BuildPutSingleSql(schemaName, entityName, id, jsonResourceRequestBody);
@@ -133,14 +142,16 @@ public class PatchworkEndpoints : Controller
   }
 
   [HttpDelete]
-  [Route("api/{schemaName}/{entityName}/{id}")]
+  [Route("api/{schemaName}/v{version}/{entityName}/{id}")]
   public IActionResult DeleteResourceEndpoint(
     [FromRoute] string schemaName,
+    [FromRoute] int version,
     [FromRoute] string entityName,
     [FromRoute] string id)
   {
     // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Delete))
     //   return this.Unauthorized();
+    schemaName = NormalizeSchemaName(schemaName);
 
     var delete = this.sqlDialect.BuildDeleteSingleSql(schemaName, entityName, id);
     using ActiveConnection connect = this.sqlDialect.GetConnection();
@@ -164,14 +175,16 @@ public class PatchworkEndpoints : Controller
   }
 
   [HttpPatch]
-  [Route("api/{schemaName}/{entityName}")]
+  [Route("api/{schemaName}/v{version}/{entityName}")]
   public IActionResult PatchListEndpoint(
     [FromRoute] string schemaName,
+    [FromRoute] int version,
     [FromRoute] string entityName,
     [FromBody] JsonPatch jsonPatchRequestBody)
   {
     // if (!authorization.GetPermissionToCollection(schemaName, entityName, this.User).HasFlag(Permission.Patch))
     //   return this.Unauthorized();
+    schemaName = NormalizeSchemaName(schemaName);
 
     //TODO: The incoming JSON Patch will have opertions for one or more entities in the system. We identify which
     //      entities are being changed by the `path` element. The prefix on each `path` element will be the URL needed
@@ -202,15 +215,17 @@ public class PatchworkEndpoints : Controller
   }
 
   [HttpPatch]
-  [Route("api/{schemaName}/{entityName}/{id}")]
+  [Route("api/{schemaName}/v{version}/{entityName}/{id}")]
   public IActionResult PatchResourceEndpoint(
     [FromRoute] string schemaName,
+    [FromRoute] int version,
     [FromRoute] string entityName,
     [FromRoute] string id,
     [FromBody] JsonPatch jsonPatchRequestBody)
   {
     // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Patch))
     //   return this.Unauthorized();
+    schemaName = NormalizeSchemaName(schemaName);
 
     //TODO:
     // 1. Read current entity
@@ -219,5 +234,12 @@ public class PatchworkEndpoints : Controller
     // 4. Return updated entity as `entity` and Patch as `changes` like the PUT does.
 
     return Accepted();
+  }
+
+  private string NormalizeSchemaName(string schemaName)
+  {
+    if (schemaName.Equals("surveys", StringComparison.OrdinalIgnoreCase))
+      schemaName = sqlDialect.DefaultSchemaName;
+    return schemaName;
   }
 }

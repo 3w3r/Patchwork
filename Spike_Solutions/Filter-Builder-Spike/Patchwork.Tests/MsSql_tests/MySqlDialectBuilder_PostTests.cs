@@ -21,7 +21,7 @@ public class MsSqlDialectBuilder_PostTests
   public void BuildPostSql_ShouldInsertResource()
   {
     // Arrange
-    var sut = new MsSqlDialectBuilder(ConnectionStringManager.GetMsSqlConnectionString());
+    var sut = new MsSqlDialectBuilder(ConnectionStringManager.GetMsSqlConnectionString(), "Taskboard");
 
     // Act
     InsertStatement sql = sut.BuildPostSingleSql("classicmodels", "employees", cageJson);

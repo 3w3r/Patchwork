@@ -44,11 +44,11 @@ public class PostgreSqlDialectBuilder_PostTests
 
     try
     {
-      int changeCount = connect.Connection.Execute(sql.Sql, sql.Parameters, connect.Transaction);
-      dynamic found = connect.Connection.QueryFirst("SELECT * FROM employees WHERE lastname = @lastname AND firstname = @firstname", 
-                                                    sql.Parameters, connect.Transaction);
+      IEnumerable<dynamic> changeCount = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
+      var found = changeCount.First();
 
-      Assert.Equal(1, changeCount);
+      Assert.Single(changeCount);
+      Assert.NotNull(found);
       Assert.Equal("Cage", found.lastname);
       Assert.Equal("x99", found.extension);
     }

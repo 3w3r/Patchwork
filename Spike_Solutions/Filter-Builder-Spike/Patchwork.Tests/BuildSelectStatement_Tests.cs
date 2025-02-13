@@ -11,7 +11,7 @@ public class BuildSelectStatement_Tests
   public void BuildSelectStatement_MsSql()
   {
     // Arrange
-    MsSqlDialectBuilder dialect = new MsSqlDialectBuilder(TestSampleData.DB);
+    MsSqlDialectBuilder dialect = new MsSqlDialectBuilder(TestSampleData.DB, "Taskboard");
 
     // Act
     string select = dialect.BuildSelectClause("*", dialect.FindEntity("shopping", "pRoDuCtS"));
@@ -37,7 +37,7 @@ public class BuildSelectStatement_Tests
   public void BuildSelectStatement_MySql()
   {
     // Arrange
-    MySqlDialectBuilder dialect = new MySqlDialectBuilder(TestSampleData.DB);
+    MySqlDialectBuilder dialect = new MySqlDialectBuilder(TestSampleData.DB, "Taskboard");
 
     // Act
     string select = dialect.BuildSelectClause("*", dialect.FindEntity("shopping", "pRoDuCtS"));
@@ -50,7 +50,7 @@ public class BuildSelectStatement_Tests
   public void BuildSelectStatement_MySql_WithFields()
   {
     // Arrange
-    MySqlDialectBuilder dialect = new MySqlDialectBuilder(TestSampleData.DB);
+    MySqlDialectBuilder dialect = new MySqlDialectBuilder(TestSampleData.DB, "Taskboard");
 
     // Act
     string select = dialect.BuildSelectClause("name,price", dialect.FindEntity("shopping", "pRoDuCtS"));

@@ -15,8 +15,8 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
 {
   static readonly string StringType = typeof(string).Name;
 
-  public PostgreSqlDialectBuilder(string connectionString) : base(connectionString) { }
-  public PostgreSqlDialectBuilder(DatabaseMetadata metadata) : base(metadata) { }
+  public PostgreSqlDialectBuilder(string connectionString) : base(connectionString, "public") { }
+  public PostgreSqlDialectBuilder(DatabaseMetadata metadata) : base(metadata, "public") { }
 
   public override ActiveConnection GetConnection()
   {

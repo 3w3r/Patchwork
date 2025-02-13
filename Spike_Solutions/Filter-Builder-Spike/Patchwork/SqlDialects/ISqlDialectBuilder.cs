@@ -7,6 +7,8 @@ namespace Patchwork.SqlDialects;
 
 public interface ISqlDialectBuilder
 {
+  string DefaultSchemaName { get; }
+
   ActiveConnection GetConnection();
   DatabaseMetadata DiscoverSchema();
 

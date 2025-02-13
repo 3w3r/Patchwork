@@ -16,15 +16,18 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
   protected readonly string _connectionString;
   protected static ConcurrentDictionary<string, DatabaseMetadata> _metadataCache = new ConcurrentDictionary<string, DatabaseMetadata>();
   protected DatabaseMetadata? _metadata = null;
+  public string DefaultSchemaName { get; init; }
 
-  public SqlDialectBuilderBase(string connectionString)
+  public SqlDialectBuilderBase(string connectionString, string defaultSchema)
   {
     _connectionString = connectionString;
+    DefaultSchemaName = defaultSchema;
   }
-  public SqlDialectBuilderBase(DatabaseMetadata metadata)
+  public SqlDialectBuilderBase(DatabaseMetadata metadata, string defaultSchema)
   {
     _connectionString = string.Empty;
     _metadata = metadata;
+    DefaultSchemaName = defaultSchema;
   }
 
   public abstract ActiveConnection GetConnection();

@@ -13,9 +13,9 @@ namespace Patchwork.SqlDialects.MsSql;
 
 public class MsSqlDialectBuilder : SqlDialectBuilderBase
 {
-  public MsSqlDialectBuilder(string connectionString) : base(connectionString) { }
+  public MsSqlDialectBuilder(string connectionString, string defaultSchema = "dbo") : base(connectionString, defaultSchema) { }
 
-  public MsSqlDialectBuilder(DatabaseMetadata metadata) : base(metadata) { }
+  public MsSqlDialectBuilder(DatabaseMetadata metadata, string defaultSchema = "dbo") : base(metadata, defaultSchema) { }
 
   public override ActiveConnection GetConnection()
   {

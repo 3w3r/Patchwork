@@ -13,8 +13,8 @@ namespace Patchwork.SqlDialects.MySql;
 
 public class MySqlDialectBuilder : SqlDialectBuilderBase
 {
-  public MySqlDialectBuilder(string connectionString) : base(connectionString) { }
-  public MySqlDialectBuilder(DatabaseMetadata metadata) : base(metadata) { }
+  public MySqlDialectBuilder(string connectionString, string defaultSchema = "public") : base(connectionString, defaultSchema) { }
+  public MySqlDialectBuilder(DatabaseMetadata metadata, string defaultSchema = "public") : base(metadata, defaultSchema) { }
 
   public override ActiveConnection GetConnection()
   {

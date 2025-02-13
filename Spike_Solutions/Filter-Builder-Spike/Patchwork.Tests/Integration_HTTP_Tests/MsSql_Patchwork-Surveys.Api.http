@@ -1,24 +1,24 @@
 @Patchwork.Api_HostAddress = https://localhost:56850
 
-GET {{Patchwork.Api_HostAddress}}/api/dbo/Surveys?filter=archived%20eq%20'false'%20AND%20active%20eq%20'true'
+GET {{Patchwork.Api_HostAddress}}/api/Surveys/v3/Surveys?filter=archived%20eq%20'false'%20AND%20active%20eq%20'true'
 Accept: application/json
 
 ###
 
 
-GET {{Patchwork.Api_HostAddress}}/api/dbo/Surveys?filter=CompanyId%20eq%20'B6001'%&limit=10&offset=30
+GET {{Patchwork.Api_HostAddress}}/api/Surveys/v3/Surveys?filter=CompanyId%20eq%20'B6001'%&limit=10&offset=30
 Accept: application/json
 
 ###
 
 
-GET {{Patchwork.Api_HostAddress}}/api/dbo/LaunchedSurveyBatches?filter=SurveyName%20sw%'EWER'
+GET {{Patchwork.Api_HostAddress}}/api/Surveys/v3/LaunchedSurveyBatches?filter=SurveyName%20sw%'EWER'
 Accept: application/json
 
 ###
 
 
-GET {{Patchwork.Api_HostAddress}}/api/dbo/LaunchedSurveyBatches/15
+GET {{Patchwork.Api_HostAddress}}/api/Surveys/v3/LaunchedSurveyBatches/15
 Accept: application/json
 
 

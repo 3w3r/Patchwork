@@ -1,58 +1,58 @@
 @Patchwork.Api_HostAddress = https://localhost:56850
 
-GET {{Patchwork.Api_HostAddress}}/api/public/employees?filter=firstName%20eq%20'Leslie'
+GET {{Patchwork.Api_HostAddress}}/api/public/v1/employees?filter=firstName%20eq%20'Leslie'
 Accept: application/json
 
 ###
 
 
-GET {{Patchwork.Api_HostAddress}}/api/public/employees?filter=jobTitle%20eq%20'Sales%20Rep'
+GET {{Patchwork.Api_HostAddress}}/api/public/v1/employees?filter=jobTitle%20eq%20'Sales%20Rep'
 Accept: application/json
 
 ###
 
 
-GET {{Patchwork.Api_HostAddress}}/api/public/products?filter=quantityInStock%20gt%20100
+GET {{Patchwork.Api_HostAddress}}/api/public/v1/products?filter=quantityInStock%20gt%20100
 Accept: application/json
 
 ###
 
 
-GET {{Patchwork.Api_HostAddress}}/api/public/employees/1625
+GET {{Patchwork.Api_HostAddress}}/api/public/v1/employees/1625
 Accept: application/json
 
 
 ###
 
-GET {{Patchwork.Api_HostAddress}}/api/public/products?filter=productLine%20eq%20'Classic%20Cars'
+GET {{Patchwork.Api_HostAddress}}/api/public/v1/products?filter=productLine%20eq%20'Classic%20Cars'
 Accept: application/json
 
 ###
 
-POST {{Patchwork.Api_HostAddress}}/api/public/products
+POST {{Patchwork.Api_HostAddress}}/api/public/v1/products
 Content-Type: application/json
 Accept: application/json
 
 {
-  "productCode": "ME_9999",
-  "productName": "2024 Factory 5 MK2 Roadster",
-  "productLine": "Classic Cars",
-  "productScale": "1:10",
-  "productVendor": "Motor City Art Classics",
-  "productDescription": "Features include: Turnable front wheels; steering function; detailed interior; detailed engine; opening hood; opening trunk; opening doors; and detailed chassis.",
-  "quantityInStock": 19,
-  "buyPrice": 45.68,
-  "MSRP": 64.99
+  "productcode": "ME_9999",
+  "productname": "2024 Factory 5 MK2 Roadster",
+  "productline": "Classic Cars",
+  "productscale": "1:10",
+  "productvendor": "Motor City Art Classics",
+  "productdescription": "Features include: Turnable front wheels; steering function; detailed interior; detailed engine; opening hood; opening trunk; opening doors; and detailed chassis.",
+  "quantityinstock": 19,
+  "buyprice": 45.68,
+  "msrp": 64.99
 }
 
 ###
 
-GET {{Patchwork.Api_HostAddress}}/api/public/products/ME_9999
+GET {{Patchwork.Api_HostAddress}}/api/public/v1/products/ME_9999
 Accept: applicaiton/json
 
 ###
 
-PUT {{Patchwork.Api_HostAddress}}/api/public/products/ME_9999
+PUT {{Patchwork.Api_HostAddress}}/api/public/v1/products/ME_9999
 Content-Type: application/json
 Accept: applicaiton/json
 
@@ -70,23 +70,23 @@ Accept: applicaiton/json
 
 ###
 
-PUT {{Patchwork.Api_HostAddress}}/api/public/products/ME_9999
+PUT {{Patchwork.Api_HostAddress}}/api/public/v1/products/ME_9999
 Content-Type: application/json
 Accept: applicaiton/json
 
 {
-  "productCode": "ME_9999",
-  "productName": "2024 Factory 5 MK2 Roadster",
-  "productLine": "Classic Cars",
-  "productScale": "1:10",
-  "productVendor": "Motor City Art Classics",
-  "productDescription": "Features include: Turnable front wheels; steering function; detailed interior; detailed engine; opening hood; opening trunk; opening doors; and detailed chassis.",
-  "quantityInStock": 19,
-  "buyPrice": 45.68,
-  "MSRP": 64.99
+  "productcode": "ME_9999",
+  "productname": "2024 Factory 5 MK2 Roadster",
+  "productline": "Classic Cars",
+  "productscale": "1:10",
+  "productvendor": "Motor City Art Classics",
+  "productdescription": "Features include: Turnable front wheels; steering function; detailed interior; detailed engine; opening hood; opening trunk; opening doors; and detailed chassis.",
+  "quantityinstock": 19,
+  "buyprice": 45.68,
+  "msrp": 64.99
 }
 
 ###
 
-DELETE {{Patchwork.Api_HostAddress}}/api/public/products/ME_9999
+DELETE {{Patchwork.Api_HostAddress}}/api/public/v1/products/ME_9999
 Accept: applicaiton/json

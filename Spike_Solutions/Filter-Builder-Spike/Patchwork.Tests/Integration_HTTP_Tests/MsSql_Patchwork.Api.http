@@ -1,35 +1,35 @@
 @Patchwork.Api_HostAddress = https://localhost:56850
 
-GET {{Patchwork.Api_HostAddress}}/api/classicmodels/employees?filter=firstName%20eq%20'Leslie'
+GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/employees?filter=firstName%20eq%20'Leslie'
 Accept: application/json
 
 ###
 
 
-GET {{Patchwork.Api_HostAddress}}/api/classicmodels/employees?filter=jobTitle%20eq%20'Sales%20Rep'
+GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/employees?filter=jobTitle%20eq%20'Sales%20Rep'
 Accept: application/json
 
 ###
 
 
-GET {{Patchwork.Api_HostAddress}}/api/classicmodels/products?filter=quantityInStock%20gt%20100
+GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products?filter=quantityInStock%20gt%20100
 Accept: application/json
 
 ###
 
 
-GET {{Patchwork.Api_HostAddress}}/api/classicmodels/employees/1625
+GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/employees/1625
 Accept: application/json
 
 
 ###
 
-GET {{Patchwork.Api_HostAddress}}/api/classicmodels/products?filter=productLine%20eq%20'Classic%20Cars'
+GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products?filter=productLine%20eq%20'Classic%20Cars'
 Accept: application/json
 
 ###
 
-POST {{Patchwork.Api_HostAddress}}/api/classicmodels/products
+POST {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products
 Content-Type: application/json
 Accept: application/json
 
@@ -47,12 +47,12 @@ Accept: application/json
 
 ###
 
-GET {{Patchwork.Api_HostAddress}}/api/classicmodels/products/ME_9999
+GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products/ME_9999
 Accept: applicaiton/json
 
 ###
 
-PUT {{Patchwork.Api_HostAddress}}/api/classicmodels/products/ME_9999
+PUT {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products/ME_9999
 Content-Type: application/json
 Accept: applicaiton/json
 
@@ -70,7 +70,7 @@ Accept: applicaiton/json
 
 ###
 
-PUT {{Patchwork.Api_HostAddress}}/api/classicmodels/products/ME_9999
+PUT {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products/ME_9999
 Content-Type: application/json
 Accept: applicaiton/json
 
@@ -88,5 +88,5 @@ Accept: applicaiton/json
 
 ###
 
-DELETE {{Patchwork.Api_HostAddress}}/api/classicmodels/products/ME_9999
+DELETE {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products/ME_9999
 Accept: applicaiton/json
