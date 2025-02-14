@@ -35,9 +35,9 @@ static class Program
         .ConfigureRunner(rb => rb
 #if SQLITE
             // Add SQLite support to FluentMigrator
-            .AddSQLite().WithGlobalConnectionString("Data Source=test.db")
+            .AddSQLite().WithGlobalConnectionString(ConnectionStringManager.GetSqliteConnectionString())
 #endif
-#if SQLSERVER
+#if MSSQL
             .AddSqlServer2016().WithGlobalConnectionString(ConnectionStringManager.GetMsSqlConnectionString())
 #endif
 #if POSTGRESQL

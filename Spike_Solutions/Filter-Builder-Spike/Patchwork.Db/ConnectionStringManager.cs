@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿
+using System.Text.Json;
 
 namespace Patchwork.Db;
 
@@ -30,6 +31,14 @@ public static class ConnectionStringManager
   {
     LoadConfigFile();
     var connectionString = Configfile!.RootElement.GetProperty("ConnectionStrings").GetProperty("MsSql").GetString();
+    if (string.IsNullOrEmpty(connectionString))
+      throw new KeyNotFoundException("`MsSql` not found in configuration file.");
+    return connectionString;
+  }
+  public static string GetMsSqlSurveysConnectionString()
+  {
+    LoadConfigFile();
+    var connectionString = Configfile!.RootElement.GetProperty("ConnectionStrings").GetProperty("MsSql_Surveys").GetString();
     if (string.IsNullOrEmpty(connectionString))
       throw new KeyNotFoundException("`MsSql` not found in configuration file.");
     return connectionString;

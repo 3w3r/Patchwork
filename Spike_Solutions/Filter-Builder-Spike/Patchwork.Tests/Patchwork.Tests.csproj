@@ -28,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Patchwork.Api\Patchwork.Api.csproj" />
     <ProjectReference Include="..\Patchwork\Patchwork.csproj" />
   </ItemGroup>
 
