@@ -4,6 +4,7 @@ using Patchwork.SqlDialects.MsSql;
 using Patchwork.SqlDialects.Sqlite;
 using Patchwork.SqlDialects.PostgreSql;
 using Patchwork.SqlDialects.MySql;
+using Patchwork.Repository;
 
 namespace Patchwork.Api;
 
@@ -30,6 +31,7 @@ public static class Program
 #endif
       //new MsSqlDialectBuilder(ConnectionStringManager.GetMsSqlSurveysConnectionString())
       );
+    builder.Services.AddScoped<IPatchworkRepository, PatchworkRepository>();
 
     builder.Services.AddControllers();
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

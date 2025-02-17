@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Reflection;
 using System.Text.Json;
 using Json.Patch;
 using Patchwork.DbSchema;
@@ -9,6 +10,7 @@ using Patchwork.Filters;
 using Patchwork.Paging;
 using Patchwork.Sort;
 using Patchwork.SqlStatements;
+using static Dapper.SqlMapper;
 
 namespace Patchwork.SqlDialects;
 public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
@@ -31,6 +33,43 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
   }
 
   public abstract ActiveConnection GetConnection();
+  public Entity FindEntity(string schemaName, string entityName)
+  {
+    if (string.IsNullOrEmpty(entityName))
+      throw new ArgumentException(nameof(entityName));
+    DiscoverSchema();
+    if (_metadata == null)
+      throw new ArgumentException("Cannot access database schema");
+
+    Entity? entity = _metadata.Schemas
+                              .Where(s => s.Name.Equals(schemaName, StringComparison.OrdinalIgnoreCase))
+                              .SelectMany(x => x.Tables)
+                              .FirstOrDefault(t => t.Name.Equals(entityName, StringComparison.OrdinalIgnoreCase));
+    if (entity == null)
+      entity = _metadata.Schemas
+                        .Where(s => s.Name.Equals(schemaName, StringComparison.OrdinalIgnoreCase))
+                        .SelectMany(x => x.Views)
+                        .FirstOrDefault(t => t.Name.Equals(entityName, StringComparison.OrdinalIgnoreCase));
+    if (entity == null)
+      throw new ArgumentException($"Invalid Table or View Name: {entityName}");
+    return entity;
+  }
+  public virtual string GetPkValue(string schemaName, string entityName, object entityObject)
+  {
+    var entity = FindEntity(schemaName, entityName);
+    if (entity.PrimaryKey == null)
+      return string.Empty;
+
+    Type type = entityObject.GetType();
+    var properties = type.GetProperties();
+    PropertyInfo? property = type.GetProperty(entity.PrimaryKey.Name);
+    if (property == null)
+      return string.Empty;
+
+    var prop = property.GetValue(entityObject);
+    return prop?.ToString() ?? string.Empty;
+
+  }
   public virtual DatabaseMetadata DiscoverSchema()
   {
     if (_metadata != null || _metadataCache.TryGetValue(_connectionString, out _metadata))
@@ -45,6 +84,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     return _metadata;
   }
 
+
   public virtual SelectStatement BuildGetListSql(string schemaName, string entityName, string fields = "", string filter = "", string sort = "", int limit = 0, int offset = 0)
   {
     if (string.IsNullOrEmpty(schemaName))
@@ -52,11 +92,11 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     if (string.IsNullOrEmpty(entityName))
       throw new ArgumentException("Entity name is required.", nameof(entityName));
 
-    var entity = FindEntity(schemaName, entityName);
-    var select = BuildSelectClause(fields, entity);
-    var where = string.IsNullOrEmpty(filter) ? null : BuildWhereClause(filter, entity);
-    var orderBy = BuildOrderByClause(sort, entity);
-    var paging = BuildLimitOffsetClause(limit, offset);
+    Entity entity = FindEntity(schemaName, entityName);
+    string select = BuildSelectClause(fields, entity);
+    FilterStatement? where = string.IsNullOrEmpty(filter) ? null : BuildWhereClause(filter, entity);
+    string orderBy = BuildOrderByClause(sort, entity);
+    string paging = BuildLimitOffsetClause(limit, offset);
     where?.Parameters.SetParameterDataTypes(entity);
 
     return new SelectStatement($"{select} {where?.Sql} {orderBy} {paging}", where?.Parameters ?? new Dictionary<string, object>());
@@ -68,11 +108,11 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     if (string.IsNullOrEmpty(entityName))
       throw new ArgumentException("Entity name is required.", nameof(entityName));
 
-    var entity = FindEntity(schemaName, entityName);
+    Entity entity = FindEntity(schemaName, entityName);
     string select = BuildSelectClause(fields, entity);
     string join = string.IsNullOrEmpty(include) ? "" : BuildJoinClause(include, entity);
     string where = BuildWherePkForGetClause(entity);
-    var parameters = new Dictionary<string, object> { { "id", id } };
+    Dictionary<string, object> parameters = new Dictionary<string, object> { { "id", id } };
     parameters.SetParameterDataTypes(entity);
 
     return new SelectStatement($"{select} {join} {where}", parameters);
@@ -88,11 +128,11 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
       throw new ArgumentException("JsonResourceRequestBody name is required.", nameof(jsonResourceRequestBody));
 
     Entity entity = FindEntity(schemaName, entityName);
-    var insert = BuildInsertClause(entity);
-    var columnList = BuildColumnListForInsert(entity);
-    var paramsList = BuildParameterListForInsert(entity);
+    string insert = BuildInsertClause(entity);
+    string columnList = BuildColumnListForInsert(entity);
+    string paramsList = BuildParameterListForInsert(entity);
 
-    var parameters = new Dictionary<string, object>();
+    Dictionary<string, object> parameters = new Dictionary<string, object>();
     parameters.AddJsonResourceToDictionary(jsonResourceRequestBody);
     parameters.SetParameterDataTypes(entity);
 
@@ -107,14 +147,14 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
       throw new ArgumentException("Entity name is required.", nameof(entityName));
     if (string.IsNullOrEmpty(id))
       throw new ArgumentException("Entity Id name is required.", nameof(id));
-    if (jsonResourceRequestBody==null)
+    if (jsonResourceRequestBody == null)
       throw new ArgumentException("JsonResourceRequestBody name is required.", nameof(jsonResourceRequestBody));
 
     Entity entity = FindEntity(schemaName, entityName);
     string update = BuildUpdateClause(entity);
     string where = BuildWherePkForUpdateClause(entity);
 
-    var parameters = new Dictionary<string, object>() { { "id", id } };
+    Dictionary<string, object> parameters = new Dictionary<string, object>() { { "id", id } };
     parameters.AddJsonResourceToDictionary(jsonResourceRequestBody);
     parameters.SetParameterDataTypes(entity);
     string sets = BuildSetClause(parameters, entity);
@@ -133,7 +173,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     Entity entity = FindEntity(schemaName, entityName);
     string delete = BuildDeleteClause(entity);
     string where = BuildWherePkForDeleteClause(entity);
-    var parameters = new Dictionary<string, object>() { { "id", id } };
+    Dictionary<string, object> parameters = new Dictionary<string, object>() { { "id", id } };
     parameters.SetParameterDataTypes(entity);
 
     return new DeleteStatement($"{delete} {where}", parameters);
@@ -148,7 +188,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
   }
   public virtual JsonPatch BuildDiffAsJsonPatch(JsonDocument original, JsonDocument modified)
   {
-    var patch = original.CreatePatch(modified);
+    JsonPatch patch = original.CreatePatch(modified);
     return patch;
   }
 
@@ -170,27 +210,6 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
   internal abstract string BuildDeleteClause(Entity entity);
   internal abstract string BuildWherePkForDeleteClause(Entity entity);
 
-  internal Entity FindEntity(string schemaName, string entityName)
-  {
-    if (string.IsNullOrEmpty(entityName))
-      throw new ArgumentException(nameof(entityName));
-    DiscoverSchema();
-    if (_metadata == null)
-      throw new ArgumentException("Cannot access database schema");
-
-    Entity? entity = _metadata.Schemas
-                              .Where(s=>s.Name.Equals(schemaName, StringComparison.OrdinalIgnoreCase))
-                              .SelectMany(x => x.Tables)
-                              .FirstOrDefault(t => t.Name.Equals(entityName, StringComparison.OrdinalIgnoreCase));
-    if (entity == null)
-      entity = _metadata.Schemas
-                        .Where(s => s.Name.Equals(schemaName, StringComparison.OrdinalIgnoreCase))
-                        .SelectMany(x => x.Views)
-                        .FirstOrDefault(t => t.Name.Equals(entityName, StringComparison.OrdinalIgnoreCase));
-    if (entity == null)
-      throw new ArgumentException($"Invalid Table or View Name: {entityName}");
-    return entity;
-  }
   protected List<FieldsToken> GetFieldTokens(string fields, Entity entity)
   {
     FieldsLexer lexer = new FieldsLexer(fields, entity, DiscoverSchema());
@@ -247,4 +266,5 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
   {
     return new PagingToken(limit, offset);
   }
+
 }

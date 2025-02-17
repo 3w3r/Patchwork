@@ -11,6 +11,8 @@ public interface ISqlDialectBuilder
 
   ActiveConnection GetConnection();
   DatabaseMetadata DiscoverSchema();
+  Entity FindEntity(string schemaName, string entityName);
+  string GetPkValue(string schemaName, string entityName, object entityObject);
 
   SelectStatement BuildGetListSql(string schemaName, string entityName, string fields = "", string filter = "", string sort = "", int limit = 0, int offset = 0);
   SelectStatement BuildGetSingleSql(string schemaName, string entityName, string id, string fields = "", string include = "", DateTimeOffset? asOf = null);

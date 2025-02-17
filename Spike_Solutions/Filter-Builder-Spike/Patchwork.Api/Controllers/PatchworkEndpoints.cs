@@ -4,6 +4,7 @@ using Json.More;
 using Json.Patch;
 using Microsoft.AspNetCore.Mvc;
 using Patchwork.Authorization;
+using Patchwork.Repository;
 using Patchwork.SqlDialects;
 using Patchwork.SqlStatements;
 
@@ -14,9 +15,11 @@ public class PatchworkEndpoints : Controller
 {
   protected readonly IPatchworkAuthorization authorization;
   protected readonly ISqlDialectBuilder sqlDialect;
+  protected readonly IPatchworkRepository Repository;
 
-  public PatchworkEndpoints(IPatchworkAuthorization auth, ISqlDialectBuilder sql)
+  public PatchworkEndpoints(IPatchworkRepository repo, IPatchworkAuthorization auth, ISqlDialectBuilder sql)
   {
+    this.Repository = repo;
     this.authorization = auth;
     this.sqlDialect = sql;
   }
@@ -37,9 +40,12 @@ public class PatchworkEndpoints : Controller
     //   return this.Unauthorized();
     schemaName = NormalizeSchemaName(schemaName);
 
-    SelectStatement select = this.sqlDialect.BuildGetListSql(schemaName, entityName, fields, filter, sort, limit, offset);
-    using ActiveConnection connect = this.sqlDialect.GetConnection();
-    IEnumerable<dynamic> found = connect.Connection.Query(select.Sql, select.Parameters, connect.Transaction);
+    var found = Repository.GetList(schemaName, entityName, fields, filter, sort, limit, offset);
+
+    //SelectStatement select = this.sqlDialect.BuildGetListSql(schemaName, entityName, fields, filter, sort, limit, offset);
+    //using ActiveConnection connect = this.sqlDialect.GetConnection();
+    //IEnumerable<dynamic> found = connect.Connection.Query(select.Sql, select.Parameters, connect.Transaction);
+
     return Json(found);
   }
 
@@ -58,9 +64,11 @@ public class PatchworkEndpoints : Controller
     //   return this.Unauthorized();
     schemaName = NormalizeSchemaName(schemaName);
 
-    SelectStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id, fields, include, asOf);
-    using ActiveConnection connect = this.sqlDialect.GetConnection();
-    var found = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
+    //SelectStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id, fields, include, asOf);
+    //using ActiveConnection connect = this.sqlDialect.GetConnection();
+    //var found = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
+    var found = Repository.GetResource(schemaName, entityName, id, fields, include, asOf);
+
     if (found == null)
       return NotFound();
     return Json(found);
@@ -78,22 +86,35 @@ public class PatchworkEndpoints : Controller
     //   return this.Unauthorized();
     schemaName = NormalizeSchemaName(schemaName);
 
-    InsertStatement sql = this.sqlDialect.BuildPostSingleSql(schemaName, entityName, jsonResourceRequestBody);
-    using ActiveConnection connect = this.sqlDialect.GetConnection();
+    // InsertStatement sql = this.sqlDialect.BuildPostSingleSql(schemaName, entityName, jsonResourceRequestBody);
+    // using ActiveConnection connect = this.sqlDialect.GetConnection();
+    // try
+    // {
+    //   var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
+    // 
+    //   //TODO: Need to create Patchwork Log entry
+    // 
+    //   connect.Transaction.Commit();
+    //   return Json(found);
+    // }
+    // catch (Exception ex)
+    // {
+    //   System.Diagnostics.Debug.WriteLine(ex.Message);
+    //   connect.Transaction.Rollback();
+    //   throw;
+    // }
+
     try
     {
-      var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
-
-      //TODO: Need to create Patchwork Log entry
-
-      connect.Transaction.Commit();
-      return Json(found);
+      var found = Repository.PostResource(schemaName, entityName, jsonResourceRequestBody);
+      
+      var id = this.sqlDialect.GetPkValue(schemaName, entityName, found);
+      return Created($"api/{schemaName}/v{version}/{entityName}/{id}", found);
     }
     catch (Exception ex)
     {
       System.Diagnostics.Debug.WriteLine(ex.Message);
-      connect.Transaction.Rollback();
-      throw;
+      return BadRequest(ex.Message);
     }
   }
 
@@ -110,34 +131,44 @@ public class PatchworkEndpoints : Controller
     //   return this.Unauthorized();
     schemaName = NormalizeSchemaName(schemaName);
 
-    SelectStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id);
-    UpdateStatement update = this.sqlDialect.BuildPutSingleSql(schemaName, entityName, id, jsonResourceRequestBody);
-    using ActiveConnection connect = this.sqlDialect.GetConnection();
+    //SelectStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id);
+    //UpdateStatement update = this.sqlDialect.BuildPutSingleSql(schemaName, entityName, id, jsonResourceRequestBody);
+    //using ActiveConnection connect = this.sqlDialect.GetConnection();
+    //try
+    //{
+    //
+    //  var beforeObject = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
+    //  if (beforeObject == null)
+    //    return NotFound();
+    //  var beforeUpdate = JsonSerializer.Serialize(beforeObject);
+    //  var updated = connect.Connection.Execute(update.Sql, update.Parameters, connect.Transaction);
+    //  var afterObject = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
+    //  if (afterObject == null)
+    //    return BadRequest($"Failed to insert the object {jsonResourceRequestBody}");
+    //  var afterString = JsonSerializer.Serialize(afterObject);
+    //
+    //  JsonPatch patch = this.sqlDialect.BuildDiffAsJsonPatch(beforeUpdate, afterString);
+    //
+    //  //TODO: Append this patch to the Patchwork Log
+    //
+    //  connect.Transaction.Commit();
+    //
+    //  return Json(new { entity = afterObject, changes = patch });
+    //}
+    //catch (Exception)
+    //{
+    //  connect.Transaction.Rollback();
+    //  throw;
+    //}
     try
     {
-
-      var beforeObject = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
-      if (beforeObject == null)
-        return NotFound();
-      var beforeUpdate = JsonSerializer.Serialize(beforeObject);
-      var updated = connect.Connection.Execute(update.Sql, update.Parameters, connect.Transaction);
-      var afterObject = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
-      if (afterObject == null)
-        return BadRequest($"Failed to insert the object {jsonResourceRequestBody}");
-      var afterString = JsonSerializer.Serialize(afterObject);
-
-      JsonPatch patch = this.sqlDialect.BuildDiffAsJsonPatch(beforeUpdate, afterString);
-
-      //TODO: Append this patch to the Patchwork Log
-
-      connect.Transaction.Commit();
-
-      return Json(new { entity = afterObject, changes = patch });
+      var updated = this.Repository.PutResource(schemaName,entityName,id,jsonResourceRequestBody);
+      return Created($"api/{schemaName}/v{version}/{entityName}/{id}", updated);
     }
-    catch (Exception)
+    catch(Exception ex)
     {
-      connect.Transaction.Rollback();
-      throw;
+      System.Diagnostics.Debug.WriteLine(ex.Message);
+      return BadRequest(ex.Message);
     }
   }
 
@@ -153,25 +184,30 @@ public class PatchworkEndpoints : Controller
     //   return this.Unauthorized();
     schemaName = NormalizeSchemaName(schemaName);
 
-    var delete = this.sqlDialect.BuildDeleteSingleSql(schemaName, entityName, id);
-    using ActiveConnection connect = this.sqlDialect.GetConnection();
-    try
-    {
+    // var delete = this.sqlDialect.BuildDeleteSingleSql(schemaName, entityName, id);
+    // using ActiveConnection connect = this.sqlDialect.GetConnection();
+    // try
+    // {
+    // 
+    //   var updated = connect.Connection.Execute(delete.Sql, delete.Parameters, connect.Transaction);
+    // 
+    //   //TODO: Need to create Patchwork Log entry
+    // 
+    //   connect.Transaction.Commit();
+    // 
+    //   return NoContent();
+    // }
+    // catch (Exception)
+    // {
+    //   connect.Transaction.Rollback();
+    //   throw;
+    // }
 
-      var updated = connect.Connection.Execute(delete.Sql, delete.Parameters, connect.Transaction);
-
-      //TODO: Need to create Patchwork Log entry
-
-      connect.Transaction.Commit();
-
+    var successfulDelete = this.Repository.DeleteResource(schemaName, entityName, id);
+    if (successfulDelete)
       return NoContent();
-    }
-    catch (Exception)
-    {
-      connect.Transaction.Rollback();
-      throw;
-    }
-
+    else
+      return BadRequest();
   }
 
   [HttpPatch]
