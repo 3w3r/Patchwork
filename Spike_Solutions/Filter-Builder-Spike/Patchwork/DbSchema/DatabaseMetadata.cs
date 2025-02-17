@@ -1,3 +1,3 @@
 namespace Patchwork.DbSchema;
 
-public record DatabaseMetadata(IList<Schema> Schemas);
+public record DatabaseMetadata(IList<Schema> Schemas, bool HasPatchTracking);

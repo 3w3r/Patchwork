@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.Text.Json;
+using Dapper;
 using Json.More;
 using Json.Patch;
 using Microsoft.AspNetCore.Mvc;
@@ -41,76 +42,50 @@ public class PatchworkEndpoints : Controller
         //   return this.Unauthorized();
         schemaName = NormalizeSchemaName(schemaName);
 
-    var found = Repository.GetList(schemaName, entityName, fields, filter, sort, limit, offset);
+    GetListResult found = Repository.GetList(schemaName, entityName, fields, filter, sort, limit, offset);
 
-    //SelectStatement select = this.sqlDialect.BuildGetListSql(schemaName, entityName, fields, filter, sort, limit, offset);
-    //using ActiveConnection connect = this.sqlDialect.GetConnection();
-    //IEnumerable<dynamic> found = connect.Connection.Query(select.Sql, select.Parameters, connect.Transaction);
+    this.Response.Headers.Append("Content-Range", $"items {found.Offset}-{found.Limit}/{found.TotalCount}");
 
-    return Json(found);
+    return Json(found.Resources);
   }
 
-    [HttpGet]
-    [Route("api/{schemaName}/v{version}/{entityName}/{id}")]
-    public IActionResult GetResourceEndpoint(
-      [FromRoute] string schemaName,
-      [FromRoute] int version,
-      [FromRoute] string entityName,
-      [FromRoute] string id,
-      [FromQuery] string fields = "",
-      [FromQuery] string include = "",
-      [FromQuery] DateTimeOffset? asOf = null)
-    {
-        // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Get))
-        //   return this.Unauthorized();
-        schemaName = NormalizeSchemaName(schemaName);
-
-    //SelectStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id, fields, include, asOf);
-    //using ActiveConnection connect = this.sqlDialect.GetConnection();
-    //var found = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
-    var found = Repository.GetResource(schemaName, entityName, id, fields, include, asOf);
+  [HttpGet]
+  [Route("api/{schemaName}/v{version}/{entityName}/{id}")]
+  public IActionResult GetResourceEndpoint(
+    [FromRoute] string schemaName,
+    [FromRoute] int version,
+    [FromRoute] string entityName,
+    [FromRoute] string id,
+    [FromQuery] string fields = "",
+    [FromQuery] string include = "",
+    [FromQuery] DateTimeOffset? asOf = null)
+  {
+    // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Get))
+    //   return this.Unauthorized();
+    schemaName = NormalizeSchemaName(schemaName);
+    GetResourceResult found = Repository.GetResource(schemaName, entityName, id, fields, include, asOf);
 
     if (found == null)
       return NotFound();
-    return Json(found);
+    return Json(found.Resource);
   }
 
-    [HttpPost]
-    [Route("api/{schemaName}/v{version}/{entityName}")]
-    public IActionResult PostResourceEndpoint(
-      [FromRoute] string schemaName,
-      [FromRoute] int version,
-      [FromRoute] string entityName,
-      [FromBody] JsonDocument jsonResourceRequestBody)
-    {
-        // if (!authorization.GetPermissionToResource(schemaName, entityName, this.User).HasFlag(Permission.Post))
-        //   return this.Unauthorized();
-        schemaName = NormalizeSchemaName(schemaName);
-
-    // InsertStatement sql = this.sqlDialect.BuildPostSingleSql(schemaName, entityName, jsonResourceRequestBody);
-    // using ActiveConnection connect = this.sqlDialect.GetConnection();
-    // try
-    // {
-    //   var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
-    // 
-    //   //TODO: Need to create Patchwork Log entry
-    // 
-    //   connect.Transaction.Commit();
-    //   return Json(found);
-    // }
-    // catch (Exception ex)
-    // {
-    //   System.Diagnostics.Debug.WriteLine(ex.Message);
-    //   connect.Transaction.Rollback();
-    //   throw;
-    // }
-
+  [HttpPost]
+  [Route("api/{schemaName}/v{version}/{entityName}")]
+  public IActionResult PostResourceEndpoint(
+    [FromRoute] string schemaName,
+    [FromRoute] int version,
+    [FromRoute] string entityName,
+    [FromBody] JsonDocument jsonResourceRequestBody)
+  {
+    // if (!authorization.GetPermissionToResource(schemaName, entityName, this.User).HasFlag(Permission.Post))
+    //   return this.Unauthorized();
+    schemaName = NormalizeSchemaName(schemaName);
     try
     {
-      var found = Repository.PostResource(schemaName, entityName, jsonResourceRequestBody);
-      
-      var id = this.sqlDialect.GetPkValue(schemaName, entityName, found);
-      return Created($"api/{schemaName}/v{version}/{entityName}/{id}", found);
+      PostResult found = Repository.PostResource(schemaName, entityName, jsonResourceRequestBody);
+
+      return Created($"api/{schemaName}/v{version}/{entityName}/{found.id}", found.Resource);
     }
     catch (Exception ex)
     {
@@ -119,96 +94,55 @@ public class PatchworkEndpoints : Controller
     }
   }
 
-    [HttpPut]
-    [Route("api/{schemaName}/v{version}/{entityName}/{id}")]
-    public IActionResult PutResourceEndpoint(
-      [FromRoute] string schemaName,
-      [FromRoute] int version,
-      [FromRoute] string entityName,
-      [FromRoute] string id,
-      [FromBody] JsonDocument jsonResourceRequestBody)
-    {
-        // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Put))
-        //   return this.Unauthorized();
-        schemaName = NormalizeSchemaName(schemaName);
-
-    //SelectStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id);
-    //UpdateStatement update = this.sqlDialect.BuildPutSingleSql(schemaName, entityName, id, jsonResourceRequestBody);
-    //using ActiveConnection connect = this.sqlDialect.GetConnection();
-    //try
-    //{
-    //
-    //  var beforeObject = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
-    //  if (beforeObject == null)
-    //    return NotFound();
-    //  var beforeUpdate = JsonSerializer.Serialize(beforeObject);
-    //  var updated = connect.Connection.Execute(update.Sql, update.Parameters, connect.Transaction);
-    //  var afterObject = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
-    //  if (afterObject == null)
-    //    return BadRequest($"Failed to insert the object {jsonResourceRequestBody}");
-    //  var afterString = JsonSerializer.Serialize(afterObject);
-    //
-    //  JsonPatch patch = this.sqlDialect.BuildDiffAsJsonPatch(beforeUpdate, afterString);
-    //
-    //  //TODO: Append this patch to the Patchwork Log
-    //
-    //  connect.Transaction.Commit();
-    //
-    //  return Json(new { entity = afterObject, changes = patch });
-    //}
-    //catch (Exception)
-    //{
-    //  connect.Transaction.Rollback();
-    //  throw;
-    //}
+  [HttpPut]
+  [Route("api/{schemaName}/v{version}/{entityName}/{id}")]
+  public IActionResult PutResourceEndpoint(
+    [FromRoute] string schemaName,
+    [FromRoute] int version,
+    [FromRoute] string entityName,
+    [FromRoute] string id,
+    [FromBody] JsonDocument jsonResourceRequestBody)
+  {
+    // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Put))
+    //   return this.Unauthorized();
+    schemaName = NormalizeSchemaName(schemaName);
     try
     {
-      var updated = this.Repository.PutResource(schemaName,entityName,id,jsonResourceRequestBody);
-      return Created($"api/{schemaName}/v{version}/{entityName}/{id}", updated);
+      PutResult updated = this.Repository.PutResource(schemaName, entityName, id, jsonResourceRequestBody);
+      this.Response.Headers.Append("X-Json-Patch-Changes", JsonSerializer.Serialize(updated.Changes));
+      return Json(updated.Resource);
     }
-    catch(Exception ex)
+    catch (Exception ex)
     {
       System.Diagnostics.Debug.WriteLine(ex.Message);
       return BadRequest(ex.Message);
     }
   }
 
-    [HttpDelete]
-    [Route("api/{schemaName}/v{version}/{entityName}/{id}")]
-    public IActionResult DeleteResourceEndpoint(
-      [FromRoute] string schemaName,
-      [FromRoute] int version,
-      [FromRoute] string entityName,
-      [FromRoute] string id)
+  [HttpDelete]
+  [Route("api/{schemaName}/v{version}/{entityName}/{id}")]
+  public IActionResult DeleteResourceEndpoint(
+    [FromRoute] string schemaName,
+    [FromRoute] int version,
+    [FromRoute] string entityName,
+    [FromRoute] string id)
+  {
+    // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Delete))
+    //   return this.Unauthorized();
+    schemaName = NormalizeSchemaName(schemaName);
+    try
     {
-        // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Delete))
-        //   return this.Unauthorized();
-        schemaName = NormalizeSchemaName(schemaName);
-
-    // var delete = this.sqlDialect.BuildDeleteSingleSql(schemaName, entityName, id);
-    // using ActiveConnection connect = this.sqlDialect.GetConnection();
-    // try
-    // {
-    // 
-    //   var updated = connect.Connection.Execute(delete.Sql, delete.Parameters, connect.Transaction);
-    // 
-    //   //TODO: Need to create Patchwork Log entry
-    // 
-    //   connect.Transaction.Commit();
-    // 
-    //   return NoContent();
-    // }
-    // catch (Exception)
-    // {
-    //   connect.Transaction.Rollback();
-    //   throw;
-    // }
-
-    var successfulDelete = this.Repository.DeleteResource(schemaName, entityName, id);
-    if (successfulDelete)
-      return NoContent();
-    else
-      return BadRequest();
+      DeleteResult successfulDelete = this.Repository.DeleteResource(schemaName, entityName, id);
+      if (successfulDelete.Success)
+        return NoContent();
+      else
+        return BadRequest();
+    }
+    catch (Exception ex)
+    {
+      System.Diagnostics.Debug.WriteLine(ex.Message);
+      return BadRequest(ex.Message);
+    }
   }
 
     [HttpPatch]

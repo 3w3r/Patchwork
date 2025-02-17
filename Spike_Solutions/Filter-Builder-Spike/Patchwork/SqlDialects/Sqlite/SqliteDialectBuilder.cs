@@ -151,4 +151,8 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
     return $"DELETE FROM {schema}{entity.Name} ";
   }
   internal override string BuildWherePkForDeleteClause(Entity entity) => BuildWherePkForUpdateClause(entity);
+
+  protected override string GetInsertPatchTemplate() => 
+    "INSERT INTO patchwork_event_log (event_date, domain, entity, id, patch) " +
+    "VALUES (CURRENT_TIMESTAMP, @schemaname, @entityname, @id, @patch)";
 }

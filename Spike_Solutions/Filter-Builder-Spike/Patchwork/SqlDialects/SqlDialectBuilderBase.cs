@@ -83,6 +83,11 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     _metadataCache.TryAdd(_connectionString, _metadata);
     return _metadata;
   }
+  public virtual bool HasPatchTrackingEnabled() {
+    if (_metadata == null)
+      this.DiscoverSchema();
+    return _metadata!.HasPatchTracking;
+  }
 
 
   public virtual SelectStatement BuildGetListSql(string schemaName, string entityName, string fields = "", string filter = "", string sort = "", int limit = 0, int offset = 0)
@@ -191,6 +196,17 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     JsonPatch patch = original.CreatePatch(modified);
     return patch;
   }
+
+  public virtual InsertStatement GetInsertStatementForPatchworkLog(string schemaName, string entityName, string id, JsonPatch jsonPatchRequestBody)
+  {
+    var insertParams = new Dictionary<string, object>();
+    insertParams.Add("schemaname", schemaName);
+    insertParams.Add("entityname", entityName);
+    insertParams.Add("id", id);
+    insertParams.Add("patch", JsonSerializer.Serialize(jsonPatchRequestBody));
+    return new InsertStatement(this.GetInsertPatchTemplate(), insertParams);
+  }
+  protected abstract string GetInsertPatchTemplate();
 
   internal abstract string BuildSelectClause(string fields, Entity entity);
   internal abstract string BuildJoinClause(string includeString, Entity entity);

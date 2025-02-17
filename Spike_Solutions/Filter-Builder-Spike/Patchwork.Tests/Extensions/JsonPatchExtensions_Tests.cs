@@ -18,14 +18,14 @@ public class JsonPatchExtensions_Tests
     private JsonPatch combined;
     public JsonPatchExtensions_Tests()
     {
-        updates = JsonSerializer.Deserialize<JsonPatch>("[{\"op\": \"replace\",\"path\": \"/ME_9997/productName\",\"value\": \"2025 Factory 5 MK2 Roadster\"},{\"op\": \"replace\",\"path\": \"/ME_9999/productScale\",\"value\": \"1:15\"},{\"op\": \"replace\",\"path\": \"/ME_9999/productVendor\",\"value\": \"Autoart Studio Design\"}]");
-        inserts = JsonSerializer.Deserialize<JsonPatch>("[{\"op\": \"add\",\"path\": \"/-\",\"value\": \"2025 Factory 5 MK2 Roadster\"},{\"op\": \"add\",\"path\": \"/-\",\"value\": \"1:15\"},{\"op\": \"add\",\"path\": \"/-\",\"value\": \"Autoart Studio Design\"}]");
-        deletes = JsonSerializer.Deserialize<JsonPatch>("[{\"op\": \"remove\",\"path\": \"/ME_9997\"},{\"op\": \"remove\",\"path\": \"/ME_9998\"},{\"op\": \"remove\",\"path\": \"/ME_9999\"}]");
+        updates = JsonSerializer.Deserialize<JsonPatch>("[{\"op\": \"replace\",\"path\": \"/ME_9997/productName\",\"value\": \"2025 Factory 5 MK2 Roadster\"},{\"op\": \"replace\",\"path\": \"/ME_9999/productScale\",\"value\": \"1:15\"},{\"op\": \"replace\",\"path\": \"/ME_9999/productVendor\",\"value\": \"Autoart Studio Design\"}]") ?? new JsonPatch();
+        inserts = JsonSerializer.Deserialize<JsonPatch>("[{\"op\": \"add\",\"path\": \"/-\",\"value\": \"2025 Factory 5 MK2 Roadster\"},{\"op\": \"add\",\"path\": \"/-\",\"value\": \"1:15\"},{\"op\": \"add\",\"path\": \"/-\",\"value\": \"Autoart Studio Design\"}]") ?? new JsonPatch();
+        deletes = JsonSerializer.Deserialize<JsonPatch>("[{\"op\": \"remove\",\"path\": \"/ME_9997\"},{\"op\": \"remove\",\"path\": \"/ME_9998\"},{\"op\": \"remove\",\"path\": \"/ME_9999\"}]") ?? new JsonPatch();
         combined = JsonSerializer.Deserialize<JsonPatch>("[" +
             "{\"op\": \"remove\",\"path\": \"/ME_9997\"},{\"op\": \"remove\",\"path\": \"/ME_9998\"},{\"op\": \"remove\",\"path\": \"/ME_9999\"}," +
             "{\"op\": \"add\",\"path\": \"/-\",\"value\": \"2025 Factory 5 MK2 Roadster\"},{\"op\": \"add\",\"path\": \"/-\",\"value\": \"1:15\"},{\"op\": \"add\",\"path\": \"/-\",\"value\": \"Autoart Studio Design\"}," +
             "{\"op\": \"replace\",\"path\": \"/ME_9997/productName\",\"value\": \"2025 Factory 5 MK2 Roadster\"},{\"op\": \"replace\",\"path\": \"/ME_9999/productScale\",\"value\": \"1:15\"},{\"op\": \"replace\",\"path\": \"/ME_9999/productVendor\",\"value\": \"Autoart Studio Design\"}" +
-            "]");
+            "]") ?? new JsonPatch();
     }
     [Fact]
     public void JsonPatchExtensions_ShouldSplitPatchById_WhenPatchHasUpdates(){
@@ -36,7 +36,7 @@ public class JsonPatchExtensions_Tests
         Assert.Contains<string>("ME_9997", output.Keys);
         Assert.Contains<string>("ME_9999", output.Keys);
 
-        Assert.Equal(1, output["ME_9997"].Operations.Count);
+        Assert.Equal(1, output["ME_9997"].Operations?.Count);
         Assert.Equal(2, output["ME_9999"].Operations.Count);
 
         var ME_9997Paths = output["ME_9997"].Operations.Select(a => { return a.Path.ToString(); });
@@ -53,9 +53,9 @@ public class JsonPatchExtensions_Tests
 
         Assert.Equal(3, output.Count);
 
-        Assert.Equal("2025 Factory 5 MK2 Roadster", output["-0"].Operations[0].Value.ToString());
-        Assert.Equal("1:15", output["-1"].Operations[0].Value.ToString());
-        Assert.Equal("Autoart Studio Design", output["-2"].Operations[0].Value.ToString());
+        Assert.Equal("2025 Factory 5 MK2 Roadster", output["-0"].Operations[0]?.Value!.ToString());
+        Assert.Equal("1:15", output["-1"].Operations[0]?.Value!.ToString());
+        Assert.Equal("Autoart Studio Design", output["-2"]?.Operations[0].Value!.ToString());
     }
     [Fact]
     public void JsonPatchExtensions_ShouldSplitPatchById_WhenPatchHasDeletes()
@@ -85,11 +85,11 @@ public class JsonPatchExtensions_Tests
         Assert.Contains<string>("-2", output.Keys);
 
         Assert.Equal(2, output["ME_9997"].Operations.Count);
-        Assert.Equal(1, output["ME_9998"].Operations.Count);
+        Assert.Equal(1, output["ME_9998"].Operations?.Count);
         Assert.Equal(3, output["ME_9999"].Operations.Count);
-        Assert.Equal(1, output["-0"].Operations.Count);
-        Assert.Equal(1, output["-1"].Operations.Count);
-        Assert.Equal(1, output["-2"].Operations.Count);
+        Assert.Equal(1, output["-0"].Operations?.Count);
+        Assert.Equal(1, output["-1"].Operations?.Count);
+        Assert.Equal(1, output["-2"].Operations?.Count);
 
 
         var ME_9997Paths = output["ME_9997"].Operations.Select(a => { return a.Path.ToString(); });
@@ -116,9 +116,9 @@ public class JsonPatchExtensions_Tests
         Assert.DoesNotContain<string>("add", ME_9999Operations);
 
 
-        Assert.Equal("2025 Factory 5 MK2 Roadster", output["-0"].Operations[0].Value.ToString());
-        Assert.Equal("1:15", output["-1"].Operations[0].Value.ToString());
-        Assert.Equal("Autoart Studio Design", output["-2"].Operations[0].Value.ToString());
+        Assert.Equal("2025 Factory 5 MK2 Roadster", output["-0"].Operations[0]?.Value!.ToString());
+        Assert.Equal("1:15", output["-1"].Operations[0]?.Value!.ToString());
+        Assert.Equal("Autoart Studio Design", output["-2"].Operations[0]?.Value!.ToString());
 
     }
 }

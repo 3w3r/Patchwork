@@ -7,7 +7,8 @@ public static class TestSampleData
   public static DatabaseMetadata DB = new DatabaseMetadata(
     new List<Schema>()
     {
-      new Schema("Shopping", new List<Entity>()
+      new Schema("Shopping", 
+        new List<Entity>()
         {
           new Entity("Products", "The Products Table", "Shopping", false,
             new List<Column>()
@@ -27,11 +28,11 @@ public static class TestSampleData
             }
           )
         },
-      new List<Entity>()
-    ),
-    new Schema("dbo", new List<Entity>()
-      {
-        new Entity("Orders", "The Orders Table", "dbo", false,
+        new List<Entity>()),
+      new Schema("dbo", 
+        new List<Entity>()
+        {
+          new Entity("Orders", "The Orders Table", "dbo", false,
           new List<Column>()
           {
             new Column("Id", "PK", typeof(long), true, false, "", true, false, true, true),
@@ -39,7 +40,7 @@ public static class TestSampleData
             new Column("Cost", "Line Total", typeof(decimal), false, false, "", false, true, false, false)
           }
         ),
-        new Entity("MonkeyTable", "Table with lots of columns for testing", "dbo", false,
+          new Entity("MonkeyTable", "Table with lots of columns for testing", "dbo", false,
           new List<Column>()
           {
               new Column("Id", "PK", typeof(long), true, false, "", true, false, true, true),
@@ -52,7 +53,7 @@ public static class TestSampleData
               new Column("effectiveEndDate", "end", typeof(DateTimeOffset), false, false, "", false, false, false, true),
           }
         ),
-        new Entity("SortTest", "Table with lots of columns for sort testing", "dbo", false,
+          new Entity("SortTest", "Table with lots of columns for sort testing", "dbo", false,
           new List<Column>()
           {
               new Column("A", "PK", typeof(long), true, false, "", true, false, true, true),
@@ -68,9 +69,10 @@ public static class TestSampleData
               new Column("effectiveEndDate", "end", typeof(DateTimeOffset), false, false, "", false, false, false, true),
           }
         ),
-      },
-      new List<Entity>()
-    )}
+        },
+        new List<Entity>())
+    },
+    false
   );
 
 }

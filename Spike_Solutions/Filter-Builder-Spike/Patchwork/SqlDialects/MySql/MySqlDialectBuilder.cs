@@ -150,4 +150,8 @@ public class MySqlDialectBuilder : SqlDialectBuilderBase
     return $"DELETE FROM {schema}`{entity.Name}` ";
   }
   internal override string BuildWherePkForDeleteClause(Entity entity) => BuildWherePkForUpdateClause(entity);
+
+  protected override string GetInsertPatchTemplate() =>
+  "INSERT INTO `patchwork`.`patchwork_event_log` (`event_date`, `domain`, `entity`, `id`, `patch`) " +
+  "VALUES (UTC_TIMESTAMP(), @schemaname, @entityname, @id, @patch)";
 }

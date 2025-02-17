@@ -1,5 +1,7 @@
 ﻿using System.Data.Common;
 using System.Text;
+using System.Text.Json;
+using Json.Patch;
 using Npgsql;
 using Patchwork.DbSchema;
 using Patchwork.Expansion;
@@ -156,4 +158,7 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
     return $"DELETE FROM {schema}{entity.Name.ToLower()} ";
   }
   internal override string BuildWherePkForDeleteClause(Entity entity) => BuildWherePkForUpdateClause(entity);
+  protected override string GetInsertPatchTemplate() => 
+    "INSERT INTO patchwork.patchwork_event_log (event_date, domain, entity, id, patch) " +
+    "VALUES (CURRENT_TIMESTAMP AT TIME ZONE 'UTC', @schemaname, @entityname, @id, @patch) RETURNING *";
 }

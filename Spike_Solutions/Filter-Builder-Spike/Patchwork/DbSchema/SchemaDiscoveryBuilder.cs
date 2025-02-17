@@ -56,6 +56,8 @@ public class SchemaDiscoveryBuilder
     }).ToList();
 
     // ensure we do not return any empty schemas
-    return new DatabaseMetadata(schemas.Where(s=>s.Tables.Any() || s.Views.Any()).ToList());
+    var populatedSchemas = schemas.Where(s => s.Tables.Any() || s.Views.Any()).ToList();
+    var hasPatchTracking = schemas.Any(s => s.Tables.Any(t => string.Equals(t.Name, "patchwork_event_log", StringComparison.OrdinalIgnoreCase)));
+    return new DatabaseMetadata(populatedSchemas, hasPatchTracking);
   }
 }
