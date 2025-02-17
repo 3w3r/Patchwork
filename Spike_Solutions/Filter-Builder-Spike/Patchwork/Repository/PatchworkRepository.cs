@@ -178,7 +178,7 @@ public class PatchworkRepository : IPatchworkRepository
 
       JsonPatch patch = this.sqlDialect.BuildDiffAsJsonPatch(JsonDocument.Parse(beforeUpdate), afterObject);
 
-      //TODO: Append this patch to the Patchwork Log
+      AddPatchToLog(connect, schemaName, entityName, id, patch);
 
       connect.Transaction.Commit();
 
