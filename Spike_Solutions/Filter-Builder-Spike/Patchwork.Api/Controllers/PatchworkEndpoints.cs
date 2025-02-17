@@ -213,36 +213,10 @@ public class PatchworkEndpoints : Controller
     //   return this.Unauthorized();
     schemaName = NormalizeSchemaName(schemaName);
 
-    SelectStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id);
+    var result = this.Repository.PatchResource(schemaName, entityName, id, jsonPatchRequestBody);
 
-    using ActiveConnection connect = this.sqlDialect.GetConnection();
-    try
-    {
+    return this.Json(result.Resource);
 
-      dynamic? beforeObject = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
-      if (beforeObject == null)
-        return NotFound();
-      dynamic beforeUpdate = JsonSerializer.Serialize(beforeObject);
-
-      PatchResult afterUpdate = jsonPatchRequestBody.Apply(JsonNode.Parse(beforeUpdate));
-      JsonDocument afterObject = afterUpdate.Result.ToJsonDocument();
-      UpdateStatement update = this.sqlDialect.BuildPutSingleSql(schemaName, entityName, id, afterObject);
-
-      int updated = connect.Connection.Execute(update.Sql, update.Parameters, connect.Transaction);
-
-      JsonPatch patch = this.sqlDialect.BuildDiffAsJsonPatch(JsonDocument.Parse(beforeUpdate), afterObject);
-
-      //TODO: Append this patch to the Patchwork Log
-
-      connect.Transaction.Commit();
-
-      return Json(new { entity = afterObject, changes = patch });
-    }
-    catch (Exception)
-    {
-      connect.Transaction.Rollback();
-      throw;
-    }
   }
 
   private string NormalizeSchemaName(string schemaName)

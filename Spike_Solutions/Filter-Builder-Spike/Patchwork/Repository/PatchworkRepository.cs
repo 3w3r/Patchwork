@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Nodes;
 using Dapper;
 using Json.More;
 using Json.Patch;
@@ -18,8 +19,8 @@ public interface IPatchworkRepository
   PostResult PostResource(string schemaName, string entityName, JsonDocument jsonResourceRequestBody);
   PutResult PutResource(string schemaName, string entityName, string id, JsonDocument jsonResourceRequestBody);
   DeleteResult DeleteResource(string schemaName, string entityName, string id);
-  PatchResourceResult PatchResource(string schemaName, int version, string entityName, string id, JsonPatch jsonPatchRequestBody);
-  PatchListResult PatchList(string schemaName, int version, string entityName, JsonPatch jsonPatchRequestBody);
+  PatchResourceResult PatchResource(string schemaName, string entityName, string id, JsonPatch jsonPatchRequestBody);
+  PatchListResult PatchList(string schemaName, string entityName, JsonPatch jsonPatchRequestBody);
 }
 
 
@@ -151,14 +152,43 @@ public class PatchworkRepository : IPatchworkRepository
     }
   }
 
-  public PatchListResult PatchList(string schemaName, int version, string entityName, JsonPatch jsonPatchRequestBody)
+  public PatchListResult PatchList(string schemaName, string entityName, JsonPatch jsonPatchRequestBody)
   {
     throw new NotImplementedException();
   }
 
-  public PatchResourceResult PatchResource(string schemaName, int version, string entityName, string id, JsonPatch jsonPatchRequestBody)
+  public PatchResourceResult PatchResource(string schemaName, string entityName, string id, JsonPatch jsonPatchRequestBody)
   {
-    throw new NotImplementedException();
+    SelectStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id);
+
+    using ActiveConnection connect = this.sqlDialect.GetConnection();
+    try
+    {
+
+      dynamic? beforeObject = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
+      if (beforeObject == null)
+        throw new System.Data.RowNotInTableException();
+      dynamic beforeUpdate = JsonSerializer.Serialize(beforeObject);
+
+      PatchResult afterUpdate = jsonPatchRequestBody.Apply(JsonNode.Parse(beforeUpdate));
+      JsonDocument afterObject = afterUpdate.Result.ToJsonDocument();
+      UpdateStatement update = this.sqlDialect.BuildPutSingleSql(schemaName, entityName, id, afterObject);
+
+      int updated = connect.Connection.Execute(update.Sql, update.Parameters, connect.Transaction);
+
+      JsonPatch patch = this.sqlDialect.BuildDiffAsJsonPatch(JsonDocument.Parse(beforeUpdate), afterObject);
+
+      //TODO: Append this patch to the Patchwork Log
+
+      connect.Transaction.Commit();
+
+      return new PatchResourceResult(id, afterObject, patch);
+    }
+    catch (Exception)
+    {
+      connect.Transaction.Rollback();
+      throw;
+    }
   }
 
   public bool AddPatchToLog(ActiveConnection connect, string schemaName, string entityName, string id, JsonPatch patch)
