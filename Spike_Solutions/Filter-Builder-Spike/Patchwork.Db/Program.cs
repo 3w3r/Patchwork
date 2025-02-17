@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-
+using System.Runtime.CompilerServices;
 using FluentMigrator.Runner;
 using FluentMigrator.Runner.Initialization;
 
@@ -17,8 +17,11 @@ static class Program
     {
       // Put the database update into a scope to ensure
       // that all resources will be disposed.
+      Console.WriteLine("---------------------[  PERFORMING DATABASE MIGRATION  ]-----------------------");
       UpdateDatabase(scope.ServiceProvider);
+      Console.WriteLine("---------------------[  DATABASE MIGRATION COMPLETED   ]-----------------------");
     }
+    Environment.Exit(0);
   }
 
   /// <summary>
@@ -30,10 +33,19 @@ static class Program
         // Add common FluentMigrator services
         .AddFluentMigratorCore()
         .ConfigureRunner(rb => rb
+#if SQLITE
             // Add SQLite support to FluentMigrator
-            .AddSQLite()
-            // Set the connection string
-            .WithGlobalConnectionString("Data Source=test.db")
+            .AddSQLite().WithGlobalConnectionString(ConnectionStringManager.GetSqliteConnectionString())
+#endif
+#if MSSQL
+            .AddSqlServer2016().WithGlobalConnectionString(ConnectionStringManager.GetMsSqlConnectionString())
+#endif
+#if POSTGRESQL
+            .AddPostgres().WithGlobalConnectionString(ConnectionStringManager.GetPostgreSqlConnectionString())
+#endif
+#if MYSQL
+            .AddMySql8().WithGlobalConnectionString(ConnectionStringManager.GetMySqlConnectionString())
+#endif
             // Define the assembly containing the migrations
             .ScanIn(typeof(Bootstrap).Assembly).For.Migrations())
         // Enable logging to console in the FluentMigrator way

@@ -1,4 +1,5 @@
 using Dapper;
+using Patchwork.Api;
 using Patchwork.SqlDialects.MySql;
 
 namespace Patchwork.Tests.MySql_tests;

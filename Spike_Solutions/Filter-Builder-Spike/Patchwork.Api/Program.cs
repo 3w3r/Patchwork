@@ -1,8 +1,10 @@
 using Patchwork.Authorization;
 using Patchwork.SqlDialects;
-using Patchwork.SqlDialects.Sqlite;
 using Patchwork.SqlDialects.MsSql;
+using Patchwork.SqlDialects.Sqlite;
 using Patchwork.SqlDialects.PostgreSql;
+using Patchwork.SqlDialects.MySql;
+using Patchwork.Repository;
 
 namespace Patchwork.Api;
 
@@ -15,12 +17,21 @@ public static class Program
     // Add services to the container.
     builder.Services.AddSingleton<IPatchworkAuthorization, DefaultPatchworkAuthorization>();
     builder.Services.AddSingleton<ISqlDialectBuilder>(
-      //new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString())
-      //new PostgreSqlDialectBuilder(ConnectionStringManager.GetPostgreSqlConnectionString())
+#if SQLITE
       new SqliteDialectBuilder(ConnectionStringManager.GetSqliteConnectionString())
-      //new MsSqlDialectBuilder(ConnectionStringManager.GetMsSqlConnectionString())
+#endif
+#if POSTGRESQL
+      new PostgreSqlDialectBuilder(ConnectionStringManager.GetPostgreSqlConnectionString())
+#endif
+#if MYSQL
+      new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString())
+#endif
+#if MSSQL
+      new MsSqlDialectBuilder(ConnectionStringManager.GetMsSqlConnectionString())
+#endif
       //new MsSqlDialectBuilder(ConnectionStringManager.GetMsSqlSurveysConnectionString())
       );
+    builder.Services.AddScoped<IPatchworkRepository, PatchworkRepository>();
 
     builder.Services.AddControllers();
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

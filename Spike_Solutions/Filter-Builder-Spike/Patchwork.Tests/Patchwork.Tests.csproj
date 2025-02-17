@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <Configurations>Debug;Release;PostgreSql;MySql;MsSql</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Patchwork.Api\Patchwork.Api.csproj" />
     <ProjectReference Include="..\Patchwork\Patchwork.csproj" />
   </ItemGroup>
 

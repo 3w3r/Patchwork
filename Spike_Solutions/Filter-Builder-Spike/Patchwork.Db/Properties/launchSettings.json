@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Patchwork.Db": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

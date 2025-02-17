@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
+using Patchwork.Api;
 using Patchwork.DbSchema;
 
 namespace Patchwork.Tests.Sqlite_tests;
