@@ -17,31 +17,25 @@ public static class JsonPatchExtensions
     public static Dictionary<string, JsonPatch> SplitById(this JsonPatch patch) {
         
         Dictionary<string, List<string>> patchDictionary = new Dictionary<string, List<string>>();
+        var insertCounter = 0;
 
-        for (int i = 0; i < patch.Operations.Count; i++)
+        foreach (var operation in patch.Operations)
         {
-            var pathList = patch.Operations[i].Path.ToString().Split("/").Where(x => !string.IsNullOrEmpty(x)).ToList();
-            var id = pathList.First();
+            var pathList = operation.Path.ToString().Split("/").Where(x => !string.IsNullOrEmpty(x)).ToList();
+            var id = pathList.First() == "-" ? $"-{insertCounter++}" : pathList.First();
             pathList.Remove(id);
             var destination = string.Join('/', pathList.ToArray());
 
-            //if (id == "-") { }
-
-            //JsonDocument nodeOp = patch.Operations[i].ToJsonDocument();
-
             var newOperation = $"\"path\": \"/{destination}\",";
+            newOperation += $"\"op\": \"{operation.Op.ToString().ToLower()}\",";
 
-            if (!string.IsNullOrEmpty(patch.Operations[i].Op.ToString()))
+            if (!string.IsNullOrEmpty(operation.From?.ToString()))
             {
-                newOperation += $"\"op\": \"{patch.Operations[i].Op.ToString()}\",";
+                newOperation += $"\"from\": \"{operation.From.ToString()}\",";
             }
-            if (!string.IsNullOrEmpty(patch.Operations[i].From.ToString()))
+            if (!string.IsNullOrEmpty(operation.Value?.ToString()))
             {
-                newOperation += $"\"from\": \"{patch.Operations[i].From.ToString()}\",";
-            }
-            if (!string.IsNullOrEmpty(patch.Operations[i].Value.ToString()))
-            {
-                newOperation += $"\"value\": \"{patch.Operations[i].Value.ToString()}\",";
+                newOperation += $"\"value\": \"{operation.Value.ToString()}\",";
             }
             newOperation = "{" + newOperation.TrimEnd(',') + "}";
 
@@ -50,9 +44,18 @@ public static class JsonPatchExtensions
             }
             patchDictionary[id].Add(newOperation);
 
-
         }
 
-        return new Dictionary<string, JsonPatch>();
+        Dictionary<string, JsonPatch> returnableDictionary = new Dictionary<string, JsonPatch>();
+
+        foreach (var x in patchDictionary)
+        {
+            var asString = "[" + string.Join(",", x.Value) + "]";
+            var asPatch = JsonSerializer.Deserialize<JsonPatch>(asString);
+            if(asPatch != null)
+                returnableDictionary.Add( x.Key, asPatch );
+        }
+
+        return returnableDictionary;
     }
 }
