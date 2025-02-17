@@ -81,9 +81,11 @@ public class PatchworkRepository : IPatchworkRepository
         patch = this.sqlDialect.BuildDiffAsJsonPatch(empty, jsonResourceRequestBody);
         InsertStatement insertPatch = this.sqlDialect.GetInsertStatementForPatchworkLog(schemaName, entityName, id.ToString(), patch);
         IEnumerable<dynamic> patchCount = connect.Connection.Query(insertPatch.Sql, insertPatch.Parameters, connect.Transaction);
+        AddPatchToLog(connect, schemaName, entityName, id, patch);
       }
       else
         patch = new JsonPatch();
+
 
       connect.Transaction.Commit();
       return new PostResult(id, inserted, patch);
@@ -115,7 +117,7 @@ public class PatchworkRepository : IPatchworkRepository
 
       JsonPatch patch = this.sqlDialect.BuildDiffAsJsonPatch(beforeUpdate, afterString);
 
-      //TODO: Append this patch to the Patchwork Log
+      if(this.sqlDialect.HasPatchTrackingEnabled()) AddPatchToLog(connect, schemaName, entityName, id, patch);
 
       connect.Transaction.Commit();
 
@@ -178,7 +180,7 @@ public class PatchworkRepository : IPatchworkRepository
 
       JsonPatch patch = this.sqlDialect.BuildDiffAsJsonPatch(JsonDocument.Parse(beforeUpdate), afterObject);
 
-      AddPatchToLog(connect, schemaName, entityName, id, patch);
+      if (this.sqlDialect.HasPatchTrackingEnabled()) AddPatchToLog(connect, schemaName, entityName, id, patch);
 
       connect.Transaction.Commit();
 
