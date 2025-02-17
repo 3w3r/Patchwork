@@ -12,7 +12,7 @@ public class SqliteIncludeTokenParser : IncludeTokenParserBase
     StringBuilder sb = new StringBuilder();
     foreach (IncludeToken token in _tokens)
     {
-      var cs = string.IsNullOrEmpty(token.ChildSchemaName) ? "" : $"{token.ChildSchemaName}.";
+      string cs = string.IsNullOrEmpty(token.ChildSchemaName) ? "" : $"{token.ChildSchemaName}.";
 
       sb.AppendLine($"LEFT OUTER JOIN {cs}{token.ChildTableName} AS t_{token.ChildTableName} ON " +
                     $"t_{token.ParentTableName}.{token.ParentTableFkName} = " +

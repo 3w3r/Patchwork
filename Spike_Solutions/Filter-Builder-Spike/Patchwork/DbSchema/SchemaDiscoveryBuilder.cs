@@ -22,7 +22,7 @@ public class SchemaDiscoveryBuilder
     dbV = dbV.Where(v => !v.SchemaOwner.Equals("information_schema", StringComparison.OrdinalIgnoreCase)).ToList();
     dbV = dbV.Where(v => !(connection.GetType().Name.Contains("npgsql", StringComparison.OrdinalIgnoreCase) && v.Name.StartsWith("pg_"))).ToList();
 
-    var schemas = dbS.Select(s =>
+    List<Schema> schemas = dbS.Select(s =>
     {
       List<Entity> tables = dbT.Where(t => t.SchemaOwner == s.Name || (t.SchemaOwner == "" && s.Name == "dbo"))
                       .Select(t => new Entity(t.Name, t.Description, t.SchemaOwner, false,
@@ -56,8 +56,8 @@ public class SchemaDiscoveryBuilder
     }).ToList();
 
     // ensure we do not return any empty schemas
-    var populatedSchemas = schemas.Where(s => s.Tables.Any() || s.Views.Any()).ToList();
-    var hasPatchTracking = schemas.Any(s => s.Tables.Any(t => string.Equals(t.Name, "patchwork_event_log", StringComparison.OrdinalIgnoreCase)));
+    List<Schema> populatedSchemas = schemas.Where(s => s.Tables.Any() || s.Views.Any()).ToList();
+    bool hasPatchTracking = schemas.Any(s => s.Tables.Any(t => string.Equals(t.Name, "patchwork_event_log", StringComparison.OrdinalIgnoreCase)));
     return new DatabaseMetadata(populatedSchemas, hasPatchTracking);
   }
 }

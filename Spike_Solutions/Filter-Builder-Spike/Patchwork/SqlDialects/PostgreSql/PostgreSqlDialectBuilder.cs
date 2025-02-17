@@ -1,7 +1,5 @@
 ﻿using System.Data.Common;
 using System.Text;
-using System.Text.Json;
-using Json.Patch;
 using Npgsql;
 using Patchwork.DbSchema;
 using Patchwork.Expansion;
@@ -22,7 +20,7 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
 
   public override ActiveConnection GetConnection()
   {
-    var c = new NpgsqlConnection(_connectionString);
+    NpgsqlConnection c = new NpgsqlConnection(_connectionString);
     c.Open();
     DbTransaction t = c.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
     return new ActiveConnection(c, t);
@@ -30,7 +28,7 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
 
   internal override string BuildSelectClause(string fields, Entity entity)
   {
-    var schemaPrefix = string.IsNullOrEmpty(entity.SchemaName) ? string.Empty : $"{entity.SchemaName.ToLower()}.";
+    string schemaPrefix = string.IsNullOrEmpty(entity.SchemaName) ? string.Empty : $"{entity.SchemaName.ToLower()}.";
 
     if (string.IsNullOrEmpty(fields) || fields.Contains("*"))
       return $"SELECT * FROM {schemaPrefix}{entity.Name.ToLower()} AS t_{entity.Name.ToLower()}";
@@ -111,7 +109,7 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
   }
   internal override string BuildColumnListForInsert(Entity entity)
   {
-    var list = entity.Columns
+    IEnumerable<string> list = entity.Columns
                      .Where(x => !x.IsComputed && !x.IsAutoNumber)
                      .OrderBy(x => x.IsPrimaryKey)
                      .ThenBy(x => x.Name)
@@ -120,7 +118,7 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
   }
   internal override string BuildParameterListForInsert(Entity entity)
   {
-    var list = entity.Columns
+    IEnumerable<string> list = entity.Columns
                      .Where(x => !x.IsComputed && !x.IsAutoNumber)
                      .OrderBy(x => x.IsPrimaryKey)
                      .ThenBy(x => x.Name)
@@ -158,7 +156,7 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
     return $"DELETE FROM {schema}{entity.Name.ToLower()} ";
   }
   internal override string BuildWherePkForDeleteClause(Entity entity) => BuildWherePkForUpdateClause(entity);
-  protected override string GetInsertPatchTemplate() => 
+  protected override string GetInsertPatchTemplate() =>
     "INSERT INTO patchwork.patchwork_event_log (event_date, domain, entity, id, patch) " +
     "VALUES (CURRENT_TIMESTAMP AT TIME ZONE 'UTC', @schemaname, @entityname, @id, @patch) RETURNING *";
 }

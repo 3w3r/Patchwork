@@ -18,7 +18,7 @@ public class IncludeLexer
   public List<IncludeToken> Tokenize()
   {
     List<IncludeToken> tokens = new List<IncludeToken>();
-    var parent = _entity;
+    Entity parent = _entity;
     foreach (string segment in _input.Trim().Split(','))
     {
       string child = ReadIdentifier(segment);

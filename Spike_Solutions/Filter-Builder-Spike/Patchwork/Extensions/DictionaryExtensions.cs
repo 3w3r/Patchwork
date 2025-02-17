@@ -27,7 +27,7 @@ public static class DictionaryExtensions
   {
     if (keyValuePairs == null)
       throw new ArgumentNullException(nameof(keyValuePairs));
-    if (jsonResource==null)
+    if (jsonResource == null)
       throw new ArgumentNullException(nameof(jsonResource));
 
     foreach (JsonProperty prop in jsonResource.RootElement.EnumerateObject())

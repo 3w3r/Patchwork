@@ -19,7 +19,7 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
 
   public override ActiveConnection GetConnection()
   {
-    var c = new SqlConnection(_connectionString);
+    SqlConnection c = new SqlConnection(_connectionString);
     c.Open();
     DbTransaction t = c.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
     return new ActiveConnection(c, t);
@@ -108,7 +108,7 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
   }
   internal override string BuildColumnListForInsert(Entity entity)
   {
-    var list = entity.Columns
+    IEnumerable<string> list = entity.Columns
                      .Where(x => !x.IsComputed && !x.IsAutoNumber)
                      .OrderBy(x => x.IsPrimaryKey)
                      .ThenBy(x => x.Name)
@@ -117,7 +117,7 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
   }
   internal override string BuildParameterListForInsert(Entity entity)
   {
-    var list = entity.Columns
+    IEnumerable<string> list = entity.Columns
                      .Where(x => !x.IsComputed && !x.IsAutoNumber)
                      .OrderBy(x => x.IsPrimaryKey)
                      .ThenBy(x => x.Name)

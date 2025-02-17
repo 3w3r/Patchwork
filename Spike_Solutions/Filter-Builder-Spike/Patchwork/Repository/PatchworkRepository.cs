@@ -81,7 +81,8 @@ public class PatchworkRepository : IPatchworkRepository
         InsertStatement insertPatch = this.sqlDialect.GetInsertStatementForPatchworkLog(schemaName, entityName, id.ToString(), patch);
         IEnumerable<dynamic> patchCount = connect.Connection.Query(insertPatch.Sql, insertPatch.Parameters, connect.Transaction);
       }
-      else patch = new JsonPatch();
+      else
+        patch = new JsonPatch();
 
       connect.Transaction.Commit();
       return new PostResult(id, inserted, patch);

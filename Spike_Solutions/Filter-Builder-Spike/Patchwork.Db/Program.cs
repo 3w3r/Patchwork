@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using FluentMigrator.Runner;
-using FluentMigrator.Runner.Initialization;
+﻿using FluentMigrator.Runner;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,8 +8,8 @@ static class Program
 {
   static void Main(string[] args)
   {
-    using (var serviceProvider = CreateServices())
-    using (var scope = serviceProvider.CreateScope())
+    using (ServiceProvider serviceProvider = CreateServices())
+    using (IServiceScope scope = serviceProvider.CreateScope())
     {
       // Put the database update into a scope to ensure
       // that all resources will be disposed.
@@ -60,7 +56,7 @@ static class Program
   private static void UpdateDatabase(IServiceProvider serviceProvider)
   {
     // Instantiate the runner
-    var runner = serviceProvider.GetRequiredService<IMigrationRunner>();
+    IMigrationRunner runner = serviceProvider.GetRequiredService<IMigrationRunner>();
 
     // Execute the migrations
     runner.MigrateUp();

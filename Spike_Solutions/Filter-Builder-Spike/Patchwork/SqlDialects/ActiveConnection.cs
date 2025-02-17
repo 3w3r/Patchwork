@@ -9,14 +9,15 @@ public class ActiveConnection : IDisposable
 
   public ActiveConnection(DbConnection connection, DbTransaction transaction)
   {
-    Connection = connection; 
+    Connection = connection;
     Transaction = transaction;
   }
 
   public void Dispose()
   {
     Transaction.Dispose();
-    if(Connection.State == System.Data.ConnectionState.Open) Connection.Close();
+    if (Connection.State == System.Data.ConnectionState.Open)
+      Connection.Close();
     Connection.Dispose();
   }
 }

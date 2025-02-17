@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Nodes;
 using Dapper;
 using Json.More;
 using Json.Patch;
@@ -7,8 +8,6 @@ using Patchwork.Authorization;
 using Patchwork.Repository;
 using Patchwork.SqlDialects;
 using Patchwork.SqlStatements;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 
 namespace Patchwork.Api.Controllers;
 
@@ -26,21 +25,21 @@ public class PatchworkEndpoints : Controller
     this.sqlDialect = sql;
   }
 
-    [HttpGet]
-    [Route("api/{schemaName}/v{version}/{entityName}")]
-    public IActionResult GetListEndpoint(
-      [FromRoute] string schemaName,
-      [FromRoute] int version,
-      [FromRoute] string entityName,
-      [FromQuery] string fields = "",
-      [FromQuery] string filter = "",
-      [FromQuery] string sort = "",
-      [FromQuery] int limit = 0,
-      [FromQuery] int offset = 0)
-    {
-        // if (!authorization.GetPermissionToCollection(schemaName, entityName, this.User).HasFlag(Permission.Get))
-        //   return this.Unauthorized();
-        schemaName = NormalizeSchemaName(schemaName);
+  [HttpGet]
+  [Route("api/{schemaName}/v{version}/{entityName}")]
+  public IActionResult GetListEndpoint(
+    [FromRoute] string schemaName,
+    [FromRoute] int version,
+    [FromRoute] string entityName,
+    [FromQuery] string fields = "",
+    [FromQuery] string filter = "",
+    [FromQuery] string sort = "",
+    [FromQuery] int limit = 0,
+    [FromQuery] int offset = 0)
+  {
+    // if (!authorization.GetPermissionToCollection(schemaName, entityName, this.User).HasFlag(Permission.Get))
+    //   return this.Unauthorized();
+    schemaName = NormalizeSchemaName(schemaName);
 
     GetListResult found = Repository.GetList(schemaName, entityName, fields, filter, sort, limit, offset);
 
@@ -145,111 +144,111 @@ public class PatchworkEndpoints : Controller
     }
   }
 
-    [HttpPatch]
-    [Route("api/{schemaName}/v{version}/{entityName}")]
-    public IActionResult PatchListEndpoint(
-      [FromRoute] string schemaName,
-      [FromRoute] int version,
-      [FromRoute] string entityName,
-      [FromBody] JsonPatch jsonPatchRequestBody)
+  [HttpPatch]
+  [Route("api/{schemaName}/v{version}/{entityName}")]
+  public IActionResult PatchListEndpoint(
+    [FromRoute] string schemaName,
+    [FromRoute] int version,
+    [FromRoute] string entityName,
+    [FromBody] JsonPatch jsonPatchRequestBody)
+  {
+    // if (!authorization.GetPermissionToCollection(schemaName, entityName, this.User).HasFlag(Permission.Patch))
+    //   return this.Unauthorized();
+    schemaName = NormalizeSchemaName(schemaName);
+
+
+    /*  for x in patch list
+     *   if x.id not in dictionary  
+     *    add new dictionary entry x.id
+     *   
+     *   add x to dictionary entry x.id
+     *   
+     *  for p in dictionary
+     *   perform operation p
+     * 
+     */
+
+
+
+
+
+    //TODO: The incoming JSON Patch will have opertions for one or more entities in the system. We identify which
+    //      entities are being changed by the `path` element. The prefix on each `path` element will be the URL needed
+    //      to access an entity's GET RESOURCE endpoint and the suffix will indicate which elements inside the entity
+    //      are being modified. To apply a group JSON Patch, we use this procedure:
+    //
+    // 1. Read the incoming JSON Patch and group all operations by the first parameters in the `path` element.
+    // 2. Create a new JSON Patch object for each entity being modified.
+    // 3. Remove the prefix of `schema/entity/id` from each operation as it is added to the new JSON Patch document.
+    // 4. Add the opertion with the shortned `path` to the matching element in new list of JSON Patch documents.
+    //    4.1 Some operations target existing records for modification and have a suffix for the element to modify,
+    //        These operations will be used to perform UPDATE statements against the database.
+    //    4.2 Some operations will insert a new record and they have an id of `-`. These operations will be used 
+    //        to perform INSERT statements against the database.
+    //    4.3 Some `remove` operations will target an entity by have no suffix. In this case, the system will create
+    //        a DELETE statement to remove the entity from the system.
+    // 5. Begin a database transaction.
+    // 6. For each JSON Patch in the new list:
+    //    6.1 Read the entity from the database that matches the `PATH` prefix
+    //    6.2 Apply the JSON Patch to the object
+    //    6.3 Generate a PUT statement for the new object version
+    //    6.4 Execute the PUT statement against the database
+    //    6.5 Save the JSON Patch into the event log
+    // 7. If all changes succeed without error, then we can commit the transaction. But, if any operations fail, then
+    //    we MUST rollback all changes. The entire JSON Patch list must succeed or the entire list must fail.
+
+    return Accepted();
+  }
+
+  [HttpPatch]
+  [Route("api/{schemaName}/v{version}/{entityName}/{id}")]
+  public IActionResult PatchResourceEndpoint(
+    [FromRoute] string schemaName,
+    [FromRoute] int version,
+    [FromRoute] string entityName,
+    [FromRoute] string id,
+    [FromBody] JsonPatch jsonPatchRequestBody)
+  {
+    // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Patch))
+    //   return this.Unauthorized();
+    schemaName = NormalizeSchemaName(schemaName);
+
+    SelectStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id);
+
+    using ActiveConnection connect = this.sqlDialect.GetConnection();
+    try
     {
-        // if (!authorization.GetPermissionToCollection(schemaName, entityName, this.User).HasFlag(Permission.Patch))
-        //   return this.Unauthorized();
-        schemaName = NormalizeSchemaName(schemaName);
 
+      dynamic? beforeObject = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
+      if (beforeObject == null)
+        return NotFound();
+      dynamic beforeUpdate = JsonSerializer.Serialize(beforeObject);
 
-        /*  for x in patch list
-         *   if x.id not in dictionary  
-         *    add new dictionary entry x.id
-         *   
-         *   add x to dictionary entry x.id
-         *   
-         *  for p in dictionary
-         *   perform operation p
-         * 
-         */
+      PatchResult afterUpdate = jsonPatchRequestBody.Apply(JsonNode.Parse(beforeUpdate));
+      JsonDocument afterObject = afterUpdate.Result.ToJsonDocument();
+      UpdateStatement update = this.sqlDialect.BuildPutSingleSql(schemaName, entityName, id, afterObject);
 
-        
+      int updated = connect.Connection.Execute(update.Sql, update.Parameters, connect.Transaction);
 
+      JsonPatch patch = this.sqlDialect.BuildDiffAsJsonPatch(JsonDocument.Parse(beforeUpdate), afterObject);
 
+      //TODO: Append this patch to the Patchwork Log
 
-        //TODO: The incoming JSON Patch will have opertions for one or more entities in the system. We identify which
-        //      entities are being changed by the `path` element. The prefix on each `path` element will be the URL needed
-        //      to access an entity's GET RESOURCE endpoint and the suffix will indicate which elements inside the entity
-        //      are being modified. To apply a group JSON Patch, we use this procedure:
-        //
-        // 1. Read the incoming JSON Patch and group all operations by the first parameters in the `path` element.
-        // 2. Create a new JSON Patch object for each entity being modified.
-        // 3. Remove the prefix of `schema/entity/id` from each operation as it is added to the new JSON Patch document.
-        // 4. Add the opertion with the shortned `path` to the matching element in new list of JSON Patch documents.
-        //    4.1 Some operations target existing records for modification and have a suffix for the element to modify,
-        //        These operations will be used to perform UPDATE statements against the database.
-        //    4.2 Some operations will insert a new record and they have an id of `-`. These operations will be used 
-        //        to perform INSERT statements against the database.
-        //    4.3 Some `remove` operations will target an entity by have no suffix. In this case, the system will create
-        //        a DELETE statement to remove the entity from the system.
-        // 5. Begin a database transaction.
-        // 6. For each JSON Patch in the new list:
-        //    6.1 Read the entity from the database that matches the `PATH` prefix
-        //    6.2 Apply the JSON Patch to the object
-        //    6.3 Generate a PUT statement for the new object version
-        //    6.4 Execute the PUT statement against the database
-        //    6.5 Save the JSON Patch into the event log
-        // 7. If all changes succeed without error, then we can commit the transaction. But, if any operations fail, then
-        //    we MUST rollback all changes. The entire JSON Patch list must succeed or the entire list must fail.
+      connect.Transaction.Commit();
 
-        return Accepted();
+      return Json(new { entity = afterObject, changes = patch });
     }
-
-    [HttpPatch]
-    [Route("api/{schemaName}/v{version}/{entityName}/{id}")]
-    public IActionResult PatchResourceEndpoint(
-      [FromRoute] string schemaName,
-      [FromRoute] int version,
-      [FromRoute] string entityName,
-      [FromRoute] string id,
-      [FromBody] JsonPatch jsonPatchRequestBody)
+    catch (Exception)
     {
-        // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Patch))
-        //   return this.Unauthorized();
-        schemaName = NormalizeSchemaName(schemaName);
-
-        SelectStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id);
-        
-        using ActiveConnection connect = this.sqlDialect.GetConnection();
-        try
-        {
-
-            var beforeObject = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
-            if (beforeObject == null)
-                return NotFound();
-            var beforeUpdate = JsonSerializer.Serialize(beforeObject);
-
-            PatchResult afterUpdate = jsonPatchRequestBody.Apply(JsonNode.Parse(beforeUpdate));
-            var afterObject = afterUpdate.Result.ToJsonDocument();
-            UpdateStatement update = this.sqlDialect.BuildPutSingleSql(schemaName, entityName, id, afterObject);
-
-            var updated = connect.Connection.Execute(update.Sql, update.Parameters, connect.Transaction);
-
-            JsonPatch patch = this.sqlDialect.BuildDiffAsJsonPatch(JsonDocument.Parse(beforeUpdate), afterObject);
-
-            //TODO: Append this patch to the Patchwork Log
-
-            connect.Transaction.Commit();
-
-            return Json(new { entity = afterObject, changes = patch });
-        }
-        catch (Exception)
-        {
-            connect.Transaction.Rollback();
-            throw;
-        }
+      connect.Transaction.Rollback();
+      throw;
     }
+  }
 
-    private string NormalizeSchemaName(string schemaName)
-    {
-        if (schemaName.Equals("surveys", StringComparison.OrdinalIgnoreCase))
-            schemaName = sqlDialect.DefaultSchemaName;
-        return schemaName;
-    }
+  private string NormalizeSchemaName(string schemaName)
+  {
+    if (schemaName.Equals("surveys", StringComparison.OrdinalIgnoreCase))
+      schemaName = sqlDialect.DefaultSchemaName;
+    return schemaName;
+  }
 }

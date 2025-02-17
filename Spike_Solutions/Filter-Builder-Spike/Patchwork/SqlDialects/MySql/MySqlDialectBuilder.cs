@@ -18,7 +18,7 @@ public class MySqlDialectBuilder : SqlDialectBuilderBase
 
   public override ActiveConnection GetConnection()
   {
-    var c = new MySqlConnection(_connectionString);
+    MySqlConnection c = new MySqlConnection(_connectionString);
     c.Open();
     DbTransaction t = c.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
     return new ActiveConnection(c, t);
@@ -26,13 +26,13 @@ public class MySqlDialectBuilder : SqlDialectBuilderBase
 
   internal override string BuildSelectClause(string fields, Entity entity)
   {
-    var schemaPrefix = string.IsNullOrEmpty(entity.SchemaName) ? string.Empty : $"`{entity.SchemaName.ToLower()}`.";
+    string schemaPrefix = string.IsNullOrEmpty(entity.SchemaName) ? string.Empty : $"`{entity.SchemaName.ToLower()}`.";
 
     if (string.IsNullOrEmpty(fields) || fields.Contains("*"))
       return $"SELECT * FROM {schemaPrefix}`{entity.Name.ToLower()}` AS t_{entity.Name.ToLower()}";
 
     List<FieldsToken> tokens = GetFieldTokens(fields, entity);
-    var parser = new MySqlFieldsTokenParser(tokens);
+    MySqlFieldsTokenParser parser = new MySqlFieldsTokenParser(tokens);
     string fieldList = parser.Parse();
 
     return $"SELECT {fieldList} FROM {schemaPrefix}`{entity.Name.ToLower()}` AS t_{entity.Name.ToLower()}";
@@ -45,7 +45,7 @@ public class MySqlDialectBuilder : SqlDialectBuilderBase
     try
     {
       List<IncludeToken> tokens = GetIncludeTokens(includeString, entity);
-      var parser = new MySqlIncludeTokenParser(tokens);
+      MySqlIncludeTokenParser parser = new MySqlIncludeTokenParser(tokens);
       return parser.Parse();
     }
     catch (Exception ex)
@@ -75,7 +75,7 @@ public class MySqlDialectBuilder : SqlDialectBuilderBase
     try
     {
       List<SortToken> tokens = GetSortTokens(sort, entity);
-      var parser = new MySqlSortTokenParser(tokens);
+      MySqlSortTokenParser parser = new MySqlSortTokenParser(tokens);
       string orderby = parser.Parse();
       return $"ORDER BY {orderby}";
     }
@@ -89,7 +89,7 @@ public class MySqlDialectBuilder : SqlDialectBuilderBase
     try
     {
       PagingToken token = GetPagingToken(limit, offset);
-      var parser = new MySqlPagingParser(token);
+      MySqlPagingParser parser = new MySqlPagingParser(token);
       return parser.Parse();
     }
     catch (ArgumentException ex)
@@ -105,7 +105,7 @@ public class MySqlDialectBuilder : SqlDialectBuilderBase
   }
   internal override string BuildColumnListForInsert(Entity entity)
   {
-    var list = entity.Columns
+    IEnumerable<string> list = entity.Columns
                      .Where(x => !x.IsComputed && !x.IsAutoNumber)
                      .OrderBy(x => x.IsPrimaryKey)
                      .ThenBy(x => x.Name)
@@ -114,7 +114,7 @@ public class MySqlDialectBuilder : SqlDialectBuilderBase
   }
   internal override string BuildParameterListForInsert(Entity entity)
   {
-    var list = entity.Columns
+    IEnumerable<string> list = entity.Columns
                      .Where(x => !x.IsComputed && !x.IsAutoNumber)
                      .OrderBy(x => x.IsPrimaryKey)
                      .ThenBy(x => x.Name)

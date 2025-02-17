@@ -1,10 +1,7 @@
 using Patchwork.Authorization;
-using Patchwork.SqlDialects;
-using Patchwork.SqlDialects.MsSql;
-using Patchwork.SqlDialects.Sqlite;
-using Patchwork.SqlDialects.PostgreSql;
-using Patchwork.SqlDialects.MySql;
 using Patchwork.Repository;
+using Patchwork.SqlDialects;
+using Patchwork.SqlDialects.PostgreSql;
 
 namespace Patchwork.Api;
 
@@ -12,7 +9,7 @@ public static class Program
 {
   public static void Main(string[] args)
   {
-    var builder = WebApplication.CreateBuilder(args);
+    WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
     // Add services to the container.
     builder.Services.AddSingleton<IPatchworkAuthorization, DefaultPatchworkAuthorization>();
@@ -39,7 +36,7 @@ public static class Program
     builder.Services.AddSwaggerGen();
     builder.Services.AddAuthentication();
 
-    var app = builder.Build();
+    WebApplication app = builder.Build();
 
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())

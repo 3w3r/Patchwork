@@ -19,7 +19,7 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
 
   public override ActiveConnection GetConnection()
   {
-    var c = new SqliteConnection(_connectionString);
+    SqliteConnection c = new SqliteConnection(_connectionString);
     c.Open();
     DbTransaction t = c.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
     return new ActiveConnection(c, t);
@@ -106,7 +106,7 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
   }
   internal override string BuildColumnListForInsert(Entity entity)
   {
-    var list = entity.Columns
+    IEnumerable<string> list = entity.Columns
                      .Where(x => !x.IsComputed && !x.IsAutoNumber)
                      .OrderBy(x => x.IsPrimaryKey)
                      .ThenBy(x => x.Name)
@@ -115,7 +115,7 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
   }
   internal override string BuildParameterListForInsert(Entity entity)
   {
-    var list = entity.Columns
+    IEnumerable<string> list = entity.Columns
                      .Where(x => !x.IsComputed && !x.IsAutoNumber)
                      .OrderBy(x => x.IsPrimaryKey)
                      .ThenBy(x => x.Name)
@@ -152,7 +152,7 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
   }
   internal override string BuildWherePkForDeleteClause(Entity entity) => BuildWherePkForUpdateClause(entity);
 
-  protected override string GetInsertPatchTemplate() => 
+  protected override string GetInsertPatchTemplate() =>
     "INSERT INTO patchwork_event_log (event_date, domain, entity, id, patch) " +
     "VALUES (CURRENT_TIMESTAMP, @schemaname, @entityname, @id, @patch)";
 }

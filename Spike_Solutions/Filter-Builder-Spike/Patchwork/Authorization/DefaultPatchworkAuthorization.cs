@@ -19,7 +19,7 @@ public class DefaultPatchworkAuthorization : IPatchworkAuthorization
 
   private static Permission GetRoleAccess(IPrincipal principal)
   {
-    var access = Permission.None;
+    Permission access = Permission.None;
     if (principal.IsInRole(Permission.Viewer.ToString()))
       access |= Permission.Viewer;
     if (principal.IsInRole(Permission.Editor.ToString()))

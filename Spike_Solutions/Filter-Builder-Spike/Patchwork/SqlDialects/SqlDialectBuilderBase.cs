@@ -10,7 +10,6 @@ using Patchwork.Filters;
 using Patchwork.Paging;
 using Patchwork.Sort;
 using Patchwork.SqlStatements;
-using static Dapper.SqlMapper;
 
 namespace Patchwork.SqlDialects;
 public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
@@ -56,17 +55,17 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
   }
   public virtual string GetPkValue(string schemaName, string entityName, object entityObject)
   {
-    var entity = FindEntity(schemaName, entityName);
+    Entity entity = FindEntity(schemaName, entityName);
     if (entity.PrimaryKey == null)
       return string.Empty;
 
     Type type = entityObject.GetType();
-    var properties = type.GetProperties();
+    PropertyInfo[] properties = type.GetProperties();
     PropertyInfo? property = type.GetProperty(entity.PrimaryKey.Name);
     if (property == null)
       return string.Empty;
 
-    var prop = property.GetValue(entityObject);
+    object? prop = property.GetValue(entityObject);
     return prop?.ToString() ?? string.Empty;
 
   }
@@ -83,7 +82,8 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     _metadataCache.TryAdd(_connectionString, _metadata);
     return _metadata;
   }
-  public virtual bool HasPatchTrackingEnabled() {
+  public virtual bool HasPatchTrackingEnabled()
+  {
     if (_metadata == null)
       this.DiscoverSchema();
     return _metadata!.HasPatchTracking;
@@ -199,7 +199,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
 
   public virtual InsertStatement GetInsertStatementForPatchworkLog(string schemaName, string entityName, string id, JsonPatch jsonPatchRequestBody)
   {
-    var insertParams = new Dictionary<string, object>();
+    Dictionary<string, object> insertParams = new Dictionary<string, object>();
     insertParams.Add("schemaname", schemaName);
     insertParams.Add("entityname", entityName);
     insertParams.Add("id", id);
