@@ -57,7 +57,7 @@ CREATE TABLE offices (
 );
 
 CREATE TABLE employees (
-  employeeNumber int,
+  employeeNumber int NOT NULL AUTO_INCREMENT,
   lastName varchar(50) NOT NULL,
   firstName varchar(50) NOT NULL,
   extension varchar(10) NOT NULL,
@@ -71,7 +71,7 @@ CREATE TABLE employees (
 );
 
 CREATE TABLE customers (
-  customerNumber int,
+  customerNumber int NOT NULL AUTO_INCREMENT,
   customerName varchar(50) NOT NULL,
   contactLastName varchar(50) NOT NULL,
   contactFirstName varchar(50) NOT NULL,
@@ -98,7 +98,7 @@ CREATE TABLE payments (
 );
 
 CREATE TABLE orders (
-  orderNumber int,
+  orderNumber int NOT NULL AUTO_INCREMENT,
   orderDate date NOT NULL,
   requiredDate date NOT NULL,
   shippedDate date DEFAULT NULL,

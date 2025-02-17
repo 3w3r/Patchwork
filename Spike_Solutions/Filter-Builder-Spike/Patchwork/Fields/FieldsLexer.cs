@@ -25,7 +25,8 @@ public class FieldsLexer
     List<FieldsToken> tokens = new List<FieldsToken>();
     foreach (string segment in _input.Trim().Split(','))
     {
-      if(string.IsNullOrEmpty(segment)) continue;
+      if (string.IsNullOrEmpty(segment))
+        continue;
       string child = ReadIdentifier(segment.Trim());
       Column? col = _entity.Columns.FirstOrDefault(e => e.Name.Equals(child, StringComparison.OrdinalIgnoreCase));
       if (col == null)

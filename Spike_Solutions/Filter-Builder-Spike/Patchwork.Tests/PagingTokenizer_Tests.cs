@@ -1,4 +1,6 @@
-using Patchwork.SqlDialects;
+using Patchwork.SqlDialects.MsSql;
+using Patchwork.SqlDialects.MySql;
+using Patchwork.SqlDialects.PostgreSql;
 
 namespace Patchwork.Tests;
 

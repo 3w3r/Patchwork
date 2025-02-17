@@ -18,14 +18,31 @@ public class IncludeLexer
   public List<IncludeToken> Tokenize()
   {
     List<IncludeToken> tokens = new List<IncludeToken>();
+    var parent = _entity;
     foreach (string segment in _input.Trim().Split(','))
     {
       string child = ReadIdentifier(segment);
       Entity childTable = GetChildTableName(child);
-      Column pk = GetPrimaryKeyColumn(childTable);
-      Column fk = GetForeignKeyColumn(child, childTable);
-
-      tokens.Add(new IncludeToken(childTable.SchemaName, childTable.Name, pk.Name, _entity.SchemaName, _entity.Name, fk.Name));
+      Column? fk = GetEntityForeignKeyToInclude(parent, child, childTable);
+      if (fk != null)
+      {
+        Column pk = GetPrimaryKeyColumn(childTable);
+        tokens.Add(new IncludeToken(childTable.SchemaName, childTable.Name, pk.Name, parent.SchemaName, parent.Name, fk.Name));
+      }
+      else
+      {
+        fk = GetIncludeForeignKeyToEntity(parent, child, childTable);
+        if (fk != null)
+        {
+          Column pk = GetPrimaryKeyColumn(parent);
+          tokens.Add(new IncludeToken(childTable.SchemaName, childTable.Name, pk.Name, parent.SchemaName, parent.Name, fk.Name));
+        }
+        else
+        {
+          throw new ArgumentOutOfRangeException("include", $"The tables {parent.Name} and {childTable.Name} are not related.");
+        }
+      }
+      parent = childTable;
     }
 
     return tokens;
@@ -38,12 +55,13 @@ public class IncludeLexer
     return childTable.PrimaryKey;
   }
 
-  private Column GetForeignKeyColumn(string child, Entity childTable)
+  private Column? GetEntityForeignKeyToInclude(Entity parentTable, string child, Entity childTable)
   {
-    Column? fk = _entity.Columns.FirstOrDefault(c => c.IsForeignKey && c.ForeignKeyTableName.Equals(childTable.Name, StringComparison.CurrentCultureIgnoreCase));
-    if (fk == null)
-      throw new InvalidOperationException($"Table {_entity.Name} does not have a foreign key to {child}.");
-    return fk;
+    return parentTable.Columns.FirstOrDefault(c => c.IsForeignKey && c.ForeignKeyTableName.Equals(childTable.Name, StringComparison.CurrentCultureIgnoreCase));
+  }
+  private Column? GetIncludeForeignKeyToEntity(Entity parentTable, string child, Entity childTable)
+  {
+    return childTable.Columns.FirstOrDefault(c => c.IsForeignKey && c.ForeignKeyTableName.Equals(parentTable.Name, StringComparison.CurrentCultureIgnoreCase));
   }
 
   private Entity GetChildTableName(string child)

@@ -1,5 +1,6 @@
 using Patchwork.Sort;
-using Patchwork.SqlDialects;
+using Patchwork.SqlDialects.MsSql;
+using Patchwork.SqlDialects.PostgreSql;
 
 namespace Patchwork.Tests;
 
@@ -34,7 +35,7 @@ public class SortTokenizer_Tests
     MsSqlDialectBuilder sut = new MsSqlDialectBuilder(TestSampleData.DB);
 
     // Act
-    string result = sut.BuildOrderByClause(sort, "SortTest");
+    string result = sut.BuildOrderByClause(sort, sut.FindEntity("dbo", "SortTest"));
 
     // Assert
     Assert.Equal(expected, result);
@@ -55,7 +56,7 @@ public class SortTokenizer_Tests
     PostgreSqlDialectBuilder sut = new PostgreSqlDialectBuilder(TestSampleData.DB);
 
     // Act
-    string result = sut.BuildOrderByClause(sort, "SortTest");
+    string result = sut.BuildOrderByClause(sort, sut.FindEntity("dbo", "SortTest"));
 
     // Assert
     Assert.Equal(expected, result);
@@ -76,7 +77,7 @@ public class SortTokenizer_Tests
 
     ArgumentException ex = Assert.ThrowsAny<ArgumentException>(() =>
     {
-      string result = sut.BuildOrderByClause(sort, "SortTest");
+      string result = sut.BuildOrderByClause(sort, sut.FindEntity("dbo", "SortTest"));
 
     });
     if (ex == null)
