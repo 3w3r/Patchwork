@@ -1,27 +1,18 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel.Design;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using Dapper;
 using Json.More;
 using Json.Patch;
+using Json.Pointer;
 using Patchwork.Authorization;
 using Patchwork.DbSchema;
+using Patchwork.Paging;
 using Patchwork.SqlDialects;
 using Patchwork.SqlStatements;
 using static Dapper.SqlMapper;
 
 namespace Patchwork.Repository;
-
-public interface IPatchworkRepository
-{
-
-  GetListResult GetList(string schemaName, string entityName, string fields = "", string filter = "", string sort = "", int limit = 0, int offset = 0);
-  GetResourceResult GetResource(string schemaName, string entityName, string id, string fields = "", string include = "", DateTimeOffset? asOf = null);
-  PostResult PostResource(string schemaName, string entityName, JsonDocument jsonResourceRequestBody);
-  PutResult PutResource(string schemaName, string entityName, string id, JsonDocument jsonResourceRequestBody);
-  DeleteResult DeleteResource(string schemaName, string entityName, string id);
-  PatchResourceResult PatchResource(string schemaName, string entityName, string id, JsonPatch jsonPatchRequestBody);
-  PatchListResult PatchList(string schemaName, string entityName, JsonPatch jsonPatchRequestBody);
-}
 
 
 public class PatchworkRepository : IPatchworkRepository
@@ -39,26 +30,36 @@ public class PatchworkRepository : IPatchworkRepository
   public GetListResult GetList(string schemaName, string entityName,
     string fields = "", string filter = "", string sort = "", int limit = 0, int offset = 0)
   {
-    SelectStatement select = this.sqlDialect.BuildGetListSql(schemaName, entityName, fields, filter, sort, limit, offset);
+    SelectListStatement select = this.sqlDialect.BuildGetListSql(schemaName, entityName, fields, filter, sort, limit, offset);
     using ActiveConnection connect = this.sqlDialect.GetConnection();
     IEnumerable<dynamic> found = connect.Connection.Query(select.Sql, select.Parameters, connect.Transaction);
+    long count = connect.Connection.ExecuteScalar<long>(select.CountSql, select.Parameters, connect.Transaction);
     string lastId = this.sqlDialect.GetPkValue(schemaName, entityName, found.Last());
 
     // TODO: Need to popuate the total records count.
-    return new GetListResult(found.ToList(), 0, lastId, limit, offset);
+    return new GetListResult(found.ToList(), count, lastId, PagingToken.ParseLimit(limit), offset);
   }
 
   public GetResourceResult GetResource(string schemaName, string entityName,
     string id, string fields = "", string include = "", DateTimeOffset? asOf = null)
   {
-    // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Get))
-    //   return this.Unauthorized();
+    //TODO: Need to implement recovery of object from Patchwork Event Log
+    if (asOf != null || asOf < DateTime.UtcNow.AddSeconds(-1))
+      throw new NotImplementedException();
 
-    SelectStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id, fields, include, asOf);
+    //TODO: Need to implement repacking of the result into an object hierarchy breakdown instead of flat record results.
+    if(!string.IsNullOrEmpty(include)) 
+      throw new NotImplementedException();
+    
+    SelectResourceStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id, fields, include, asOf);
     using ActiveConnection connect = this.sqlDialect.GetConnection();
-    dynamic? found = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
+    IEnumerable<dynamic> found = connect.Connection.Query(select.Sql, select.Parameters, connect.Transaction);
 
-    return new GetResourceResult(found);
+    if(found.Count()==1)
+      return new GetResourceResult(found.FirstOrDefault());
+    else
+      //TODO: Instead of returning the list, we need to convert the flat records into an object hierarchy
+      return new GetResourceResult(found.ToList());
   }
 
   public PostResult PostResource(string schemaName, string entityName, JsonDocument jsonResourceRequestBody)
@@ -79,8 +80,8 @@ public class PatchworkRepository : IPatchworkRepository
       if (this.sqlDialect.HasPatchTrackingEnabled())
       {
         patch = this.sqlDialect.BuildDiffAsJsonPatch(empty, jsonResourceRequestBody);
-        InsertStatement insertPatch = this.sqlDialect.GetInsertStatementForPatchworkLog(schemaName, entityName, id.ToString(), patch);
-        IEnumerable<dynamic> patchCount = connect.Connection.Query(insertPatch.Sql, insertPatch.Parameters, connect.Transaction);
+        //InsertStatement insertPatch = this.sqlDialect.GetInsertStatementForPatchworkLog(schemaName, entityName, id.ToString(), patch);
+        //IEnumerable<dynamic> patchCount = connect.Connection.Query(insertPatch.Sql, insertPatch.Parameters, connect.Transaction);
         AddPatchToLog(connect, schemaName, entityName, id, patch);
       }
       else
@@ -100,7 +101,7 @@ public class PatchworkRepository : IPatchworkRepository
 
   public PutResult PutResource(string schemaName, string entityName, string id, JsonDocument jsonResourceRequestBody)
   {
-    SelectStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id);
+    SelectResourceStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id);
     UpdateStatement update = this.sqlDialect.BuildPutSingleSql(schemaName, entityName, id, jsonResourceRequestBody);
     using ActiveConnection connect = this.sqlDialect.GetConnection();
     try
@@ -117,7 +118,8 @@ public class PatchworkRepository : IPatchworkRepository
 
       JsonPatch patch = this.sqlDialect.BuildDiffAsJsonPatch(beforeUpdate, afterString);
 
-      if(this.sqlDialect.HasPatchTrackingEnabled()) AddPatchToLog(connect, schemaName, entityName, id, patch);
+      if (this.sqlDialect.HasPatchTrackingEnabled())
+        AddPatchToLog(connect, schemaName, entityName, id, patch);
 
       connect.Transaction.Commit();
 
@@ -140,7 +142,11 @@ public class PatchworkRepository : IPatchworkRepository
       if (updated < 1)
         throw new System.Data.RowNotInTableException();
 
-      //TODO: Append this patch to the Patchwork Log
+      if (this.sqlDialect.HasPatchTrackingEnabled())
+      {
+        JsonPatch patch = new JsonPatch(PatchOperation.Remove(JsonPointer.Parse($"/{schemaName}/{entityName}/{id}")));
+        AddPatchToLog(connect, schemaName, entityName, id, patch);
+      }
 
       connect.Transaction.Commit();
 
@@ -161,7 +167,7 @@ public class PatchworkRepository : IPatchworkRepository
 
   public PatchResourceResult PatchResource(string schemaName, string entityName, string id, JsonPatch jsonPatchRequestBody)
   {
-    SelectStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id);
+    SelectResourceStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id);
 
     using ActiveConnection connect = this.sqlDialect.GetConnection();
     try
@@ -180,7 +186,8 @@ public class PatchworkRepository : IPatchworkRepository
 
       JsonPatch patch = this.sqlDialect.BuildDiffAsJsonPatch(JsonDocument.Parse(beforeUpdate), afterObject);
 
-      if (this.sqlDialect.HasPatchTrackingEnabled()) AddPatchToLog(connect, schemaName, entityName, id, patch);
+      if (this.sqlDialect.HasPatchTrackingEnabled())
+        AddPatchToLog(connect, schemaName, entityName, id, patch);
 
       connect.Transaction.Commit();
 
@@ -195,17 +202,8 @@ public class PatchworkRepository : IPatchworkRepository
 
   public bool AddPatchToLog(ActiveConnection connect, string schemaName, string entityName, string id, JsonPatch patch)
   {
-    Entity entity = this.sqlDialect.FindEntity(schemaName, entityName);
-    InsertStatement sql = this.sqlDialect.BuildPostSingleSql(schemaName, entityName, patch.ToJsonDocument());
-    IEnumerable<dynamic> found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
-    return false;
+    InsertStatement insertPatch = this.sqlDialect.GetInsertStatementForPatchworkLog(schemaName, entityName, id.ToString(), patch);
+    int patchedCount = connect.Connection.Execute(insertPatch.Sql, insertPatch.Parameters, connect.Transaction);
+    return patchedCount > 0;
   }
 }
-
-public record GetListResult(List<dynamic> Resources, long TotalCount, string LastId, int Limit, int Offset);
-public record GetResourceResult(dynamic Resource);
-public record PostResult(string id, dynamic Resource, JsonPatch Changes);
-public record PutResult(dynamic Resource, JsonPatch Changes);
-public record DeleteResult(bool Success, string Id);
-public record PatchResourceResult(string id, dynamic Resource, JsonPatch Changes);
-public record PatchListResult(List<PatchResourceResult> Inserted, List<PatchResourceResult> Updated, List<PatchResourceResult> Deleted);

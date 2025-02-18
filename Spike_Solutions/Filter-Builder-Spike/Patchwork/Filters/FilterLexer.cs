@@ -216,7 +216,9 @@ public class FilterLexer
       sb.Append(_input[_position++]);
     }
     string value = sb.ToString();
-    return new FilterToken(FilterTokenType.Identifier, _entity.Name, value, "");
+    var col = _entity.Columns.FirstOrDefault(c => c.Name.Equals(value, StringComparison.OrdinalIgnoreCase));
+    if (col == null) throw new ArgumentException($"Filter parameter '{value}' not found in data schema.");
+    return new FilterToken(FilterTokenType.Identifier, _entity.Name, col.Name, "");
   }
 
   private FilterToken ReadStringOrDateTime()

@@ -43,7 +43,9 @@ public class PatchworkEndpoints : Controller
 
     GetListResult found = Repository.GetList(schemaName, entityName, fields, filter, sort, limit, offset);
 
-    this.Response.Headers.Append("Content-Range", $"items {found.Offset}-{found.Limit}/{found.TotalCount}");
+    int pageSize = found.Limit != found.Resources.Count() ? found.Resources.Count() : found.Limit;
+
+    this.Response.Headers.Append("Content-Range", $"items {found.Offset}-{found.Offset+pageSize}/{found.TotalCount}");
 
     return Json(found.Resources);
   }
@@ -64,7 +66,7 @@ public class PatchworkEndpoints : Controller
     schemaName = NormalizeSchemaName(schemaName);
     GetResourceResult found = Repository.GetResource(schemaName, entityName, id, fields, include, asOf);
 
-    if (found == null)
+    if (found.Resource == null)
       return NotFound();
     return Json(found.Resource);
   }
@@ -173,7 +175,7 @@ public class PatchworkEndpoints : Controller
 
 
     //TODO: The incoming JSON Patch will have opertions for one or more entities in the system. We identify which
-    //      entities are being changed by the `path` element. The prefix on each `path` element will be the URL needed
+    //      entities are being changed by the `path` element. The prefix on each path element will be the URL needed
     //      to access an entity's GET RESOURCE endpoint and the suffix will indicate which elements inside the entity
     //      are being modified. To apply a group JSON Patch, we use this procedure:
     //

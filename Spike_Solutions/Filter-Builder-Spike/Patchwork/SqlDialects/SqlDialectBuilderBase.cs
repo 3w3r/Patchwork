@@ -59,15 +59,23 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     if (entity.PrimaryKey == null)
       return string.Empty;
 
-    Type type = entityObject.GetType();
-    PropertyInfo[] properties = type.GetProperties();
-    PropertyInfo? property = type.GetProperty(entity.PrimaryKey.Name);
-    if (property == null)
-      return string.Empty;
+    // If the entityObject was queried from Dapper, then it can be case as an IDictionary
+    IDictionary<string, object?>? row = entityObject as IDictionary<string, object?>;
+    if (row != null && row.ContainsKey(entity.PrimaryKey.Name))
+    {
+      return row[entity.PrimaryKey.Name]?.ToString() ?? string.Empty;
+    }
+    else
+    {
+      // If it was not from Dapper, then we have to use Reflection to get the value.
+      Type type = entityObject.GetType();
+      PropertyInfo? property = type.GetProperty(entity.PrimaryKey.Name);
+      if (property == null)
+        return string.Empty;
 
-    object? prop = property.GetValue(entityObject);
-    return prop?.ToString() ?? string.Empty;
-
+      object? prop = property.GetValue(entityObject);
+      return prop?.ToString() ?? string.Empty;
+    }
   }
   public virtual DatabaseMetadata DiscoverSchema()
   {
@@ -89,8 +97,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     return _metadata!.HasPatchTracking;
   }
 
-
-  public virtual SelectStatement BuildGetListSql(string schemaName, string entityName, string fields = "", string filter = "", string sort = "", int limit = 0, int offset = 0)
+  public virtual SelectListStatement BuildGetListSql(string schemaName, string entityName, string fields = "", string filter = "", string sort = "", int limit = 0, int offset = 0)
   {
     if (string.IsNullOrEmpty(schemaName))
       throw new ArgumentException("Schema name is required.", nameof(schemaName));
@@ -99,14 +106,18 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
 
     Entity entity = FindEntity(schemaName, entityName);
     string select = BuildSelectClause(fields, entity);
+    string count = BuildCountClause(entity);
     FilterStatement? where = string.IsNullOrEmpty(filter) ? null : BuildWhereClause(filter, entity);
     string orderBy = BuildOrderByClause(sort, entity);
     string paging = BuildLimitOffsetClause(limit, offset);
     where?.Parameters.SetParameterDataTypes(entity);
 
-    return new SelectStatement($"{select} {where?.Sql} {orderBy} {paging}", where?.Parameters ?? new Dictionary<string, object>());
+    return new SelectListStatement(
+      $"{select} {where?.Sql} {orderBy} {paging}",
+      $"{count} {where?.Sql}",
+      where?.Parameters ?? new Dictionary<string, object>());
   }
-  public virtual SelectStatement BuildGetSingleSql(string schemaName, string entityName, string id, string fields = "", string include = "", DateTimeOffset? asOf = null)
+  public virtual SelectResourceStatement BuildGetSingleSql(string schemaName, string entityName, string id, string fields = "", string include = "", DateTimeOffset? asOf = null)
   {
     if (string.IsNullOrEmpty(schemaName))
       throw new ArgumentException("Schema name is required.", nameof(schemaName));
@@ -120,7 +131,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     Dictionary<string, object> parameters = new Dictionary<string, object> { { "id", id } };
     parameters.SetParameterDataTypes(entity);
 
-    return new SelectStatement($"{select} {join} {where}", parameters);
+    return new SelectResourceStatement($"{select} {join} {where}", parameters);
   }
 
   public virtual InsertStatement BuildPostSingleSql(string schemaName, string entityName, JsonDocument jsonResourceRequestBody)
@@ -209,6 +220,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
   protected abstract string GetInsertPatchTemplate();
 
   internal abstract string BuildSelectClause(string fields, Entity entity);
+  internal abstract string BuildCountClause(Entity entity);
   internal abstract string BuildJoinClause(string includeString, Entity entity);
   internal abstract FilterStatement BuildWhereClause(string filterString, Entity entity);
   internal abstract string BuildWherePkForGetClause(Entity entity);

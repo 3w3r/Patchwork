@@ -167,13 +167,13 @@ public class SqliteDialectBuilder_GetListTests
     var sut = new SqliteDialectBuilder(ConnectionStringManager.GetSqliteConnectionString());
 
     // Act
-    var sql = sut.BuildGetListSql("dbo", "Products", "*", "productName sw '197'", "productName", 10, 0);
+    var sql = sut.BuildGetListSql("dbo", "Products", "*", "prOductName sw '197'", "productNamE", 10, 0);
 
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
     Assert.Contains("FROM products", sql.Sql);
-    Assert.Contains("WHERE t_products.productname LIKE @V0", sql.Sql);
+    Assert.Contains("WHERE t_products.productName LIKE @V0", sql.Sql);
     Assert.Contains("LIMIT 10", sql.Sql);
     Assert.Contains("OFFSET 0", sql.Sql);
     Assert.Equal("197%", sql.Parameters.First().Value);
@@ -201,7 +201,7 @@ public class SqliteDialectBuilder_GetListTests
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
     Assert.Contains("FROM products", sql.Sql);
-    Assert.Contains("WHERE t_products.productname LIKE @V0", sql.Sql);
+    Assert.Contains("WHERE t_products.productName LIKE @V0", sql.Sql);
     Assert.Contains("LIMIT 10", sql.Sql);
     Assert.Contains("OFFSET 0", sql.Sql);
     Assert.Equal("%Chevy%", sql.Parameters.First().Value);
@@ -233,19 +233,19 @@ public class SqliteDialectBuilder_GetListTests
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
     Assert.Contains("FROM products", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V0", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V1", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V2", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V3", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V4", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V5", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V6", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V7", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V8", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V9", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V10", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V11", sql.Sql);
-    Assert.Contains("t_products.productname LIKE @V12", sql.Sql);
+    Assert.Contains("t_products.productName LIKE @V0", sql.Sql);
+    Assert.Contains("t_products.productName LIKE @V1", sql.Sql);
+    Assert.Contains("t_products.productName LIKE @V2", sql.Sql);
+    Assert.Contains("t_products.productName LIKE @V3", sql.Sql);
+    Assert.Contains("t_products.productName LIKE @V4", sql.Sql);
+    Assert.Contains("t_products.productName LIKE @V5", sql.Sql);
+    Assert.Contains("t_products.productName LIKE @V6", sql.Sql);
+    Assert.Contains("t_products.productName LIKE @V7", sql.Sql);
+    Assert.Contains("t_products.productName LIKE @V8", sql.Sql);
+    Assert.Contains("t_products.productName LIKE @V9", sql.Sql);
+    Assert.Contains("t_products.productName LIKE @V10", sql.Sql);
+    Assert.Contains("t_products.productName LIKE @V11", sql.Sql);
+    Assert.Contains("t_products.productName LIKE @V12", sql.Sql);
     Assert.Contains("LIMIT 20", sql.Sql);
     Assert.Contains("OFFSET 5", sql.Sql);
     Assert.Equal("%Chevy%", sql.Parameters.First().Value);

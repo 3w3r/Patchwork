@@ -13,7 +13,7 @@ public class PostgreSqlDialectBuilder_GetListTests
     PostgreSqlDialectBuilder sut = new PostgreSqlDialectBuilder(ConnectionStringManager.GetPostgreSqlConnectionString());
 
     // Act
-    var sql = sut.BuildGetListSql("public", "products", "*",
+    var sql = sut.BuildGetListSql("classicmodels", "products", "*",
       "productName ct 'Chevy' OR productName sw '1978' OR (productName ct 'Alpine') OR productName ct 'Roadster' OR productName ct 'Benz' " +
       "OR productName ct 'Moto' OR productName ct 'Pickup' OR (productName ct 'Hawk' AND productName ct 'Black') OR productName ct 'Ford' " +
       "OR productName ct 'Hemi' OR productName ct 'Honda' OR productName sw '1952' ",
@@ -22,7 +22,7 @@ public class PostgreSqlDialectBuilder_GetListTests
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
-    Assert.Contains("FROM public.products", sql.Sql);
+    Assert.Contains("FROM classicmodels.products", sql.Sql);
     Assert.Contains("t_products.productname ILIKE @V0", sql.Sql);
     Assert.Contains("t_products.productname ILIKE @V1", sql.Sql);
     Assert.Contains("t_products.productname ILIKE @V2", sql.Sql);

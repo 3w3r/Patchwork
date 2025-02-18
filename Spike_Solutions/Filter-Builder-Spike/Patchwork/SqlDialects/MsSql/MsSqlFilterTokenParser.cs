@@ -77,7 +77,7 @@ public class MsSqlFilterTokenParser : FilterTokenParserBase
     else if (op.Value != "in" && !FilterTokenType.Value.HasFlag(value.Type))
       throw new ArgumentException("Expected value");
 
-    sb.Append($"[T_{identifier.EntityName}].[{identifier.Value}] {ConvertOperator(op.Value)} ");
+    sb.Append($"[t_{identifier.EntityName}].[{identifier.Value}] {ConvertOperator(op.Value)} ");
 
     if (op.Value == "in")
     {

@@ -38,6 +38,11 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
 
     return $"SELECT {fieldList} FROM {schemaPrefix}{entity.Name} AS t_{entity.Name}";
   }
+  internal override string BuildCountClause(Entity entity)
+  {
+    string schemaPrefix = string.IsNullOrEmpty(entity.SchemaName) ? string.Empty : $"{entity.SchemaName}.";
+    return $"SELECT COUNT(*) FROM {schemaPrefix}{entity.Name} AS t_{entity.Name}";
+  }
   internal override string BuildJoinClause(string includeString, Entity entity)
   {
     if (string.IsNullOrEmpty(includeString))

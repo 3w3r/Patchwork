@@ -39,6 +39,11 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
 
     return $"SELECT {fieldList} FROM {schemaPrefix}{entity.Name.ToLower()} AS t_{entity.Name.ToLower()}";
   }
+  internal override string BuildCountClause(Entity entity)
+  {
+    string schemaPrefix = string.IsNullOrEmpty(entity.SchemaName) ? string.Empty : $"{entity.SchemaName.ToLower()}.";
+    return $"SELECT COUNT(*) FROM {schemaPrefix}{entity.Name.ToLower()} AS t_{entity.Name.ToLower()}";
+  }
   internal override string BuildJoinClause(string includeString, Entity entity)
   {
     if (string.IsNullOrEmpty(includeString))

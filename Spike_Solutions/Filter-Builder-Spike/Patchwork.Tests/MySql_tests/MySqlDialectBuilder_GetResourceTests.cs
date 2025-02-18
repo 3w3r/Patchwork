@@ -18,7 +18,7 @@ public class MySqlDialectBuilder_GetResourceTests
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
-    Assert.Contains("FROM `taskboard`.`products`", sql.Sql);
+    Assert.Contains("FROM taskboard.products", sql.Sql);
 
     using var connect = sut.GetConnection();
 
@@ -42,7 +42,7 @@ public class MySqlDialectBuilder_GetResourceTests
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
-    Assert.Contains("FROM `taskboard`.`products`", sql.Sql);
+    Assert.Contains("FROM taskboard.products", sql.Sql);
 
     using var connect = sut.GetConnection();
 
@@ -66,7 +66,7 @@ public class MySqlDialectBuilder_GetResourceTests
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
-    Assert.Contains("FROM `taskboard`.`products`", sql.Sql);
+    Assert.Contains("FROM taskboard.products", sql.Sql);
 
     using var connect = sut.GetConnection();
 

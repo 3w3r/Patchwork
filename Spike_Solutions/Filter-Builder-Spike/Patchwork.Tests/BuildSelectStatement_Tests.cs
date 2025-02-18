@@ -17,7 +17,7 @@ public class BuildSelectStatement_Tests
     string select = dialect.BuildSelectClause("*", dialect.FindEntity("shopping", "pRoDuCtS"));
 
     // Assert
-    Assert.Equal("SELECT * FROM [Shopping].[Products] AS [T_Products]", select);
+    Assert.Equal("SELECT * FROM [Shopping].[Products] AS [t_Products]", select);
   }
 
   [Fact]
@@ -30,7 +30,7 @@ public class BuildSelectStatement_Tests
     string select = dialect.BuildSelectClause("name,price", dialect.FindEntity("shopping", "pRoDuCtS"));
 
     // Assert
-    Assert.Equal("SELECT [T_Products].[Name], [T_Products].[Price] FROM [Shopping].[Products] AS [T_Products]", select);
+    Assert.Equal("SELECT [t_Products].[Name], [t_Products].[Price] FROM [Shopping].[Products] AS [t_Products]", select);
   }
 
   [Fact]
@@ -43,7 +43,7 @@ public class BuildSelectStatement_Tests
     string select = dialect.BuildSelectClause("*", dialect.FindEntity("shopping", "pRoDuCtS"));
 
     // Assert
-    Assert.Equal("SELECT * FROM `shopping`.`products` AS t_products", select);
+    Assert.Equal("SELECT * FROM Shopping.Products AS t_Products", select);
   }
 
   [Fact]
@@ -56,7 +56,7 @@ public class BuildSelectStatement_Tests
     string select = dialect.BuildSelectClause("name,price", dialect.FindEntity("shopping", "pRoDuCtS"));
 
     // Assert
-    Assert.Equal("SELECT t_products.`name`, t_products.`price` FROM `shopping`.`products` AS t_products", select);
+    Assert.Equal("SELECT t_Products.Name, t_Products.Price FROM Shopping.Products AS t_Products", select);
   }
 
   [Fact]
