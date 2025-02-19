@@ -13,6 +13,10 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Patchwork.Db", "Patchwork.Db\Patchwork.Db.csproj", "{A4A9CBC3-E564-4E75-AD0E-3A53C4F32ACD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Migrations", "Migrations", "{46AC818A-EC7C-4469-8445-57FAA8A23997}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Patchwork Framework", "Patchwork Framework", "{27861242-2C7E-4F07-8B1F-57CB84014836}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,5 +79,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7C32FBA0-8A21-4F95-9F6F-4C6EA841F3F0} = {27861242-2C7E-4F07-8B1F-57CB84014836}
+		{ADE75754-C5CE-4703-9140-8CC8DDF9FC50} = {27861242-2C7E-4F07-8B1F-57CB84014836}
+		{0878C1FD-F8DC-4708-9351-DC86CA697D96} = {27861242-2C7E-4F07-8B1F-57CB84014836}
+		{A4A9CBC3-E564-4E75-AD0E-3A53C4F32ACD} = {46AC818A-EC7C-4469-8445-57FAA8A23997}
 	EndGlobalSection
 EndGlobal

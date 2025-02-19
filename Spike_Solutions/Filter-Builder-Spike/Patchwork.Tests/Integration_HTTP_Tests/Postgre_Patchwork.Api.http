@@ -12,7 +12,7 @@ Accept: application/json
 ###
 
 
-GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products?filter=quantityInStock%20gt%20100
+GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products?filter=quantityInStock%20gt%20100&limit=10&offset=50
 Accept: application/json
 
 ###

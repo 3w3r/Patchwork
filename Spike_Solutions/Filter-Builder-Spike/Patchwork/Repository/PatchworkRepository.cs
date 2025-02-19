@@ -36,7 +36,6 @@ public class PatchworkRepository : IPatchworkRepository
     long count = connect.Connection.ExecuteScalar<long>(select.CountSql, select.Parameters, connect.Transaction);
     string lastId = this.sqlDialect.GetPkValue(schemaName, entityName, found.Last());
 
-    // TODO: Need to popuate the total records count.
     return new GetListResult(found.ToList(), count, lastId, PagingToken.ParseLimit(limit), offset);
   }
 
@@ -172,7 +171,6 @@ public class PatchworkRepository : IPatchworkRepository
     using ActiveConnection connect = this.sqlDialect.GetConnection();
     try
     {
-
       dynamic? beforeObject = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
       if (beforeObject == null)
         throw new System.Data.RowNotInTableException();

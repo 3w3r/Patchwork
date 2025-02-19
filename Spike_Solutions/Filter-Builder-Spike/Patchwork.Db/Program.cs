@@ -8,6 +8,8 @@ static class Program
 {
   static void Main(string[] args)
   {
+    
+    
     using (ServiceProvider serviceProvider = CreateServices())
     using (IServiceScope scope = serviceProvider.CreateScope())
     {
@@ -28,22 +30,15 @@ static class Program
     return new ServiceCollection()
         // Add common FluentMigrator services
         .AddFluentMigratorCore()
-        .ConfigureRunner(rb => rb
-#if SQLITE
-            // Add SQLite support to FluentMigrator
-            .AddSQLite().WithGlobalConnectionString(ConnectionStringManager.GetSqliteConnectionString())
-#endif
-#if MSSQL
-            .AddSqlServer2016().WithGlobalConnectionString(ConnectionStringManager.GetMsSqlConnectionString())
-#endif
-#if POSTGRESQL
-            .AddPostgres().WithGlobalConnectionString(ConnectionStringManager.GetPostgreSqlConnectionString())
-#endif
-#if MYSQL
-            .AddMySql8().WithGlobalConnectionString(ConnectionStringManager.GetMySqlConnectionString())
-#endif
-            // Define the assembly containing the migrations
-            .ScanIn(typeof(Bootstrap).Assembly).For.Migrations())
+        .ConfigureRunner(rb => {
+          var DbType = Environment.GetEnvironmentVariable("DBTYPE");
+          if (DbType == "Sqlite") rb.AddSQLite().WithGlobalConnectionString(ConnectionStringManager.GetSqliteConnectionString());
+          if (DbType == "MsSql") rb.AddSqlServer2016().WithGlobalConnectionString(ConnectionStringManager.GetMsSqlConnectionString());
+          if (DbType == "Postgres") rb.AddPostgres().WithGlobalConnectionString(ConnectionStringManager.GetPostgreSqlConnectionString());
+          if (DbType == "MySql") rb.AddMySql8().WithGlobalConnectionString(ConnectionStringManager.GetMySqlConnectionString());
+          // Define the assembly containing the migrations
+          rb.ScanIn(typeof(Bootstrap).Assembly).For.Migrations();
+        })
         // Enable logging to console in the FluentMigrator way
         .AddLogging(lb => lb.AddFluentMigratorConsole())
         // Build the service provider
