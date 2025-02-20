@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Dapper;
-using Patchwork.Api;
 using Patchwork.SqlDialects;
 using Patchwork.SqlDialects.MsSql;
 using Patchwork.SqlStatements;

@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Patchwork.Api;
 using Patchwork.Authorization;
 using Patchwork.Repository;
 using Patchwork.SqlDialects.PostgreSql;
