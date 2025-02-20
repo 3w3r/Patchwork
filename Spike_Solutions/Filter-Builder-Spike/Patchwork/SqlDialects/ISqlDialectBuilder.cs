@@ -9,7 +9,8 @@ public interface ISqlDialectBuilder
 {
   string DefaultSchemaName { get; }
 
-  ActiveConnection GetConnection();
+  WriterConnection GetWriterConnection();
+  ReaderConnection GetReaderConnection();
   DatabaseMetadata DiscoverSchema();
   Entity FindEntity(string schemaName, string entityName);
   string GetPkValue(string schemaName, string entityName, object entityObject);

@@ -24,7 +24,7 @@ public class MySqlDialectBuilder_GetListTests
     Assert.Contains("OFFSET 0", sql.Sql);
     Assert.Equal("197%", sql.Parameters.First().Value);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal(8, found.Count());
@@ -52,7 +52,7 @@ public class MySqlDialectBuilder_GetListTests
     Assert.Contains("OFFSET 0", sql.Sql);
     Assert.Equal("%Chevy%", sql.Parameters.First().Value);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal(4, found.Count());
@@ -97,7 +97,7 @@ public class MySqlDialectBuilder_GetListTests
     Assert.Equal("%Chevy%", sql.Parameters.First().Value);
     Assert.Equal("1952%", sql.Parameters.Last().Value);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal(20, found.Count());
@@ -130,7 +130,7 @@ public class MySqlDialectBuilder_GetListTests
     Assert.Contains("OFFSET 5", sql2.Sql);
     Assert.Equal("shipped", sql2.Parameters.First().Value);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found1 = connect.Connection.Query(sql1.Sql, sql1.Parameters, connect.Transaction).ToArray();
     var found2 = connect.Connection.Query(sql2.Sql, sql2.Parameters, connect.Transaction).ToArray();

@@ -40,7 +40,7 @@ public class MySqlDialectBuilder_PostTests
     Assert.Contains("@email", sql.Sql);
     Assert.Contains("@extension", sql.Sql);
 
-    using SqlDialects.ActiveConnection connect = sut.GetConnection();
+    using SqlDialects.WriterConnection connect = sut.GetWriterConnection();
 
     try
     {

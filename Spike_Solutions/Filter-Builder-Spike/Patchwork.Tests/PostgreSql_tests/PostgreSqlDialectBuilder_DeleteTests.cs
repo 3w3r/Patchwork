@@ -21,7 +21,7 @@ public class PostgreSqlDialectBuilder_DeleteTests
     Assert.Contains("DELETE FROM classicmodels.employees", sql.Sql);
     Assert.Contains("employeenumber = @id", sql.Sql);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     try
     {

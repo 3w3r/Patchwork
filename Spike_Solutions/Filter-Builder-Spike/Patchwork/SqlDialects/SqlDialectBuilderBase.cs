@@ -31,7 +31,8 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     DefaultSchemaName = defaultSchema;
   }
 
-  public abstract ActiveConnection GetConnection();
+  public abstract WriterConnection GetWriterConnection();
+  public abstract ReaderConnection GetReaderConnection();
   public Entity FindEntity(string schemaName, string entityName)
   {
     if (string.IsNullOrEmpty(entityName))
@@ -85,7 +86,7 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     }
 
     SchemaDiscoveryBuilder schemaDiscoveryBuilder = new SchemaDiscoveryBuilder();
-    using ActiveConnection connection = GetConnection();
+    using WriterConnection connection = GetWriterConnection();
     _metadata = schemaDiscoveryBuilder.ReadSchema(connection);
     _metadataCache.TryAdd(_connectionString, _metadata);
     return _metadata;

@@ -41,7 +41,7 @@ public class MsSqlDialectBuilder_GetListTests
     Assert.Equal("%Chevy%", sql.Parameters.First().Value);
     Assert.Equal("1952%", sql.Parameters.Last().Value);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal(20, found.Count());

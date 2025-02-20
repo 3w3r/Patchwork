@@ -16,7 +16,7 @@ public class SchemaDiscovery_Tests
 
     // Act
     SchemaDiscoveryBuilder builder = new SchemaDiscoveryBuilder();
-    DatabaseMetadata metadata = builder.ReadSchema(new SqlDialects.ActiveConnection(connection, transaction));
+    DatabaseMetadata metadata = builder.ReadSchema(new SqlDialects.WriterConnection(connection, transaction));
 
     // Assert
     Assert.NotNull(metadata);

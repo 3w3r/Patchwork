@@ -32,10 +32,10 @@ static class Program
         .AddFluentMigratorCore()
         .ConfigureRunner(rb => {
           var DbType = Environment.GetEnvironmentVariable("DBTYPE");
-          if (DbType == "Sqlite") rb.AddSQLite().WithGlobalConnectionString(ConnectionStringManager.GetSqliteConnectionString());
           if (DbType == "MsSql") rb.AddSqlServer2016().WithGlobalConnectionString(ConnectionStringManager.GetMsSqlConnectionString());
-          if (DbType == "Postgres") rb.AddPostgres().WithGlobalConnectionString(ConnectionStringManager.GetPostgreSqlConnectionString());
-          if (DbType == "MySql") rb.AddMySql8().WithGlobalConnectionString(ConnectionStringManager.GetMySqlConnectionString());
+          else if (DbType == "Postgres") rb.AddPostgres().WithGlobalConnectionString(ConnectionStringManager.GetPostgreSqlConnectionString());
+          else if (DbType == "MySql") rb.AddMySql8().WithGlobalConnectionString(ConnectionStringManager.GetMySqlConnectionString());
+          else rb.AddSQLite().WithGlobalConnectionString(ConnectionStringManager.GetSqliteConnectionString());
           // Define the assembly containing the migrations
           rb.ScanIn(typeof(Bootstrap).Assembly).For.Migrations();
         })

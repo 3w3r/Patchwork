@@ -41,7 +41,7 @@ public class PostgreSqlDialectBuilder_PostTests
     Assert.Contains("@extension", sql.Sql);
     Assert.Contains("RETURNING *", sql.Sql);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     try
     {

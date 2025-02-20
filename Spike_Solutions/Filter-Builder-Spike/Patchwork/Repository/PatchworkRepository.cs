@@ -14,7 +14,6 @@ using static Dapper.SqlMapper;
 
 namespace Patchwork.Repository;
 
-
 public class PatchworkRepository : IPatchworkRepository
 {
   protected readonly IPatchworkAuthorization authorization;
@@ -31,9 +30,9 @@ public class PatchworkRepository : IPatchworkRepository
     string fields = "", string filter = "", string sort = "", int limit = 0, int offset = 0)
   {
     SelectListStatement select = this.sqlDialect.BuildGetListSql(schemaName, entityName, fields, filter, sort, limit, offset);
-    using ActiveConnection connect = this.sqlDialect.GetConnection();
-    IEnumerable<dynamic> found = connect.Connection.Query(select.Sql, select.Parameters, connect.Transaction);
-    long count = connect.Connection.ExecuteScalar<long>(select.CountSql, select.Parameters, connect.Transaction);
+    using ReaderConnection connect = this.sqlDialect.GetReaderConnection();
+    IEnumerable<dynamic> found = connect.Connection.Query(select.Sql, select.Parameters);
+    long count = connect.Connection.ExecuteScalar<long>(select.CountSql, select.Parameters);
     string lastId = this.sqlDialect.GetPkValue(schemaName, entityName, found.Last());
 
     return new GetListResult(found.ToList(), count, lastId, PagingToken.ParseLimit(limit), offset);
@@ -51,8 +50,8 @@ public class PatchworkRepository : IPatchworkRepository
       throw new NotImplementedException();
     
     SelectResourceStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id, fields, include, asOf);
-    using ActiveConnection connect = this.sqlDialect.GetConnection();
-    IEnumerable<dynamic> found = connect.Connection.Query(select.Sql, select.Parameters, connect.Transaction);
+    using ReaderConnection connect = this.sqlDialect.GetReaderConnection();
+    IEnumerable<dynamic> found = connect.Connection.Query(select.Sql, select.Parameters);
 
     if(found.Count()==1)
       return new GetResourceResult(found.FirstOrDefault());
@@ -65,7 +64,7 @@ public class PatchworkRepository : IPatchworkRepository
   {
     Entity entity = this.sqlDialect.FindEntity(schemaName, entityName);
     InsertStatement sql = this.sqlDialect.BuildPostSingleSql(schemaName, entityName, jsonResourceRequestBody);
-    using ActiveConnection connect = this.sqlDialect.GetConnection();
+    using WriterConnection connect = this.sqlDialect.GetWriterConnection();
     try
     {
       IEnumerable<dynamic> found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
@@ -102,7 +101,7 @@ public class PatchworkRepository : IPatchworkRepository
   {
     SelectResourceStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id);
     UpdateStatement update = this.sqlDialect.BuildPutSingleSql(schemaName, entityName, id, jsonResourceRequestBody);
-    using ActiveConnection connect = this.sqlDialect.GetConnection();
+    using WriterConnection connect = this.sqlDialect.GetWriterConnection();
     try
     {
       dynamic? beforeObject = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
@@ -134,7 +133,7 @@ public class PatchworkRepository : IPatchworkRepository
   public DeleteResult DeleteResource(string schemaName, string entityName, string id)
   {
     DeleteStatement delete = this.sqlDialect.BuildDeleteSingleSql(schemaName, entityName, id);
-    using ActiveConnection connect = this.sqlDialect.GetConnection();
+    using WriterConnection connect = this.sqlDialect.GetWriterConnection();
     try
     {
       int updated = connect.Connection.Execute(delete.Sql, delete.Parameters, connect.Transaction);
@@ -168,7 +167,7 @@ public class PatchworkRepository : IPatchworkRepository
   {
     SelectResourceStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id);
 
-    using ActiveConnection connect = this.sqlDialect.GetConnection();
+    using WriterConnection connect = this.sqlDialect.GetWriterConnection();
     try
     {
       dynamic? beforeObject = connect.Connection.QuerySingleOrDefault(select.Sql, select.Parameters, connect.Transaction);
@@ -198,7 +197,7 @@ public class PatchworkRepository : IPatchworkRepository
     }
   }
 
-  public bool AddPatchToLog(ActiveConnection connect, string schemaName, string entityName, string id, JsonPatch patch)
+  public bool AddPatchToLog(WriterConnection connect, string schemaName, string entityName, string id, JsonPatch patch)
   {
     InsertStatement insertPatch = this.sqlDialect.GetInsertStatementForPatchworkLog(schemaName, entityName, id.ToString(), patch);
     int patchedCount = connect.Connection.Execute(insertPatch.Sql, insertPatch.Parameters, connect.Transaction);

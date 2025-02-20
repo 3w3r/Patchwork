@@ -21,7 +21,7 @@ public class MySqlDialectBuilder_DeleteTests
     Assert.Contains("DELETE FROM taskboard.employees", sql.Sql);
     Assert.Contains("employeeNumber = @id", sql.Sql);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
     try
     {
       int changeCount = connect.Connection.Execute(sql.Sql, sql.Parameters, connect.Transaction);

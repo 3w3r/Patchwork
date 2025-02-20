@@ -17,12 +17,19 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
   public SqliteDialectBuilder(string connectionString) : base(connectionString, "") { }
   public SqliteDialectBuilder(DatabaseMetadata metadata) : base(metadata, "") { }
 
-  public override ActiveConnection GetConnection()
+  public override WriterConnection GetWriterConnection()
   {
     SqliteConnection c = new SqliteConnection(_connectionString);
     c.Open();
     DbTransaction t = c.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
-    return new ActiveConnection(c, t);
+    return new WriterConnection(c, t);
+  }
+
+  public override ReaderConnection GetReaderConnection()
+  {
+    SqliteConnection c = new SqliteConnection(_connectionString);
+    c.Open();
+    return new ReaderConnection(c);
   }
 
   internal override string BuildSelectClause(string fields, Entity entity)

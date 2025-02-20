@@ -33,7 +33,7 @@ public class SqliteDialectBuilder_GetListTests
     // Act
     var sql = sut.BuildGetListSql("dbo", "customers", "*", "country ne 'USA'", "contactFirstName", 100, 0);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
 
@@ -50,7 +50,7 @@ public class SqliteDialectBuilder_GetListTests
     // Act
     var sql = sut.BuildGetListSql("dbo", "customers", "*", "creditLimit gt '100000'", "phone", 100, 0);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
 
@@ -66,7 +66,7 @@ public class SqliteDialectBuilder_GetListTests
 
     // Act
     var sql = sut.BuildGetListSql("dbo", "customers", "*", "creditLimit ge '96800'", "city:desc", 100, 0);
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
 
@@ -83,7 +83,7 @@ public class SqliteDialectBuilder_GetListTests
 
     // Act
     var sql = sut.BuildGetListSql("dbo", "customers", "*", "contactLastName lt 'F'", "state, postalCode:desc, city:asc", 100, 0);
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
 
@@ -99,7 +99,7 @@ public class SqliteDialectBuilder_GetListTests
 
     // Act
     var sql = sut.BuildGetListSql("dbo", "customers", "*", "contactLastName le 'Frick'", "creditLimit", 100, 0);
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
 
@@ -116,7 +116,7 @@ public class SqliteDialectBuilder_GetListTests
 
     // Act
     var sql = sut.BuildGetListSql("dbo", "customers", "*", "postalCode in ('44000', '97562', '08022', 'S-844 67' )", "country", 100, 0);
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
 
@@ -135,7 +135,7 @@ public class SqliteDialectBuilder_GetListTests
 
     // Act
     var sql = sut.BuildGetListSql("dbo", "customers", "*", "customerName ct '.com'", "customerNumber", 100, 0);
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
 
@@ -151,7 +151,7 @@ public class SqliteDialectBuilder_GetListTests
 
     // Act
     var sql = sut.BuildGetListSql("dbo", "customers", "*", "addressLine1 sw '24'", "salesRepEmployeeNumber", 100, 0);
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
 
@@ -178,7 +178,7 @@ public class SqliteDialectBuilder_GetListTests
     Assert.Contains("OFFSET 0", sql.Sql);
     Assert.Equal("197%", sql.Parameters.First().Value);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal(8, found.Count());
@@ -206,7 +206,7 @@ public class SqliteDialectBuilder_GetListTests
     Assert.Contains("OFFSET 0", sql.Sql);
     Assert.Equal("%Chevy%", sql.Parameters.First().Value);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal(4, found.Count());
@@ -251,7 +251,7 @@ public class SqliteDialectBuilder_GetListTests
     Assert.Equal("%Chevy%", sql.Parameters.First().Value);
     Assert.Equal("1952%", sql.Parameters.Last().Value);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal(20, found.Count());
@@ -284,7 +284,7 @@ public class SqliteDialectBuilder_GetListTests
     Assert.Contains("OFFSET 5", sql2.Sql);
     Assert.Equal("shipped", sql2.Parameters.First().Value);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found1 = connect.Connection.Query(sql1.Sql, sql1.Parameters, connect.Transaction).ToArray();
     var found2 = connect.Connection.Query(sql2.Sql, sql2.Parameters, connect.Transaction).ToArray();

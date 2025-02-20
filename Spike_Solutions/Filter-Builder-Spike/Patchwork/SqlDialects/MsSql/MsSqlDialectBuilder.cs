@@ -17,12 +17,18 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
 
   public MsSqlDialectBuilder(DatabaseMetadata metadata, string defaultSchema = "dbo") : base(metadata, defaultSchema) { }
 
-  public override ActiveConnection GetConnection()
+  public override WriterConnection GetWriterConnection()
   {
     SqlConnection c = new SqlConnection(_connectionString);
     c.Open();
     DbTransaction t = c.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
-    return new ActiveConnection(c, t);
+    return new WriterConnection(c, t);
+  }
+  public override ReaderConnection GetReaderConnection()
+  {
+    SqlConnection c = new SqlConnection(_connectionString);
+    c.Open();
+    return new ReaderConnection(c);
   }
 
   internal override string BuildSelectClause(string fields, Entity entity)

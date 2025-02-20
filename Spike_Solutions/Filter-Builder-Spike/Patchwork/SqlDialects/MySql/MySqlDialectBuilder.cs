@@ -16,12 +16,19 @@ public class MySqlDialectBuilder : SqlDialectBuilderBase
   public MySqlDialectBuilder(string connectionString, string defaultSchema = "public") : base(connectionString, defaultSchema) { }
   public MySqlDialectBuilder(DatabaseMetadata metadata, string defaultSchema = "public") : base(metadata, defaultSchema) { }
 
-  public override ActiveConnection GetConnection()
+  public override WriterConnection GetWriterConnection()
   {
     MySqlConnection c = new MySqlConnection(_connectionString);
     c.Open();
     DbTransaction t = c.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
-    return new ActiveConnection(c, t);
+    return new WriterConnection(c, t);
+  }
+
+  public override ReaderConnection GetReaderConnection()
+  {
+    MySqlConnection c = new MySqlConnection(_connectionString);
+    c.Open();
+    return new ReaderConnection(c);
   }
 
   internal override string BuildSelectClause(string fields, Entity entity)

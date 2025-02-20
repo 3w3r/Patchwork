@@ -41,7 +41,7 @@ public class MsSqlDialectBuilder_PostTests
     Assert.Contains("@extension", sql.Sql);
     Assert.Contains("OUTPUT inserted.*", sql.Sql);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
     try
     {
       int changeCount = connect.Connection.Execute(sql.Sql, sql.Parameters, connect.Transaction);

@@ -49,7 +49,7 @@ public class PostgreSqlDialectBuilder_PutTests
     Assert.Contains("email = @email", sql.Sql);
     Assert.Contains("extension = @extension", sql.Sql);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     try
     {
