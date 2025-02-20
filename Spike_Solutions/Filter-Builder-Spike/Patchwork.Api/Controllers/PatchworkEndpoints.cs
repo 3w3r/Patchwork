@@ -84,7 +84,7 @@ public class PatchworkEndpoints : Controller
     {
       PostResult found = Repository.PostResource(schemaName, entityName, jsonResourceRequestBody);
 
-      return Created($"api/{schemaName}/v{version}/{entityName}/{found.id}", found.Resource);
+      return Created($"api/{schemaName}/v{version}/{entityName}/{found.Id}", found.Resource);
     }
     catch (Exception ex)
     {

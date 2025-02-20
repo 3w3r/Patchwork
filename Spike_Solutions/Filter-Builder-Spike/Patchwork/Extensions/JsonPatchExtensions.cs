@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Json.Patch;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Patchwork.Extensions;
 
@@ -14,12 +15,28 @@ public static class JsonPatchExtensions
     foreach (PatchOperation operation in patch.Operations)
     {
       List<string> pathList = operation.Path.ToString().Split("/").Where(x => !string.IsNullOrEmpty(x)).ToList();
-      string id = pathList.First() == "-" ? $"-{insertCounter++}" : pathList.First();
-      pathList.Remove(id);
-      string destination = string.Join('/', pathList.ToArray());
+            string newOperation;
+            string id;
+            if (pathList.First() == "-" && operation.Op.ToString() == "Add" && pathList.Count == 1)
+            {
+                id = $"-{insertCounter++}";
+                newOperation = $"\"op\": \"add\",";
+                newOperation += $"\"path\": \"/-\",";
 
-      string newOperation = $"\"path\": \"/{destination}\",";
-      newOperation += $"\"op\": \"{operation.Op.ToString().ToLower()}\",";
+            }
+            else if (pathList.First() != "-" && operation.Op.ToString() != "Add")
+            {
+                id = pathList.First();
+                newOperation = $"\"op\": \"{operation.Op.ToString().ToLower()}\",";
+                pathList.Remove(id);
+                string destination = string.Join('/', pathList.ToArray());
+                newOperation += $"\"path\": \"/{destination}\",";
+            }
+            else
+            {
+                throw new ArgumentException($"Invalid path + operation combination! Operation \"{operation.Op.ToString()}\" not applicable to path \"{pathList.First()}\"");
+            }
+
 
       if (!string.IsNullOrEmpty(operation.From?.ToString()))
       {
@@ -46,9 +63,15 @@ public static class JsonPatchExtensions
       string asString = "[" + string.Join(",", x.Value) + "]";
       JsonPatch? asPatch = JsonSerializer.Deserialize<JsonPatch>(asString);
       if (asPatch != null)
+      {
+      if (asPatch.Operations.Any(a => a.Op.ToString() == "Add" || a.Op.ToString() == "Remove") && asPatch.Operations.Count > 1)
+        throw new ArgumentException($"Invalid patch! Patches including \"Add\" or \"Remove\" operations cannot have any other operations");
         returnableDictionary.Add(x.Key, asPatch);
+      }
+
     }
 
     return returnableDictionary;
   }
+
 }

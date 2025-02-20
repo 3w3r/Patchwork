@@ -5,6 +5,7 @@ using Json.More;
 using Json.Patch;
 using Patchwork.Authorization;
 using Patchwork.DbSchema;
+using Patchwork.Extensions;
 using Patchwork.SqlDialects;
 using Patchwork.SqlStatements;
 using static Dapper.SqlMapper;
@@ -156,7 +157,44 @@ public class PatchworkRepository : IPatchworkRepository
 
   public PatchListResult PatchList(string schemaName, string entityName, JsonPatch jsonPatchRequestBody)
   {
-    throw new NotImplementedException();
+        Dictionary<string, JsonPatch> patchDictionary = jsonPatchRequestBody.SplitById();
+
+        using ActiveConnection connect = this.sqlDialect.GetConnection();
+
+        try
+        {
+            PatchListResult results = new PatchListResult(new List<PatchResourceResult>(), new List<PatchResourceResult>(), new List<PatchResourceResult>());
+
+            foreach (var patch in patchDictionary)
+            {
+                if (patch.Key.StartsWith('-'))
+                {
+                    //Create new record
+
+                    //results.Inserted.Add(new PatchResourceResult())
+                }
+                else if (patch.Value.Operations.First().Op.ToString() == "Remove")
+                {
+
+                    DeleteStatement delete = this.sqlDialect.BuildDeleteSingleSql(schemaName, entityName, patch.Key);
+                    int updated = connect.Connection.Execute(delete.Sql, delete.Parameters, connect.Transaction);
+                    if (updated < 1)
+                        throw new System.Data.RowNotInTableException();
+                    //results.Deleted.Add(new PatchResourceResult(patch.Key));
+                }
+                else
+                {
+                    //Patch Normally
+                    //results.Updated.Add(new PatchResourceResult())
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            connect.Transaction.Rollback();
+            throw;
+        }
+        throw new NotImplementedException();
   }
 
   public PatchResourceResult PatchResource(string schemaName, string entityName, string id, JsonPatch jsonPatchRequestBody)
@@ -204,8 +242,8 @@ public class PatchworkRepository : IPatchworkRepository
 
 public record GetListResult(List<dynamic> Resources, long TotalCount, string LastId, int Limit, int Offset);
 public record GetResourceResult(dynamic Resource);
-public record PostResult(string id, dynamic Resource, JsonPatch Changes);
+public record PostResult(string Id, dynamic Resource, JsonPatch Changes);
 public record PutResult(dynamic Resource, JsonPatch Changes);
 public record DeleteResult(bool Success, string Id);
-public record PatchResourceResult(string id, dynamic Resource, JsonPatch Changes);
+public record PatchResourceResult(string Id, dynamic Resource, JsonPatch Changes);
 public record PatchListResult(List<PatchResourceResult> Inserted, List<PatchResourceResult> Updated, List<PatchResourceResult> Deleted);

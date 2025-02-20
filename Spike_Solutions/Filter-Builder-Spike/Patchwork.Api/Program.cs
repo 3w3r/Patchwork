@@ -2,6 +2,9 @@ using Patchwork.Authorization;
 using Patchwork.Repository;
 using Patchwork.SqlDialects;
 using Patchwork.SqlDialects.PostgreSql;
+using Patchwork.SqlDialects.Sqlite;
+using Patchwork.SqlDialects.MsSql;
+using Patchwork.SqlDialects.MySql;
 
 namespace Patchwork.Api;
 
