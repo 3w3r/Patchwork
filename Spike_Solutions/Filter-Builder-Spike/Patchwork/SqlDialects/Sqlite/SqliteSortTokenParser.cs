@@ -11,6 +11,6 @@ public class SqliteSortTokenParser : SortTokenParserBase
     if (token.Direction == SortDirection.Ascending)
       return $"t_{token.EntityName.ToLower()}.{token.Column.ToLower()}";
     else
-      return $"t_{token.EntityName.ToLower()}.{token.Column.ToLower()} desc";
+      return $"t_{token.EntityName.ToLower()}.{token.Column.ToLower()} DESC";
   }
 }

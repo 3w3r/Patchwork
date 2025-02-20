@@ -32,7 +32,7 @@ public class FieldsLexer
       if (col == null)
         throw new ArgumentException($"The field {child} is not valid for {_entity.Name}.");
 
-      tokens.Add(new FieldsToken($"T_{_entity.Name}", col.Name));
+      tokens.Add(new FieldsToken($"t_{_entity.Name}", col.Name));
     }
 
     return tokens;

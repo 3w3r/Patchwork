@@ -18,14 +18,14 @@ public class MySqlDialectBuilder_DeleteTests
 
     // Assert
     Assert.NotEmpty(sql.Sql);
-    Assert.Contains("DELETE FROM `taskboard`.`employees`", sql.Sql);
-    Assert.Contains("`employeeNumber` = @id", sql.Sql);
+    Assert.Contains("DELETE FROM taskboard.employees", sql.Sql);
+    Assert.Contains("employeeNumber = @id", sql.Sql);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
     try
     {
       int changeCount = connect.Connection.Execute(sql.Sql, sql.Parameters, connect.Transaction);
-      dynamic? found = connect.Connection.QueryFirstOrDefault("SELECT * FROM `taskboard`.`employees` WHERE `employeeNumber` = @id", sql.Parameters, connect.Transaction);
+      dynamic? found = connect.Connection.QueryFirstOrDefault("SELECT * FROM taskboard.employees WHERE employeeNumber = @id", sql.Parameters, connect.Transaction);
 
       Assert.Equal(1, changeCount);
       Assert.Null(found);

@@ -9,8 +9,8 @@ public class MsSortTokenParser : SortTokenParserBase
   public override string RenderToken(SortToken token)
   {
     if (token.Direction == SortDirection.Ascending)
-      return $"[T_{token.EntityName}].[{token.Column}]";
+      return $"[t_{token.EntityName}].[{token.Column}]";
     else
-      return $"[T_{token.EntityName}].[{token.Column}] DESC";
+      return $"[t_{token.EntityName}].[{token.Column}] DESC";
   }
 }

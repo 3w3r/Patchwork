@@ -24,7 +24,7 @@ public static class ConnectionStringManager
     LoadConfigFile();
     string? connectionString = Configfile!.RootElement.GetProperty("ConnectionStrings").GetProperty("MySql").GetString();
     if (string.IsNullOrEmpty(connectionString))
-      throw new KeyNotFoundException("`MySql` not found in configuration file.");
+      throw new KeyNotFoundException("MySql not found in configuration file.");
     return connectionString;
   }
   public static string GetMsSqlConnectionString()
@@ -32,7 +32,7 @@ public static class ConnectionStringManager
     LoadConfigFile();
     string? connectionString = Configfile!.RootElement.GetProperty("ConnectionStrings").GetProperty("MsSql").GetString();
     if (string.IsNullOrEmpty(connectionString))
-      throw new KeyNotFoundException("`MsSql` not found in configuration file.");
+      throw new KeyNotFoundException("MsSql not found in configuration file.");
     return connectionString;
   }
   public static string GetMsSqlSurveysConnectionString()
@@ -40,7 +40,7 @@ public static class ConnectionStringManager
     LoadConfigFile();
     string? connectionString = Configfile!.RootElement.GetProperty("ConnectionStrings").GetProperty("MsSql_Surveys").GetString();
     if (string.IsNullOrEmpty(connectionString))
-      throw new KeyNotFoundException("`MsSql` not found in configuration file.");
+      throw new KeyNotFoundException("MsSql not found in configuration file.");
     return connectionString;
   }
   public static string GetPostgreSqlConnectionString()
@@ -48,7 +48,7 @@ public static class ConnectionStringManager
     LoadConfigFile();
     string? connectionString = Configfile!.RootElement.GetProperty("ConnectionStrings").GetProperty("PostgreSql").GetString();
     if (string.IsNullOrEmpty(connectionString))
-      throw new KeyNotFoundException("`PostgreSql` not found in configuration file.");
+      throw new KeyNotFoundException("PostgreSql not found in configuration file.");
     return connectionString;
   }
   public static string GetSqliteConnectionString()
@@ -56,7 +56,7 @@ public static class ConnectionStringManager
     LoadConfigFile();
     string? connectionString = Configfile!.RootElement.GetProperty("ConnectionStrings").GetProperty("Sqlite").GetString();
     if (string.IsNullOrEmpty(connectionString))
-      throw new KeyNotFoundException("`Sqlite` not found in configuration file.");
+      throw new KeyNotFoundException("Sqlite not found in configuration file.");
     return connectionString;
   }
 

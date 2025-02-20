@@ -18,9 +18,9 @@ public class MySqlDialectBuilder_GetResourceTests
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
-    Assert.Contains("FROM `taskboard`.`products`", sql.Sql);
+    Assert.Contains("FROM taskboard.products", sql.Sql);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found = connect.Connection.QueryFirst(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal("S24_1937", found.productCode);
@@ -42,9 +42,9 @@ public class MySqlDialectBuilder_GetResourceTests
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
-    Assert.Contains("FROM `taskboard`.`products`", sql.Sql);
+    Assert.Contains("FROM taskboard.products", sql.Sql);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found = connect.Connection.QueryFirst(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal("S24_1937", found.productCode);
@@ -66,9 +66,9 @@ public class MySqlDialectBuilder_GetResourceTests
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
-    Assert.Contains("FROM `taskboard`.`products`", sql.Sql);
+    Assert.Contains("FROM taskboard.products", sql.Sql);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     var found = connect.Connection.QueryFirst(sql.Sql, sql.Parameters, connect.Transaction);
     Assert.Equal("S24_1937", found.productCode);

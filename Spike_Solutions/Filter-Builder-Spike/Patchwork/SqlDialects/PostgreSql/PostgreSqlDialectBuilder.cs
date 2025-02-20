@@ -18,12 +18,19 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
   public PostgreSqlDialectBuilder(string connectionString) : base(connectionString, "public") { }
   public PostgreSqlDialectBuilder(DatabaseMetadata metadata) : base(metadata, "public") { }
 
-  public override ActiveConnection GetConnection()
+  public override WriterConnection GetWriterConnection()
   {
     NpgsqlConnection c = new NpgsqlConnection(_connectionString);
     c.Open();
     DbTransaction t = c.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
-    return new ActiveConnection(c, t);
+    return new WriterConnection(c, t);
+  }
+
+  public override ReaderConnection GetReaderConnection()
+  {
+    NpgsqlConnection c = new NpgsqlConnection(_connectionString);
+    c.Open();
+    return new ReaderConnection(c);
   }
 
   internal override string BuildSelectClause(string fields, Entity entity)
@@ -38,6 +45,11 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
     string fieldList = parser.Parse();
 
     return $"SELECT {fieldList} FROM {schemaPrefix}{entity.Name.ToLower()} AS t_{entity.Name.ToLower()}";
+  }
+  internal override string BuildCountClause(Entity entity)
+  {
+    string schemaPrefix = string.IsNullOrEmpty(entity.SchemaName) ? string.Empty : $"{entity.SchemaName.ToLower()}.";
+    return $"SELECT COUNT(*) FROM {schemaPrefix}{entity.Name.ToLower()} AS t_{entity.Name.ToLower()}";
   }
   internal override string BuildJoinClause(string includeString, Entity entity)
   {

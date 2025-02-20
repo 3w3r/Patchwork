@@ -50,7 +50,7 @@ public class MsSqlDialectBuilder_PutTests
     Assert.Contains("[email] = @email", sql.Sql);
     Assert.Contains("[extension] = @extension", sql.Sql);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
     try
     {
       int changeCount = connect.Connection.Execute(sql.Sql, sql.Parameters, connect.Transaction);

@@ -9,8 +9,8 @@ public class MySqlSortTokenParser : SortTokenParserBase
   public override string RenderToken(SortToken token)
   {
     if (token.Direction == SortDirection.Ascending)
-      return $"t_{token.EntityName.ToLower()}.`{token.Column.ToLower()}`";
+      return $"t_{token.EntityName}.{token.Column}";
     else
-      return $"t_{token.EntityName.ToLower()}.`{token.Column.ToLower()}` desc";
+      return $"t_{token.EntityName}.{token.Column} DESC";
   }
 }

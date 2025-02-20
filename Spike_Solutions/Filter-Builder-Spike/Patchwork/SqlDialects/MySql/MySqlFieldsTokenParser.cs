@@ -13,8 +13,8 @@ public class MySqlFieldsTokenParser : SqlFieldsTokenParserBase
     foreach (FieldsToken token in _tokens)
     {
       if (!string.IsNullOrEmpty(token.Prefix))
-        sb.Append($"{token.Prefix.ToLower()}.");
-      sb.Append($"`{token.Name.ToLower()}`, ");
+        sb.Append($"{token.Prefix}.");
+      sb.Append($"{token.Name}, ");
     }
     return sb.ToString().Trim().TrimEnd(',');
   }

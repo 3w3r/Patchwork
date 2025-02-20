@@ -1,9 +1,9 @@
 ﻿using Microsoft.Data.Sqlite;
 using Patchwork.Api;
 using Patchwork.DbSchema;
+using Patchwork.SqlDialects.Sqlite;
 
 namespace Patchwork.Tests.Sqlite_tests;
-
 public class SchemaDiscovery_Tests
 {
   [Fact]
@@ -16,7 +16,7 @@ public class SchemaDiscovery_Tests
 
     // Act
     SchemaDiscoveryBuilder builder = new SchemaDiscoveryBuilder();
-    DatabaseMetadata metadata = builder.ReadSchema(new SqlDialects.ActiveConnection(connection, transaction));
+    DatabaseMetadata metadata = builder.ReadSchema(new SqlDialects.WriterConnection(connection, transaction));
 
     // Assert
     Assert.NotNull(metadata);

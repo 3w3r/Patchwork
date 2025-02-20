@@ -37,11 +37,11 @@ public class PostgreSqlDialectBuilder_PutTests
     ISqlDialectBuilder sut = new PostgreSqlDialectBuilder(ConnectionStringManager.GetPostgreSqlConnectionString());
 
     // Act
-    SqlStatements.UpdateStatement sql = sut.BuildPutSingleSql("public", "employees", "1625", katoJsonUpdate);
+    SqlStatements.UpdateStatement sql = sut.BuildPutSingleSql("classicmodels", "employees", "1625", katoJsonUpdate);
 
     // Assert
     Assert.NotEmpty(sql.Sql);
-    Assert.Contains("UPDATE public.employees", sql.Sql);
+    Assert.Contains("UPDATE classicmodels.employees", sql.Sql);
     Assert.Contains("SET", sql.Sql);
     Assert.DoesNotContain("employeenumber = @employeeNumber", sql.Sql);
     Assert.Contains("lastname = @lastName", sql.Sql);
@@ -49,12 +49,12 @@ public class PostgreSqlDialectBuilder_PutTests
     Assert.Contains("email = @email", sql.Sql);
     Assert.Contains("extension = @extension", sql.Sql);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     try
     {
       int changeCount = connect.Connection.Execute(sql.Sql, sql.Parameters, connect.Transaction);
-      dynamic found = connect.Connection.QueryFirst("SELECT * FROM public.employees WHERE employeenumber = @id", sql.Parameters, connect.Transaction);
+      dynamic found = connect.Connection.QueryFirst("SELECT * FROM classicmodels.employees WHERE employeenumber = @id", sql.Parameters, connect.Transaction);
 
       Assert.Equal(1, changeCount);
       Assert.Equal("Kato", found.lastname);

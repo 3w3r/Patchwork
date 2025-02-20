@@ -9,14 +9,15 @@ public interface ISqlDialectBuilder
 {
   string DefaultSchemaName { get; }
 
-  ActiveConnection GetConnection();
+  WriterConnection GetWriterConnection();
+  ReaderConnection GetReaderConnection();
   DatabaseMetadata DiscoverSchema();
   Entity FindEntity(string schemaName, string entityName);
   string GetPkValue(string schemaName, string entityName, object entityObject);
   bool HasPatchTrackingEnabled();
 
-  SelectStatement BuildGetListSql(string schemaName, string entityName, string fields = "", string filter = "", string sort = "", int limit = 0, int offset = 0);
-  SelectStatement BuildGetSingleSql(string schemaName, string entityName, string id, string fields = "", string include = "", DateTimeOffset? asOf = null);
+  SelectListStatement BuildGetListSql(string schemaName, string entityName, string fields = "", string filter = "", string sort = "", int limit = 0, int offset = 0);
+  SelectResourceStatement BuildGetSingleSql(string schemaName, string entityName, string id, string fields = "", string include = "", DateTimeOffset? asOf = null);
 
   InsertStatement BuildPostSingleSql(string schemaName, string entityName, JsonDocument jsonResourceRequestBody);
   UpdateStatement BuildPutSingleSql(string schemaName, string entityName, string id, JsonDocument jsonResourceRequestBody);

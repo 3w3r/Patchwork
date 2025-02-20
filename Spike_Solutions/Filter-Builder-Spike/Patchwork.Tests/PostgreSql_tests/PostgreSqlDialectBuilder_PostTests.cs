@@ -25,10 +25,10 @@ public class PostgreSqlDialectBuilder_PostTests
     var sut = new PostgreSqlDialectBuilder(ConnectionStringManager.GetPostgreSqlConnectionString());
 
     // Act
-    InsertStatement sql = sut.BuildPostSingleSql("public", "employees", cageJson);
+    InsertStatement sql = sut.BuildPostSingleSql("classicmodels", "employees", cageJson);
     // Assert
     Assert.NotEmpty(sql.Sql);
-    Assert.Contains("INSERT INTO public.employees", sql.Sql);
+    Assert.Contains("INSERT INTO classicmodels.employees", sql.Sql);
     Assert.Contains("VALUES (", sql.Sql);
     Assert.DoesNotContain("employeenumber", sql.Sql);
     Assert.Contains("lastname", sql.Sql);
@@ -41,7 +41,7 @@ public class PostgreSqlDialectBuilder_PostTests
     Assert.Contains("@extension", sql.Sql);
     Assert.Contains("RETURNING *", sql.Sql);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     try
     {

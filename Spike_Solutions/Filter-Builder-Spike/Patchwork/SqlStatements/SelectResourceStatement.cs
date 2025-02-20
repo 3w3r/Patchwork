@@ -1,7 +1,8 @@
 ﻿namespace Patchwork.SqlStatements;
 
 // PRIMARY SQL COMMANDS
-public record class SelectStatement(string Sql, Dictionary<string, object> Parameters);
+public record class SelectListStatement(string Sql, string CountSql, Dictionary<string, object> Parameters);
+public record class SelectResourceStatement(string Sql, Dictionary<string, object> Parameters);
 public record class InsertStatement(string Sql, Dictionary<string, object> Parameters);
 public record class UpdateStatement(string Sql, Dictionary<string, object> Parameters);
 public record class DeleteStatement(string Sql, Dictionary<string, object> Parameters);

@@ -21,7 +21,7 @@ public class SqliteDialectBuilder_DeleteTests
     Assert.Contains("DELETE FROM employees", sql.Sql);
     Assert.Contains("employeeNumber = @id", sql.Sql);
 
-    using var connect = sut.GetConnection();
+    using var connect = sut.GetWriterConnection();
 
     try
     {

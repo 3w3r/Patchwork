@@ -35,7 +35,7 @@ public class IncludeLexer
         if (fk != null)
         {
           Column pk = GetPrimaryKeyColumn(parent);
-          tokens.Add(new IncludeToken(childTable.SchemaName, childTable.Name, pk.Name, parent.SchemaName, parent.Name, fk.Name));
+          tokens.Add(new IncludeToken(childTable.SchemaName, childTable.Name, fk.Name, parent.SchemaName, parent.Name, pk.Name));
         }
         else
         {

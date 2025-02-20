@@ -17,12 +17,18 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
 
   public MsSqlDialectBuilder(DatabaseMetadata metadata, string defaultSchema = "dbo") : base(metadata, defaultSchema) { }
 
-  public override ActiveConnection GetConnection()
+  public override WriterConnection GetWriterConnection()
   {
     SqlConnection c = new SqlConnection(_connectionString);
     c.Open();
     DbTransaction t = c.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
-    return new ActiveConnection(c, t);
+    return new WriterConnection(c, t);
+  }
+  public override ReaderConnection GetReaderConnection()
+  {
+    SqlConnection c = new SqlConnection(_connectionString);
+    c.Open();
+    return new ReaderConnection(c);
   }
 
   internal override string BuildSelectClause(string fields, Entity entity)
@@ -30,13 +36,18 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
     string schemaPrefix = string.IsNullOrEmpty(entity.SchemaName) ? string.Empty : $"[{entity.SchemaName}].";
 
     if (string.IsNullOrEmpty(fields) || fields.Contains("*"))
-      return $"SELECT * FROM {schemaPrefix}[{entity.Name}] AS [T_{entity.Name}]";
+      return $"SELECT * FROM {schemaPrefix}[{entity.Name}] AS [t_{entity.Name}]";
 
     List<FieldsToken> tokens = GetFieldTokens(fields, entity);
     MsSqlFieldsTokenParser parser = new MsSqlFieldsTokenParser(tokens);
     string fieldList = parser.Parse();
 
-    return $"SELECT {fieldList} FROM {schemaPrefix}[{entity.Name}] AS [T_{entity.Name}]";
+    return $"SELECT {fieldList} FROM {schemaPrefix}[{entity.Name}] AS [t_{entity.Name}]";
+  }
+  internal override string BuildCountClause(Entity entity)
+  {
+    string schemaPrefix = string.IsNullOrEmpty(entity.SchemaName) ? string.Empty : $"[{entity.SchemaName}].";
+    return $"SELECT COUNT(*) FROM {schemaPrefix}[{entity.Name}] AS [t_{entity.Name}]";
   }
   internal override string BuildJoinClause(string includeString, Entity entity)
   {
@@ -71,7 +82,7 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
   }
   internal override string BuildWherePkForGetClause(Entity entity)
   {
-    return $"WHERE [T_{entity.Name}].[{entity.PrimaryKey!.Name}] = @id";
+    return $"WHERE [t_{entity.Name}].[{entity.PrimaryKey!.Name}] = @id";
   }
   internal override string BuildOrderByClause(string sort, Entity entity)
   {

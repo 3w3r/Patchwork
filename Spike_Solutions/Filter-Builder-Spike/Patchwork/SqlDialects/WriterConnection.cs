@@ -2,12 +2,12 @@
 
 namespace Patchwork.SqlDialects;
 
-public class ActiveConnection : IDisposable
+public class WriterConnection : IDisposable
 {
   public DbConnection Connection { get; init; }
   public DbTransaction Transaction { get; init; }
 
-  public ActiveConnection(DbConnection connection, DbTransaction transaction)
+  public WriterConnection(DbConnection connection, DbTransaction transaction)
   {
     Connection = connection;
     Transaction = transaction;

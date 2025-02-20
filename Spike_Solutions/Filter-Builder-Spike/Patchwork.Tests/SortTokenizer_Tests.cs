@@ -21,13 +21,13 @@ public class SortTokenizer_Tests
   }
 
   [Theory]
-  [InlineData("firstname:asc,lastname:desc", "ORDER BY [T_SortTest].[firstname], [T_SortTest].[lastname] DESC, [T_SortTest].[A]")]
-  [InlineData("firstname:asc       ,lastname    :desc       ", "ORDER BY [T_SortTest].[firstname], [T_SortTest].[lastname] DESC, [T_SortTest].[A]")]
-  [InlineData("       firstname:asc,lastname         :desc", "ORDER BY [T_SortTest].[firstname], [T_SortTest].[lastname] DESC, [T_SortTest].[A]")]
-  [InlineData("A,B,C,D,E,F", "ORDER BY [T_SortTest].[A], [T_SortTest].[B], [T_SortTest].[C], [T_SortTest].[D], [T_SortTest].[E], [T_SortTest].[F]")]
-  [InlineData("A,B:desc,C,D:desc,E,F", "ORDER BY [T_SortTest].[A], [T_SortTest].[B] DESC, [T_SortTest].[C], [T_SortTest].[D] DESC, [T_SortTest].[E], [T_SortTest].[F]")]
-  [InlineData("A,B:asc,C,D:asc,E:desc,F", "ORDER BY [T_SortTest].[A], [T_SortTest].[B], [T_SortTest].[C], [T_SortTest].[D], [T_SortTest].[E] DESC, [T_SortTest].[F]")]
-  [InlineData("A,But_I_Think_This_Column_Name_Is_Really_Long:desc", "ORDER BY [T_SortTest].[A], [T_SortTest].[But_I_Think_This_Column_Name_Is_Really_Long] DESC")]
+  [InlineData("firstname:asc,lastname:desc", "ORDER BY [t_SortTest].[firstname], [t_SortTest].[lastname] DESC, [t_SortTest].[A]")]
+  [InlineData("firstname:asc       ,lastname    :desc       ", "ORDER BY [t_SortTest].[firstname], [t_SortTest].[lastname] DESC, [t_SortTest].[A]")]
+  [InlineData("       firstname:asc,lastname         :desc", "ORDER BY [t_SortTest].[firstname], [t_SortTest].[lastname] DESC, [t_SortTest].[A]")]
+  [InlineData("A,B,C,D,E,F", "ORDER BY [t_SortTest].[A], [t_SortTest].[B], [t_SortTest].[C], [t_SortTest].[D], [t_SortTest].[E], [t_SortTest].[F]")]
+  [InlineData("A,B:desc,C,D:desc,E,F", "ORDER BY [t_SortTest].[A], [t_SortTest].[B] DESC, [t_SortTest].[C], [t_SortTest].[D] DESC, [t_SortTest].[E], [t_SortTest].[F]")]
+  [InlineData("A,B:asc,C,D:asc,E:desc,F", "ORDER BY [t_SortTest].[A], [t_SortTest].[B], [t_SortTest].[C], [t_SortTest].[D], [t_SortTest].[E] DESC, [t_SortTest].[F]")]
+  [InlineData("A,But_I_Think_This_Column_Name_Is_Really_Long:desc", "ORDER BY [t_SortTest].[A], [t_SortTest].[But_I_Think_This_Column_Name_Is_Really_Long] DESC")]
   public void Parse_ReturnsOrderByClause_MsSqlSuccessCases(string sort, string expected)
   {
     // Arrange
