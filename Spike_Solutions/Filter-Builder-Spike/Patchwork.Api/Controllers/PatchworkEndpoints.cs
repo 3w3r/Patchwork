@@ -37,10 +37,7 @@ public class PatchworkEndpoints : Controller
     schemaName = NormalizeSchemaName(schemaName);
 
     GetListResult found = Repository.GetList(schemaName, entityName, fields, filter, sort, limit, offset);
-
-    int pageSize = found.Limit != found.Resources.Count() ? found.Resources.Count() : found.Limit;
-
-    this.Response.Headers.Append("Content-Range", $"items {found.Offset}-{found.Offset+pageSize}/{found.TotalCount}");
+    this.Response.Headers.AddContentRangeHeader(found);
 
     return Json(found.Resources);
   }
@@ -102,7 +99,7 @@ public class PatchworkEndpoints : Controller
     try
     {
       PutResult updated = this.Repository.PutResource(schemaName, entityName, id, jsonResourceRequestBody);
-      this.Response.Headers.Append("X-Json-Patch-Changes", JsonSerializer.Serialize(updated.Changes));
+      this.Response.Headers.AddPatchChangesHeader(updated.Changes);
       return Json(updated.Resource);
     }
     catch (Exception ex)
@@ -204,7 +201,8 @@ public class PatchworkEndpoints : Controller
     // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Patch)) return this.Unauthorized();
     schemaName = NormalizeSchemaName(schemaName);
 
-    var result = this.Repository.PatchResource(schemaName, entityName, id, jsonPatchRequestBody);
+    PatchResourceResult result = this.Repository.PatchResource(schemaName, entityName, id, jsonPatchRequestBody);
+    this.Response.Headers.AddPatchChangesHeader(result.Changes);
 
     return this.Json(result.Resource);
 
@@ -215,5 +213,18 @@ public class PatchworkEndpoints : Controller
     if (schemaName.Equals("surveys", StringComparison.OrdinalIgnoreCase))
       schemaName = sqlDialect.DefaultSchemaName;
     return schemaName;
+  }
+}
+
+public static class ControllerExtensions
+{
+  public static void AddContentRangeHeader(this IHeaderDictionary headers, GetListResult found)
+  {
+    int pageSize = found.Limit != found.Count ? found.Count : found.Limit;
+    headers.Append("Content-Range", $"items {found.Offset}-{found.Offset + pageSize}/{found.TotalCount}");
+  }
+  public static void AddPatchChangesHeader(this IHeaderDictionary headers, JsonPatch changes)
+  {
+    headers.Append("X-Json-Patch-Changes", JsonSerializer.Serialize(changes));
   }
 }

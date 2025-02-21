@@ -42,9 +42,9 @@ public class EventLog_Table_Indexes : AutoReversingMigration
 
     IfDatabase(t => t == ProcessorId.SQLite).Create
       .Index("ix_event_log_domain").OnTable("patchwork_event_log").OnColumn("domain");
-    IfDatabase(t => t != ProcessorId.SQLite).Create
+    IfDatabase(t => t == ProcessorId.SQLite).Create
       .Index("ix_event_log_entity").OnTable("patchwork_event_log").OnColumn("entity");
-    IfDatabase(t => t != ProcessorId.SQLite).Create
+    IfDatabase(t => t == ProcessorId.SQLite).Create
       .Index("ix_event_log_id").OnTable("patchwork_event_log").OnColumn("id");
   }
 }
