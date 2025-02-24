@@ -2,7 +2,7 @@
 
 namespace Patchwork.Db.EventLog;
 
-[Migration(202502120945)]
+[Migration(202501120945)]
 public class EventLog_Table : AutoReversingMigration
 {
   public override void Up()
@@ -25,26 +25,5 @@ public class EventLog_Table : AutoReversingMigration
       .WithColumn("entity").AsString(64).NotNullable()
       .WithColumn("id").AsString(64).NotNullable()
       .WithColumn("patch").AsString().NotNullable().WithDefaultValue("{}");
-  }
-}
-
-[Migration(202502120955)]
-public class EventLog_Table_Indexes : AutoReversingMigration
-{
-  public override void Up()
-  {
-    IfDatabase(t => t != ProcessorId.SQLite).Create
-      .Index("ix_event_log_domain").OnTable("patchwork_event_log").InSchema("patchwork").OnColumn("domain");
-    IfDatabase(t => t != ProcessorId.SQLite).Create
-      .Index("ix_event_log_entity").OnTable("patchwork_event_log").InSchema("patchwork").OnColumn("entity");
-    IfDatabase(t => t != ProcessorId.SQLite).Create
-      .Index("ix_event_log_id").OnTable("patchwork_event_log").InSchema("patchwork").OnColumn("id");
-
-    IfDatabase(t => t == ProcessorId.SQLite).Create
-      .Index("ix_event_log_domain").OnTable("patchwork_event_log").OnColumn("domain");
-    IfDatabase(t => t == ProcessorId.SQLite).Create
-      .Index("ix_event_log_entity").OnTable("patchwork_event_log").OnColumn("entity");
-    IfDatabase(t => t == ProcessorId.SQLite).Create
-      .Index("ix_event_log_id").OnTable("patchwork_event_log").OnColumn("id");
   }
 }

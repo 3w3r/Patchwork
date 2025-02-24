@@ -2,7 +2,7 @@
 
 namespace Patchwork.Db.Permissions;
 
-[Migration(202502200811)]
+[Migration(202501200811)]
 public class Resource_Permissions : AutoReversingMigration
 {
   public override void Up()

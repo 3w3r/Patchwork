@@ -2,7 +2,7 @@
 
 namespace Patchwork.Db;
 
-[Migration(202502120930)]
+[Migration(202501120930)]
 public class Bootstrap : Migration
 {
 
