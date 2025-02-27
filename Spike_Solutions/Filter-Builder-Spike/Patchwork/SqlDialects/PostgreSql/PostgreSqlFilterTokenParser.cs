@@ -93,7 +93,7 @@ public class PostgreSqlFilterTokenParser : FilterTokenParserBase
     }
     else
     {
-      if (value.Type == FilterTokenType.DateTime || value.Type == FilterTokenType.Textual || value.Type == FilterTokenType.Numeric)
+      if (FilterTokenType.Value.HasFlag(value.Type))
       {
         sb.Append($"@{value.ParameterName}");
       }

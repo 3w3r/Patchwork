@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -28,6 +29,11 @@ public abstract class PatchworkControllerBase : Controller
   protected IActionResult GetListEndpoint(string schemaName, int version, string entityName,
     string fields = "", string filter = "", string sort = "", int limit = 0, int offset = 0)
   {
+    if (limit == 0) 
+      limit=this.Request.Headers.GetLimitFromRangeHeader();
+    if (offset == 0)
+      offset=this.Request.Headers.GetOffsetFromRangeHeader();
+
     GetListResult found = Repository.GetList(schemaName, entityName, fields, filter, sort, limit, offset);
     this.Response.Headers.AddContentRangeHeader(found);
 
@@ -91,7 +97,7 @@ public abstract class PatchworkControllerBase : Controller
     }
   }
 
-  public IActionResult PatchListEndpoint(string schemaName, int version, string entityName, JsonPatch jsonPatchRequestBody)
+  protected IActionResult PatchListEndpoint(string schemaName, int version, string entityName, JsonPatch jsonPatchRequestBody)
   {
     //TODO: The incoming JSON Patch will have opertions for one or more entities in the system. We identify which
     //      entities are being changed by the `path` element. The prefix on each path element will be the URL needed
