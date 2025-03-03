@@ -8,8 +8,6 @@ static class Program
 {
   static void Main(string[] args)
   {
-    
-    
     using (ServiceProvider serviceProvider = CreateServices())
     using (IServiceScope scope = serviceProvider.CreateScope())
     {
@@ -31,11 +29,15 @@ static class Program
         // Add common FluentMigrator services
         .AddFluentMigratorCore()
         .ConfigureRunner(rb => {
-          var DbType = Environment.GetEnvironmentVariable("DBTYPE");
-          if (DbType == "MsSql") rb.AddSqlServer2016().WithGlobalConnectionString(ConnectionStringManager.GetMsSqlConnectionString());
-          else if (DbType == "Postgres") rb.AddPostgres().WithGlobalConnectionString(ConnectionStringManager.GetPostgreSqlConnectionString());
-          else if (DbType == "MySql") rb.AddMySql8().WithGlobalConnectionString(ConnectionStringManager.GetMySqlConnectionString());
+          var success = Enum.TryParse(Environment.GetEnvironmentVariable("DBTYPE"), out DbTypeEnum dbType);
+          if (success)
+            MigrationConfigurations.DbType = dbType;
+
+          if (MigrationConfigurations.DbType == DbTypeEnum.MsSql) rb.AddSqlServer2016().WithGlobalConnectionString(ConnectionStringManager.GetMsSqlConnectionString());
+          else if (MigrationConfigurations.DbType == DbTypeEnum.PostgreSql) rb.AddPostgres().WithGlobalConnectionString(ConnectionStringManager.GetPostgreSqlConnectionString());
+          else if (MigrationConfigurations.DbType == DbTypeEnum.MySql) rb.AddMySql8().WithGlobalConnectionString(ConnectionStringManager.GetMySqlConnectionString());
           else rb.AddSQLite().WithGlobalConnectionString(ConnectionStringManager.GetSqliteConnectionString());
+          
           // Define the assembly containing the migrations
           rb.ScanIn(typeof(Bootstrap).Assembly).For.Migrations();
         })

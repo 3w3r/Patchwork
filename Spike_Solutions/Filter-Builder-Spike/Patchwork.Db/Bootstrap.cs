@@ -18,3 +18,4 @@ public class Bootstrap : Migration
               .Delete.Schema("patchwork");
   }
 }
+

@@ -13,7 +13,9 @@ public static class ConnectionStringManager
     if (Configfile == null)
     {
       string location = Assembly.GetExecutingAssembly().Location;
-      location = location.Substring(0, location.LastIndexOf("/"));
+      location = location.Contains('/')
+        ? location.Substring(0, location.LastIndexOf("/"))
+        : location.Substring(0, location.LastIndexOf("\\"));
       string configFile = Path.Combine(location, "appsettings.local.json");
       string configJson = File.ReadAllText(configFile);
       Configfile = JsonDocument.Parse(configJson);
