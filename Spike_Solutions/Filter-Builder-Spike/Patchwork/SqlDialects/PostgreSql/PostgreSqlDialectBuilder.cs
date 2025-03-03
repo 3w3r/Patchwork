@@ -46,6 +46,31 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
 
     return $"SELECT {fieldList} FROM {schemaPrefix}{entity.Name.ToLower()} AS t_{entity.Name.ToLower()}";
   }
+
+  internal override SelectEventLogStatement GetSelectEventLog(Entity entity, string id, DateTimeOffset asOf)
+  {
+    Dictionary<string, object> parameters = new Dictionary<string, object>
+    {
+      { "schema_name", entity.SchemaName },
+      { "table_name", entity.Name},
+      { "entity_id", entity.PrimaryKey?.Name ?? "id"},
+      { "as_of", asOf},
+    };
+    return new SelectEventLogStatement(
+      "SELECT " +
+      "p.pk as \"Pk\", " +
+      "p.event_date as \"EventDate\", " +
+      "p.domain as \"Domain\", " +
+      "p.entity as \"Entity\", " +
+      "p.id as \"Id\", " +
+      "p.patch as \"Patch\" " +
+      "FROM patchwork.patchwork_event_log as p " +
+      "WHERE p.domain = @schema_name " +
+      "AND p.entity = @table_name " +
+      "AND p.id = @entity_id " +
+      "AND p.event_date <= @as_of ",
+      parameters);
+  }
   internal override string BuildCountClause(Entity entity)
   {
     string schemaPrefix = string.IsNullOrEmpty(entity.SchemaName) ? string.Empty : $"{entity.SchemaName.ToLower()}.";

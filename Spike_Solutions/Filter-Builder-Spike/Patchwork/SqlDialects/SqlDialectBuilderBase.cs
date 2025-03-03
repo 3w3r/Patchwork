@@ -134,6 +134,17 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
 
     return new SelectResourceStatement($"{select} {join} {where}", parameters);
   }
+  public virtual SelectEventLogStatement BuildGetEventLogSql(string schemaName, string entityName, string id, DateTimeOffset asOf)
+  {
+    if (string.IsNullOrEmpty(schemaName))
+      throw new ArgumentException("Schema name is required.", nameof(schemaName));
+    if (string.IsNullOrEmpty(entityName))
+      throw new ArgumentException("Entity name is required.", nameof(entityName));
+
+    Entity entity = FindEntity(schemaName, entityName);
+    return GetSelectEventLog(entity, id, asOf);
+  }
+  internal abstract SelectEventLogStatement GetSelectEventLog(Entity entity, string id, DateTimeOffset asOf);
 
   public virtual InsertStatement BuildPostSingleSql(string schemaName, string entityName, JsonDocument jsonResourceRequestBody)
   {

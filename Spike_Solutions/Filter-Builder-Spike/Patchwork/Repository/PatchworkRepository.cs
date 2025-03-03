@@ -5,6 +5,7 @@ using Dapper;
 using Json.More;
 using Json.Patch;
 using Json.Pointer;
+using Microsoft.AspNetCore.Routing;
 using Patchwork.Authorization;
 using Patchwork.DbSchema;
 using Patchwork.Paging;
@@ -62,6 +63,30 @@ public class PatchworkRepository : IPatchworkRepository
     else
       //TODO: Instead of returning the list, we need to convert the flat records into an object hierarchy
       return new GetResourceResult(found.ToList());
+  }
+
+  protected JsonDocument RebuildResource(string schemaName, string entityName, string id, DateTimeOffset asOf)
+  {
+    var select = this.sqlDialect.BuildGetEventLogSql(schemaName, entityName, id, asOf);
+    using ReaderConnection connect = this.sqlDialect.GetReaderConnection();
+    IEnumerable<PatchworkLogEvent> found = connect.Connection.Query<PatchworkLogEvent>(select.Sql, select.Parameters);
+    var resource = JsonDocument.Parse("{}");
+
+    foreach(var log in found)
+    {
+      var patch = JsonSerializer.Deserialize<JsonPatch>(log.Patch);
+      if (patch == null)
+        throw new InvalidDataException($"The JSON Patch could not be read  \n {log}");
+      
+      var changed = patch.Apply(resource);
+      if (changed == null)
+        throw new InvalidDataException($"The JSON Patch could not be applied \n {log}");
+
+      resource = changed;
+
+    }
+    return resource;
+
   }
 
   public PostResult PostResource(string schemaName, string entityName, JsonDocument jsonResourceRequestBody)

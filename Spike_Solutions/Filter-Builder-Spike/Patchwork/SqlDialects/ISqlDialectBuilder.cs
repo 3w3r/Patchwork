@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Json.Patch;
 using Patchwork.DbSchema;
+using Patchwork.Repository;
 using Patchwork.SqlStatements;
 
 namespace Patchwork.SqlDialects;
@@ -18,6 +19,7 @@ public interface ISqlDialectBuilder
 
   SelectListStatement BuildGetListSql(string schemaName, string entityName, string fields = "", string filter = "", string sort = "", int limit = 0, int offset = 0);
   SelectResourceStatement BuildGetSingleSql(string schemaName, string entityName, string id, string fields = "", string include = "", DateTimeOffset? asOf = null);
+  SelectEventLogStatement BuildGetEventLogSql(string schemaName, string entityName, string id, DateTimeOffset asOf);
 
   InsertStatement BuildPostSingleSql(string schemaName, string entityName, JsonDocument jsonResourceRequestBody);
   UpdateStatement BuildPutSingleSql(string schemaName, string entityName, string id, JsonDocument jsonResourceRequestBody);

@@ -32,6 +32,32 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
     return new ReaderConnection(c);
   }
 
+  internal override SelectEventLogStatement GetSelectEventLog(Entity entity, string id, DateTimeOffset asOf)
+  {
+    Dictionary<string, object> parameters = new Dictionary<string, object> 
+    {
+      { "schema_name", entity.SchemaName },
+      { "table_name", entity.Name},
+      { "entity_id", entity.PrimaryKey?.Name ?? "id"},
+      { "as_of", asOf},
+    };
+    return new SelectEventLogStatement(
+      "SELECT " +
+      "pk as \"Pk\", " +
+      "event_date as \"EventDate\", " +
+      "domain as \"Domain\", " +
+      "entity as \"Entity\", " +
+      "id as \"Id\", " +
+      "patch as \"Patch\" " +
+      "FROM patchwork.patchwork_event_log " +
+      "WHERE domain = @schema_name " +
+      "AND entity = @table_name " +
+      "AND id = @entity_id " +
+      "AND event_date <= @as_of ",
+      parameters);
+    
+  }
+
   internal override string BuildSelectClause(string fields, Entity entity)
   {
     string schemaPrefix = string.IsNullOrEmpty(entity.SchemaName) ? string.Empty : $"{entity.SchemaName}.";

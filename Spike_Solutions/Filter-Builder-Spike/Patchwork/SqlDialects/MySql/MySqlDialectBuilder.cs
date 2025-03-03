@@ -44,6 +44,31 @@ public class MySqlDialectBuilder : SqlDialectBuilderBase
 
     return $"SELECT {fieldList} FROM {schemaPrefix}{entity.Name} AS t_{entity.Name}";
   }
+
+  internal override SelectEventLogStatement GetSelectEventLog(Entity entity, string id, DateTimeOffset asOf)
+  {
+    Dictionary<string, object> parameters = new Dictionary<string, object>
+    {
+      { "schema_name", entity.SchemaName },
+      { "table_name", entity.Name},
+      { "entity_id", entity.PrimaryKey?.Name ?? "id"},
+      { "as_of", asOf},
+    };
+    return new SelectEventLogStatement(
+      "SELECT `P`.`pk` as `Pk`, " +
+      "`P`.`event_date` as `EventDate`, " +
+      "`P`.`domain` as `Domain`, " +
+      "`P`.`entity` as `Entity`, " +
+      "`P`.`id` as `Id`, " +
+      "`P`.`patch` as `Patch` " +
+      "FROM `patchwork`.`patchwork_event_log` as `P` " +
+      "WHERE `P`.`domain` = @schema_name " +
+      "AND `P`.`entity` = @table_name " +
+      "AND `P`.`id` = @entity_id " +
+      "AND `P`.`event_date` <= @as_of ",
+      parameters);
+  }
+
   internal override string BuildCountClause(Entity entity)
   {
     string schemaPrefix = string.IsNullOrEmpty(entity.SchemaName) ? string.Empty : $"{entity.SchemaName}.";
