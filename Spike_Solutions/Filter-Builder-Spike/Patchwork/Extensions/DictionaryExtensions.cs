@@ -19,7 +19,33 @@ public static class DictionaryExtensions
       // TODO: We may be able to expand this method to handle more complex data types. For example, if the column is
       // a string we may be able to convert it to a Dapper DbType with the appropirate maximium character length. This
       // could avoid unnecessary cast conversions in the database.
-      keyValuePairs[key] = Convert.ChangeType(keyValuePairs[key], col.DataFormat);
+      switch (col.DataFormat.Name)
+      {
+        case "Guid":
+          keyValuePairs[key] = Guid.Parse(keyValuePairs[key].ToString());
+          break;
+        case "Int32":
+          keyValuePairs[key] = int.Parse(keyValuePairs[key].ToString());
+          break;
+        case "Int64":
+          keyValuePairs[key] = long.Parse(keyValuePairs[key].ToString());
+          break;
+        case "Decimal":
+          keyValuePairs[key] = decimal.Parse(keyValuePairs[key].ToString());
+          break;
+        case "DateTime":
+          keyValuePairs[key] = DateTime.Parse(keyValuePairs[key].ToString());
+          break;
+        case "Boolean":
+          keyValuePairs[key] = bool.Parse(keyValuePairs[key].ToString());
+          break;
+        case "String":
+          keyValuePairs[key] = keyValuePairs[key].ToString();
+          break;
+        default:
+          keyValuePairs[key] = Convert.ChangeType(keyValuePairs[key], col.DataFormat);
+          break;
+      }
     }
   }
 

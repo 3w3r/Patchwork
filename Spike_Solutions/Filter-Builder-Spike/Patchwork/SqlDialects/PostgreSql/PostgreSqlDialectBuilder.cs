@@ -53,7 +53,8 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
     {
       { "schema_name", entity.SchemaName },
       { "table_name", entity.Name},
-      { "entity_id", entity.PrimaryKey?.Name ?? "id"},
+      //{ "entity_id", entity.PrimaryKey?.Name ?? "id"},
+      { "entity_id", id},
       { "as_of", asOf},
     };
     return new SelectEventLogStatement(
@@ -68,7 +69,8 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
       "WHERE p.domain = @schema_name " +
       "AND p.entity = @table_name " +
       "AND p.id = @entity_id " +
-      "AND p.event_date <= @as_of ",
+      "AND p.event_date <= @as_of " +
+      "ORDER BY p.event_date ",
       parameters);
   }
   internal override string BuildCountClause(Entity entity)
@@ -144,22 +146,28 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
     string schema = string.IsNullOrEmpty(entity.SchemaName) ? "" : $"{entity.SchemaName.ToLower()}.";
     return $"INSERT INTO {schema}{entity.Name.ToLower()} ";
   }
-  internal override string BuildColumnListForInsert(Entity entity)
+  internal override string BuildColumnListForInsert(Entity entity, Dictionary<string, object> parameters)
   {
     IEnumerable<string> list = entity.Columns
-                     .Where(x => !x.IsComputed && !x.IsAutoNumber)
-                     .OrderBy(x => x.IsPrimaryKey)
-                     .ThenBy(x => x.Name)
-                     .Select(x => x.Name.ToLower());
+                                     .Where(x => !x.IsComputed)
+                                     .Where(x => !x.IsAutoNumber)
+                                     .Where(x => parameters.Keys.Contains(x.Name))
+                                     .OrderBy(x => x.IsPrimaryKey)
+                                     .ThenBy(x => x.Name)
+                                     .Select(x => x.Name.ToLower());
+    
     return $"({string.Join(", ", list)})";
   }
-  internal override string BuildParameterListForInsert(Entity entity)
+  internal override string BuildParameterListForInsert(Entity entity, Dictionary<string, object> parameters)
   {
     IEnumerable<string> list = entity.Columns
-                     .Where(x => !x.IsComputed && !x.IsAutoNumber)
-                     .OrderBy(x => x.IsPrimaryKey)
-                     .ThenBy(x => x.Name)
-                     .Select(x => $"@{x.Name.ToLower()}");
+                                     .Where(x => !x.IsComputed)
+                                     .Where(x => !x.IsAutoNumber)
+                                     .Where(x => parameters.Keys.Contains(x.Name))
+                                     .OrderBy(x => x.IsPrimaryKey)
+                                     .ThenBy(x => x.Name)
+                                     .Select(x => $"@{x.Name.ToLower()}");
+
     return $"VALUES ({string.Join(", ", list)}) RETURNING *";
   }
 

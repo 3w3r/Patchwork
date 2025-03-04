@@ -6,7 +6,8 @@ namespace Patchwork.Repository;
 public interface IPatchworkRepository
 {
   GetListResult GetList(string schemaName, string entityName, string fields = "", string filter = "", string sort = "", int limit = 0, int offset = 0);
-  GetResourceResult GetResource(string schemaName, string entityName, string id, string fields = "", string include = "", DateTimeOffset? asOf = null);
+  GetResourceResult GetResource(string schemaName, string entityName, string id, string fields = "", string include = "");
+  GetResourceResult GetResourceAsOf(string schemaName, string entityName, string id, DateTimeOffset asOf);
   PostResult PostResource(string schemaName, string entityName, JsonDocument jsonResourceRequestBody);
   PutResult PutResource(string schemaName, string entityName, string id, JsonDocument jsonResourceRequestBody);
   DeleteResult DeleteResource(string schemaName, string entityName, string id);

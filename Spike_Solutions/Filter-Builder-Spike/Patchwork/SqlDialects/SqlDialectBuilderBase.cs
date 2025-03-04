@@ -157,12 +157,14 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
 
     Entity entity = FindEntity(schemaName, entityName);
     string insert = BuildInsertClause(entity);
-    string columnList = BuildColumnListForInsert(entity);
-    string paramsList = BuildParameterListForInsert(entity);
 
     Dictionary<string, object> parameters = new Dictionary<string, object>();
     parameters.AddJsonResourceToDictionary(jsonResourceRequestBody);
     parameters.SetParameterDataTypes(entity);
+
+    string columnList = BuildColumnListForInsert(entity, parameters);
+    string paramsList = BuildParameterListForInsert(entity, parameters);
+
 
     return new InsertStatement($"{insert} {columnList} {paramsList}", parameters);
   }
@@ -240,8 +242,8 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
   internal abstract string BuildLimitOffsetClause(int limit, int offset);
 
   internal abstract string BuildInsertClause(Entity entity);
-  internal abstract string BuildColumnListForInsert(Entity entity);
-  internal abstract string BuildParameterListForInsert(Entity entity);
+  internal abstract string BuildColumnListForInsert(Entity entity, Dictionary<string, object> parameters);
+  internal abstract string BuildParameterListForInsert(Entity entity, Dictionary<string, object> parameters);
 
   internal abstract string BuildUpdateClause(Entity entity);
   internal abstract string BuildSetClause(Dictionary<string, object> parameters, Entity entity);

@@ -11,4 +11,3 @@ public record PatchStatement(string Sql, Dictionary<string, object> Parameters);
 
 // SECONDARY SQL COMMANDS
 public record FilterStatement(string Sql, Dictionary<string, object> Parameters);
-public record PatchworkLogEvent(long Pk, DateTimeOffset EventDate, string Domain, string Entity, string Id, string Patch);

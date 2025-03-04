@@ -44,17 +44,13 @@ public class PatchworkRepository : IPatchworkRepository
   }
 
   public GetResourceResult GetResource(string schemaName, string entityName,
-    string id, string fields = "", string include = "", DateTimeOffset? asOf = null)
+    string id, string fields = "", string include = "")
   {
-    //TODO: Need to implement recovery of object from Patchwork Event Log
-    if (asOf != null || asOf < DateTime.UtcNow.AddSeconds(-1))
-      throw new NotImplementedException();
-
     //TODO: Need to implement repacking of the result into an object hierarchy breakdown instead of flat record results.
     if(!string.IsNullOrEmpty(include)) 
       throw new NotImplementedException();
     
-    SelectResourceStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id, fields, include, asOf);
+    SelectResourceStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id, fields, include);
     using ReaderConnection connect = this.sqlDialect.GetReaderConnection();
     IEnumerable<dynamic> found = connect.Connection.Query(select.Sql, select.Parameters);
 
@@ -65,7 +61,7 @@ public class PatchworkRepository : IPatchworkRepository
       return new GetResourceResult(found.ToList());
   }
 
-  protected JsonDocument RebuildResource(string schemaName, string entityName, string id, DateTimeOffset asOf)
+  public GetResourceResult GetResourceAsOf(string schemaName, string entityName, string id, DateTimeOffset asOf)
   {
     var select = this.sqlDialect.BuildGetEventLogSql(schemaName, entityName, id, asOf);
     using ReaderConnection connect = this.sqlDialect.GetReaderConnection();
@@ -77,7 +73,20 @@ public class PatchworkRepository : IPatchworkRepository
       var patch = JsonSerializer.Deserialize<JsonPatch>(log.Patch);
       if (patch == null)
         throw new InvalidDataException($"The JSON Patch could not be read  \n {log}");
-      
+
+      if (patch.Operations.Count == 1)
+      {
+        var op = patch.Operations.First();
+        if (op.Op == OperationType.Remove 
+          && op.Path.Contains(schemaName, StringComparer.OrdinalIgnoreCase)
+          && op.Path.Contains(entityName, StringComparer.OrdinalIgnoreCase)
+          && op.Path.Contains(id, StringComparer.OrdinalIgnoreCase))
+        {
+          resource = JsonDocument.Parse("{}");
+          continue;
+        }
+      }
+
       var changed = patch.Apply(resource);
       if (changed == null)
         throw new InvalidDataException($"The JSON Patch could not be applied \n {log}");
@@ -85,7 +94,7 @@ public class PatchworkRepository : IPatchworkRepository
       resource = changed;
 
     }
-    return resource;
+    return new GetResourceResult(resource);
 
   }
 

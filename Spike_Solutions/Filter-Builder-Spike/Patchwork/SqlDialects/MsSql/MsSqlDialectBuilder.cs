@@ -64,7 +64,8 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
       "WHERE [P].[domain] = @schema_name " +
       "AND [P].[entity] = @table_name " +
       "AND [P].[id] = @entity_id " +
-      "AND [P].[event_date] <= @as_of ",
+      "AND [P].[event_date] <= @as_of " +
+      "ORDER BY [P].[event_date] ",
       parameters);
   }
 
@@ -141,22 +142,29 @@ public class MsSqlDialectBuilder : SqlDialectBuilderBase
     string schema = string.IsNullOrEmpty(entity.SchemaName) ? "" : $"[{entity.SchemaName}].";
     return $"INSERT INTO {schema}[{entity.Name}] ";
   }
-  internal override string BuildColumnListForInsert(Entity entity)
+  internal override string BuildColumnListForInsert(Entity entity, Dictionary<string, object> parameters)
   {
     IEnumerable<string> list = entity.Columns
-                     .Where(x => !x.IsComputed && !x.IsAutoNumber)
-                     .OrderBy(x => x.IsPrimaryKey)
-                     .ThenBy(x => x.Name)
-                     .Select(x => $"[{x.Name}]");
+                                     .Where(x => !x.IsComputed)
+                                     .Where(x => !x.IsAutoNumber)
+                                     .Where(x => parameters.Keys.Contains(x.Name))
+                                     .OrderBy(x => x.IsPrimaryKey)
+                                     .ThenBy(x => x.Name)
+                                     .Select(x => $"[{x.Name}]");
+
     return $"({string.Join(", ", list)}) OUTPUT inserted.*";
   }
-  internal override string BuildParameterListForInsert(Entity entity)
+  internal override string BuildParameterListForInsert(Entity entity, Dictionary<string, object> parameters)
   {
     IEnumerable<string> list = entity.Columns
-                     .Where(x => !x.IsComputed && !x.IsAutoNumber)
-                     .OrderBy(x => x.IsPrimaryKey)
-                     .ThenBy(x => x.Name)
-                     .Select(x => $"@{x.Name}");
+                                     .Where(x => !x.IsComputed)
+                                     .Where(x => !x.IsAutoNumber)
+                                     .Where(x => parameters.Keys.Contains(x.Name))
+                                     .Where(x => parameters.Keys.Contains(x.Name))
+                                     .OrderBy(x => x.IsPrimaryKey)
+                                     .ThenBy(x => x.Name)
+                                     .Select(x => $"@{x.Name}");
+
     return $"VALUES ({string.Join(", ", list)})";
   }
 
