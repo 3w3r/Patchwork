@@ -151,7 +151,7 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
     IEnumerable<string> list = entity.Columns
                                      .Where(x => !x.IsComputed)
                                      .Where(x => !x.IsAutoNumber)
-                                     .Where(x => parameters.Keys.Contains(x.Name))
+                                     .Where(x => parameters.Keys.Contains(x.Name, StringComparer.OrdinalIgnoreCase))
                                      .OrderBy(x => x.IsPrimaryKey)
                                      .ThenBy(x => x.Name)
                                      .Select(x => x.Name.ToLower());
@@ -163,7 +163,7 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
     IEnumerable<string> list = entity.Columns
                                      .Where(x => !x.IsComputed)
                                      .Where(x => !x.IsAutoNumber)
-                                     .Where(x => parameters.Keys.Contains(x.Name))
+                                     .Where(x => parameters.Keys.Contains(x.Name, StringComparer.OrdinalIgnoreCase))
                                      .OrderBy(x => x.IsPrimaryKey)
                                      .ThenBy(x => x.Name)
                                      .Select(x => $"@{x.Name.ToLower()}");

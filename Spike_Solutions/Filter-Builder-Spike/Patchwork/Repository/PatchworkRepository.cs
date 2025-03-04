@@ -20,7 +20,7 @@ public class PatchworkRepository : IPatchworkRepository
 {
   protected readonly IPatchworkAuthorization authorization;
   protected readonly ISqlDialectBuilder sqlDialect;
-  private JsonDocument empty = JsonDocument.Parse("{}");
+  private readonly JsonDocument empty = JsonDocument.Parse("{}");
 
   public PatchworkRepository(IPatchworkAuthorization auth, ISqlDialectBuilder sql)
   {
