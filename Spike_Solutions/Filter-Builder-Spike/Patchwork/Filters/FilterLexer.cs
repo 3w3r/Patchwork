@@ -237,9 +237,13 @@ public class FilterLexer
     {
       return new FilterToken(FilterTokenType.DateTime, _entity.Name, dt.ToUniversalTime().ToString("o"), $"V{_placeholderCount++}");
     }
+    else if (Guid.TryParse(value, out Guid uuid))
+    {
+      return new FilterToken(FilterTokenType.UUID, _entity.Name, value, $"V{_placeholderCount++}");
+    }
     else
     {
-      return new FilterToken(FilterTokenType.Textual, _entity.Name, sb.ToString(), $"V{_placeholderCount++}");
+      return new FilterToken(FilterTokenType.Textual, _entity.Name, value, $"V{_placeholderCount++}");
     }
   }
 

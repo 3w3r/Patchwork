@@ -1,13 +1,9 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Nodes;
-using Dapper;
-using Json.More;
 using Json.Patch;
 using Microsoft.AspNetCore.Mvc;
 using Patchwork.Authorization;
 using Patchwork.Repository;
 using Patchwork.SqlDialects;
-using Patchwork.SqlStatements;
 
 namespace Patchwork.Api.Controllers;
 
@@ -37,15 +33,11 @@ public class PatchworkEndpoints : Controller
     [FromQuery] int limit = 0,
     [FromQuery] int offset = 0)
   {
-    // if (!authorization.GetPermissionToCollection(schemaName, entityName, this.User).HasFlag(Permission.Get))
-    //   return this.Unauthorized();
+    // if (!authorization.GetPermissionToCollection(schemaName, entityName, this.User).HasFlag(Permission.Get)) return this.Unauthorized();
     schemaName = NormalizeSchemaName(schemaName);
 
     GetListResult found = Repository.GetList(schemaName, entityName, fields, filter, sort, limit, offset);
-
-    int pageSize = found.Limit != found.Resources.Count() ? found.Resources.Count() : found.Limit;
-
-    this.Response.Headers.Append("Content-Range", $"items {found.Offset}-{found.Offset+pageSize}/{found.TotalCount}");
+    this.Response.Headers.AddContentRangeHeader(found);
 
     return Json(found.Resources);
   }
@@ -61,8 +53,7 @@ public class PatchworkEndpoints : Controller
     [FromQuery] string include = "",
     [FromQuery] DateTimeOffset? asOf = null)
   {
-    // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Get))
-    //   return this.Unauthorized();
+    // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Get)) return this.Unauthorized();
     schemaName = NormalizeSchemaName(schemaName);
     GetResourceResult found = Repository.GetResource(schemaName, entityName, id, fields, include, asOf);
 
@@ -79,8 +70,7 @@ public class PatchworkEndpoints : Controller
     [FromRoute] string entityName,
     [FromBody] JsonDocument jsonResourceRequestBody)
   {
-    // if (!authorization.GetPermissionToResource(schemaName, entityName, this.User).HasFlag(Permission.Post))
-    //   return this.Unauthorized();
+    // if (!authorization.GetPermissionToResource(schemaName, entityName, this.User).HasFlag(Permission.Post)) return this.Unauthorized();
     schemaName = NormalizeSchemaName(schemaName);
     try
     {
@@ -104,13 +94,12 @@ public class PatchworkEndpoints : Controller
     [FromRoute] string id,
     [FromBody] JsonDocument jsonResourceRequestBody)
   {
-    // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Put))
-    //   return this.Unauthorized();
+    // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Put)) return this.Unauthorized();
     schemaName = NormalizeSchemaName(schemaName);
     try
     {
       PutResult updated = this.Repository.PutResource(schemaName, entityName, id, jsonResourceRequestBody);
-      this.Response.Headers.Append("X-Json-Patch-Changes", JsonSerializer.Serialize(updated.Changes));
+      this.Response.Headers.AddPatchChangesHeader(updated.Changes);
       return Json(updated.Resource);
     }
     catch (Exception ex)
@@ -128,8 +117,7 @@ public class PatchworkEndpoints : Controller
     [FromRoute] string entityName,
     [FromRoute] string id)
   {
-    // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Delete))
-    //   return this.Unauthorized();
+    // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Delete)) return this.Unauthorized();
     schemaName = NormalizeSchemaName(schemaName);
     try
     {
@@ -154,8 +142,7 @@ public class PatchworkEndpoints : Controller
     [FromRoute] string entityName,
     [FromBody] JsonPatch jsonPatchRequestBody)
   {
-    // if (!authorization.GetPermissionToCollection(schemaName, entityName, this.User).HasFlag(Permission.Patch))
-    //   return this.Unauthorized();
+    // if (!authorization.GetPermissionToCollection(schemaName, entityName, this.User).HasFlag(Permission.Patch)) return this.Unauthorized();
     schemaName = NormalizeSchemaName(schemaName);
         try
         {
@@ -179,11 +166,11 @@ public class PatchworkEndpoints : Controller
     [FromRoute] string id,
     [FromBody] JsonPatch jsonPatchRequestBody)
   {
-    // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Patch))
-    //   return this.Unauthorized();
+    // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Patch)) return this.Unauthorized();
     schemaName = NormalizeSchemaName(schemaName);
 
-    var result = this.Repository.PatchResource(schemaName, entityName, id, jsonPatchRequestBody);
+    PatchResourceResult result = this.Repository.PatchResource(schemaName, entityName, id, jsonPatchRequestBody);
+    this.Response.Headers.AddPatchChangesHeader(result.Changes);
 
     return this.Json(result.Resource);
 
@@ -194,5 +181,18 @@ public class PatchworkEndpoints : Controller
     if (schemaName.Equals("surveys", StringComparison.OrdinalIgnoreCase))
       schemaName = sqlDialect.DefaultSchemaName;
     return schemaName;
+  }
+}
+
+public static class ControllerExtensions
+{
+  public static void AddContentRangeHeader(this IHeaderDictionary headers, GetListResult found)
+  {
+    int pageSize = found.Limit != found.Count ? found.Count : found.Limit;
+    headers.Append("Content-Range", $"items {found.Offset}-{found.Offset + pageSize}/{found.TotalCount}");
+  }
+  public static void AddPatchChangesHeader(this IHeaderDictionary headers, JsonPatch changes)
+  {
+    headers.Append("X-Json-Patch-Changes", JsonSerializer.Serialize(changes));
   }
 }

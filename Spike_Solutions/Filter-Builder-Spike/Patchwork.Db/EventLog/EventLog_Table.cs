@@ -2,7 +2,7 @@
 
 namespace Patchwork.Db.EventLog;
 
-[Migration(202502120945)]
+[Migration(202501120945)]
 public class EventLog_Table : AutoReversingMigration
 {
   public override void Up()

@@ -34,7 +34,10 @@ public class PatchworkRepository : IPatchworkRepository
     using ReaderConnection connect = this.sqlDialect.GetReaderConnection();
     IEnumerable<dynamic> found = connect.Connection.Query(select.Sql, select.Parameters);
     long count = connect.Connection.ExecuteScalar<long>(select.CountSql, select.Parameters);
-    string lastId = this.sqlDialect.GetPkValue(schemaName, entityName, found.Last());
+
+    string lastId = found.Any()
+      ? this.sqlDialect.GetPkValue(schemaName, entityName, found.Last())
+      : string.Empty;
 
     return new GetListResult(found.ToList(), count, lastId, PagingToken.ParseLimit(limit), offset);
   }

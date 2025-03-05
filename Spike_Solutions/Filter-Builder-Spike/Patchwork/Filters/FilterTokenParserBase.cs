@@ -49,6 +49,10 @@ public abstract class FilterTokenParserBase
           parameters.Add(_tokens[i].ParameterName, _tokens[i].Value);
         }
       }
+      else if (i > 0 && _tokens[i].Type == FilterTokenType.UUID)
+      {
+        parameters.Add(_tokens[i].ParameterName, Guid.Parse(_tokens[i].Value));
+      }
       else if (i > 0 && _tokens[i].Type == FilterTokenType.Numeric)
       {
         parameters.Add(_tokens[i].ParameterName, CastParameterValue(_decimal!, _tokens[i].Value));
@@ -68,7 +72,6 @@ public abstract class FilterTokenParserBase
   {
     return $"%{token.Value}%";
   }
-
   protected object CastParameterValue(Type dataFormat, object value)
   {
     if (dataFormat == _dateTimeOffset)
