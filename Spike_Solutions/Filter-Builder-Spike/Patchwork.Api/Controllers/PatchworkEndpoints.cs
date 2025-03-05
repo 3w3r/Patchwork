@@ -157,49 +157,17 @@ public class PatchworkEndpoints : Controller
     // if (!authorization.GetPermissionToCollection(schemaName, entityName, this.User).HasFlag(Permission.Patch))
     //   return this.Unauthorized();
     schemaName = NormalizeSchemaName(schemaName);
-
-
-    /*  for x in patch list
-     *   if x.id not in dictionary  
-     *    add new dictionary entry x.id
-     *   
-     *   add x to dictionary entry x.id
-     *   
-     *  for p in dictionary
-     *   perform operation p
-     * 
-     */
-
-
-
-
-
-    //TODO: The incoming JSON Patch will have opertions for one or more entities in the system. We identify which
-    //      entities are being changed by the `path` element. The prefix on each path element will be the URL needed
-    //      to access an entity's GET RESOURCE endpoint and the suffix will indicate which elements inside the entity
-    //      are being modified. To apply a group JSON Patch, we use this procedure:
-    //
-    // 1. Read the incoming JSON Patch and group all operations by the first parameters in the `path` element.
-    // 2. Create a new JSON Patch object for each entity being modified.
-    // 3. Remove the prefix of `schema/entity/id` from each operation as it is added to the new JSON Patch document.
-    // 4. Add the opertion with the shortned `path` to the matching element in new list of JSON Patch documents.
-    //    4.1 Some operations target existing records for modification and have a suffix for the element to modify,
-    //        These operations will be used to perform UPDATE statements against the database.
-    //    4.2 Some operations will insert a new record and they have an id of `-`. These operations will be used 
-    //        to perform INSERT statements against the database.
-    //    4.3 Some `remove` operations will target an entity by have no suffix. In this case, the system will create
-    //        a DELETE statement to remove the entity from the system.
-    // 5. Begin a database transaction.
-    // 6. For each JSON Patch in the new list:
-    //    6.1 Read the entity from the database that matches the `PATH` prefix
-    //    6.2 Apply the JSON Patch to the object
-    //    6.3 Generate a PUT statement for the new object version
-    //    6.4 Execute the PUT statement against the database
-    //    6.5 Save the JSON Patch into the event log
-    // 7. If all changes succeed without error, then we can commit the transaction. But, if any operations fail, then
-    //    we MUST rollback all changes. The entire JSON Patch list must succeed or the entire list must fail.
-
-    return Accepted();
+        try
+        {
+            PatchListResult result = this.Repository.PatchList(schemaName, entityName, jsonPatchRequestBody);
+            //Add header w/ changes
+            return this.Json(result);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex.Message);
+            return BadRequest(ex.Message);
+        }
   }
 
   [HttpPatch]

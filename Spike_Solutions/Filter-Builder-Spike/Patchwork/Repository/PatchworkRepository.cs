@@ -64,33 +64,15 @@ public class PatchworkRepository : IPatchworkRepository
   public PostResult PostResource(string schemaName, string entityName, JsonDocument jsonResourceRequestBody)
   {
     Entity entity = this.sqlDialect.FindEntity(schemaName, entityName);
-    InsertStatement sql = this.sqlDialect.BuildPostSingleSql(schemaName, entityName, jsonResourceRequestBody);
     using WriterConnection connect = this.sqlDialect.GetWriterConnection();
     try
-    {
-      IEnumerable<dynamic> found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
-      if (found.Count() < 1)
-        throw new System.Data.InvalidExpressionException($"Insert Failed for {schemaName}:{entityName}");
+        {
+            PostResult result = PostHandler(schemaName, entityName, jsonResourceRequestBody, connect);
 
-      dynamic inserted = found.First();
-      dynamic id = this.sqlDialect.GetPkValue(schemaName, entityName, inserted);
-
-      JsonPatch patch;
-      if (this.sqlDialect.HasPatchTrackingEnabled())
-      {
-        patch = this.sqlDialect.BuildDiffAsJsonPatch(empty, jsonResourceRequestBody);
-        //InsertStatement insertPatch = this.sqlDialect.GetInsertStatementForPatchworkLog(schemaName, entityName, id.ToString(), patch);
-        //IEnumerable<dynamic> patchCount = connect.Connection.Query(insertPatch.Sql, insertPatch.Parameters, connect.Transaction);
-        AddPatchToLog(connect, schemaName, entityName, id, patch);
-      }
-      else
-        patch = new JsonPatch();
-
-
-      connect.Transaction.Commit();
-      return new PostResult(id, inserted, patch);
-    }
-    catch (Exception ex)
+            connect.Transaction.Commit();
+            return result;
+        }
+        catch (Exception ex)
     {
       System.Diagnostics.Debug.WriteLine(ex.Message);
       connect.Transaction.Rollback();
@@ -98,7 +80,7 @@ public class PatchworkRepository : IPatchworkRepository
     }
   }
 
-  public PutResult PutResource(string schemaName, string entityName, string id, JsonDocument jsonResourceRequestBody)
+    public PutResult PutResource(string schemaName, string entityName, string id, JsonDocument jsonResourceRequestBody)
   {
     SelectResourceStatement select = this.sqlDialect.BuildGetSingleSql(schemaName, entityName, id);
     UpdateStatement update = this.sqlDialect.BuildPutSingleSql(schemaName, entityName, id, jsonResourceRequestBody);
@@ -163,11 +145,11 @@ public class PatchworkRepository : IPatchworkRepository
   {
         Dictionary<string, JsonPatch> patchDictionary = jsonPatchRequestBody.SplitById();
 
-        using ActiveConnection connect = this.sqlDialect.GetConnection();
+        using WriterConnection connect = this.sqlDialect.GetWriterConnection();
 
         try
         {
-            PatchListResult results = new PatchListResult(new List<PatchResourceResult>(), new List<PatchResourceResult>(), new List<PatchResourceResult>());
+            PatchListResult results = new PatchListResult(new List<PatchResourceResult>(), new List<PatchResourceResult>(), new List<PatchDeleteResult>());
 
             foreach (var patch in patchDictionary)
             {
@@ -175,6 +157,8 @@ public class PatchworkRepository : IPatchworkRepository
                 {
                     //Create new record
 
+
+                    PostHandler(schemaName, entityName, JsonDocument.Parse(patch.Value.Operations.First().Value!.ToString()), connect);
                     //results.Inserted.Add(new PatchResourceResult())
                 }
                 else if (patch.Value.Operations.First().Op.ToString() == "Remove")
@@ -184,7 +168,7 @@ public class PatchworkRepository : IPatchworkRepository
                     int updated = connect.Connection.Execute(delete.Sql, delete.Parameters, connect.Transaction);
                     if (updated < 1)
                         throw new System.Data.RowNotInTableException();
-                    //results.Deleted.Add(new PatchResourceResult(patch.Key));
+                    results.Deleted.Add(new PatchDeleteResult(patch.Key, patch.Value));
                 }
                 else
                 {
@@ -192,13 +176,15 @@ public class PatchworkRepository : IPatchworkRepository
                     //results.Updated.Add(new PatchResourceResult())
                 }
             }
+            connect.Transaction.Commit();
+            return results;
         }
         catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine(ex.Message);
             connect.Transaction.Rollback();
             throw;
         }
-        throw new NotImplementedException();
   }
 
   public PatchResourceResult PatchResource(string schemaName, string entityName, string id, JsonPatch jsonPatchRequestBody)
@@ -228,8 +214,9 @@ public class PatchworkRepository : IPatchworkRepository
 
       return new PatchResourceResult(id, afterObject, patch);
     }
-    catch (Exception)
+    catch (Exception ex)
     {
+      System.Diagnostics.Debug.WriteLine(ex.Message);
       connect.Transaction.Rollback();
       throw;
     }
@@ -240,5 +227,28 @@ public class PatchworkRepository : IPatchworkRepository
     InsertStatement insertPatch = this.sqlDialect.GetInsertStatementForPatchworkLog(schemaName, entityName, id.ToString(), patch);
     int patchedCount = connect.Connection.Execute(insertPatch.Sql, insertPatch.Parameters, connect.Transaction);
     return patchedCount > 0;
+  }
+
+  private PostResult PostHandler(string schemaName, string entityName, JsonDocument jsonResourceRequestBody, WriterConnection connect)
+  {
+      InsertStatement sql = this.sqlDialect.BuildPostSingleSql(schemaName, entityName, jsonResourceRequestBody);
+      IEnumerable<dynamic> found = connect.Connection.Query(sql.Sql, sql.Parameters, connect.Transaction);
+      if (found.Count() < 1)
+          throw new System.Data.InvalidExpressionException($"Insert Failed for {schemaName}:{entityName}");
+
+      dynamic inserted = found.First();
+      dynamic id = this.sqlDialect.GetPkValue(schemaName, entityName, inserted);
+
+      JsonPatch patch;
+      if (this.sqlDialect.HasPatchTrackingEnabled())
+      {
+          patch = this.sqlDialect.BuildDiffAsJsonPatch(empty, jsonResourceRequestBody);
+          //InsertStatement insertPatch = this.sqlDialect.GetInsertStatementForPatchworkLog(schemaName, entityName, id.ToString(), patch);
+          //IEnumerable<dynamic> patchCount = connect.Connection.Query(insertPatch.Sql, insertPatch.Parameters, connect.Transaction);
+          AddPatchToLog(connect, schemaName, entityName, id, patch);
+      }
+      else
+          patch = new JsonPatch();
+      return new PostResult(id, inserted, patch);
   }
 }
