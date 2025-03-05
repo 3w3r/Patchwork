@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Json.Patch;
 
@@ -12,6 +13,7 @@ public record GetListResult(List<dynamic> Resources, long TotalCount, string Las
   public int Count => Resources?.Count ?? 0;
 }
 public record GetResourceResult(dynamic Resource);
+public record GetResourceAsOfResult(JsonDocument Resource, int Version, DateTimeOffset AsOf);
 public record PostResult(string Id, dynamic Resource, JsonPatch Changes);
 public record PutResult(dynamic Resource, JsonPatch Changes);
 public record DeleteResult(bool Success, string Id);

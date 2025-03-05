@@ -16,10 +16,12 @@ public class SchemaDiscoveryBuilder
 
     IList<DatabaseTable> dbT = dbReader.AllTables().ToList();
     dbT = dbT.Where(t => !t.SchemaOwner.Equals("information_schema", StringComparison.OrdinalIgnoreCase)).ToList();
+    dbT = dbT.Where(t => !t.SchemaOwner.Equals("pg_catalog", StringComparison.OrdinalIgnoreCase)).ToList();
     dbT = dbT.Where(t => !(connection.GetType().Name.Contains("npgsql", StringComparison.OrdinalIgnoreCase) && t.Name.StartsWith("pg_"))).ToList();
 
     IList<DatabaseView> dbV = dbReader.AllViews().ToList();
     dbV = dbV.Where(v => !v.SchemaOwner.Equals("information_schema", StringComparison.OrdinalIgnoreCase)).ToList();
+    dbV = dbV.Where(t => !t.SchemaOwner.Equals("pg_catalog", StringComparison.OrdinalIgnoreCase)).ToList();
     dbV = dbV.Where(v => !(connection.GetType().Name.Contains("npgsql", StringComparison.OrdinalIgnoreCase) && v.Name.StartsWith("pg_"))).ToList();
 
     List<Schema> schemas = dbS.Select(s =>

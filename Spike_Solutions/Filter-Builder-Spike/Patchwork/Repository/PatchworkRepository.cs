@@ -61,7 +61,7 @@ public class PatchworkRepository : IPatchworkRepository
       return new GetResourceResult(found.ToList());
   }
 
-  public GetResourceResult GetResourceAsOf(string schemaName, string entityName, string id, DateTimeOffset asOf)
+  public GetResourceAsOfResult GetResourceAsOf(string schemaName, string entityName, string id, DateTimeOffset asOf)
   {
     var select = this.sqlDialect.BuildGetEventLogSql(schemaName, entityName, id, asOf);
     using ReaderConnection connect = this.sqlDialect.GetReaderConnection();
@@ -94,7 +94,7 @@ public class PatchworkRepository : IPatchworkRepository
       resource = changed;
 
     }
-    return new GetResourceResult(resource);
+    return new GetResourceAsOfResult(resource, found.Count(), found.Last().EventDate);
 
   }
 

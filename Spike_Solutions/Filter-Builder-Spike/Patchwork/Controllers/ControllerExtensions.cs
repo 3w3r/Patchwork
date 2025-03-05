@@ -20,10 +20,16 @@ public static class ControllerExtensions
     return filter;
   }
 
-  public static void AddContentRangeHeader(this IHeaderDictionary headers, GetListResult found)
+  public static void AddContentRangeHeader(this IHeaderDictionary headers, GetListResult result)
   {
-    int pageSize = found.Limit != found.Count ? found.Count : found.Limit;
-    headers.Append("Content-Range", $"items {found.Offset}-{found.Offset + pageSize}/{found.TotalCount}");
+    int pageSize = result.Limit != result.Count ? result.Count : result.Limit;
+    headers.Append("Content-Range", $"items {result.Offset}-{result.Offset + pageSize}/{result.TotalCount}");
+  }
+
+  public static void AddDateAndRevisionHeader(this IHeaderDictionary headers, GetResourceAsOfResult result)
+  {
+    headers.Append("Date", result.AsOf.ToUniversalTime().ToString("O"));
+    headers.Append("X-Resource-Version", $"{result.Version}");
   }
 
   public static void AddPatchChangesHeader(this IHeaderDictionary headers, JsonPatch changes)

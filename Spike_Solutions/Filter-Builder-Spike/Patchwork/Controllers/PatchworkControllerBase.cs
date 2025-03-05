@@ -43,18 +43,26 @@ public abstract class PatchworkControllerBase : Controller
   protected IActionResult GetResourceEndpoint(string schemaName, int version, string entityName, string id,
     string fields = "", string include = "", DateTimeOffset? asOf = null)
   {
-    GetResourceResult found;
     if (asOf.HasValue)
+    {
       // NOTE: Rebuilding a resource from the log to a specific point in time is much more expensive than
       //       just getting the current version of the entity. Also, includes and field projections are 
       //       not available when querying older versions of entities.
-      found = Repository.GetResourceAsOf(schemaName, entityName, id, asOf.Value);
-    else
-      found = Repository.GetResource(schemaName, entityName, id, fields, include);
+      GetResourceAsOfResult found = Repository.GetResourceAsOf(schemaName, entityName, id, asOf.Value);
+      this.Response.Headers.AddDateAndRevisionHeader(found);
 
-    if (found.Resource == null)
-      return NotFound();
-    return Json(found.Resource);
+      if (found.Resource == null)
+        return NotFound();
+      return Json(found.Resource);
+    }
+    else
+    {
+      GetResourceResult found = Repository.GetResource(schemaName, entityName, id, fields, include);
+
+      if (found.Resource == null)
+        return NotFound();
+      return Json(found.Resource);
+    }
   }
 
   protected IActionResult PostResourceEndpoint(string schemaName, int version, string entityName, JsonDocument jsonResourceRequestBody)
