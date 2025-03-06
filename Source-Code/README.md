@@ -38,5 +38,4 @@ sequenceDiagram
   Tokens -->> Parser : end loop
   destroy Parser
   Parser -->> SqlDialectBuilder : Return SQL String
-
 ```

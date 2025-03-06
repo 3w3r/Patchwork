@@ -278,8 +278,6 @@ public class PatchworkRepository : IPatchworkRepository
       if (this.sqlDialect.HasPatchTrackingEnabled())
       {
           patch = this.sqlDialect.BuildDiffAsJsonPatch(empty, jsonResourceRequestBody);
-          //InsertStatement insertPatch = this.sqlDialect.GetInsertStatementForPatchworkLog(schemaName, entityName, id.ToString(), patch);
-          //IEnumerable<dynamic> patchCount = connect.Connection.Query(insertPatch.Sql, insertPatch.Parameters, connect.Transaction);
           AddPatchToLog(connect, schemaName, entityName, id, patch);
       }
       else
