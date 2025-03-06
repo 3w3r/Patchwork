@@ -11,7 +11,7 @@ public record GetResourceResult(dynamic Resource);
 public record GetResourceAsOfResult(JsonDocument Resource, int Version, DateTimeOffset AsOf);
 public record PostResult(string Id, dynamic Resource, JsonPatch Changes);
 public record PutResult(dynamic Resource, JsonPatch Changes);
-public record DeleteResult(bool Success, string Id);
+public record DeleteResult(bool Success, string Id, JsonPatch? Changes);
 public record PatchResourceResult(string Id, dynamic Resource, JsonPatch Changes);
 public record PatchDeleteResult(string Id, JsonPatch Changes);
 public record PatchListResult(List<PatchResourceResult> Inserted, List<PatchResourceResult> Updated, List<PatchDeleteResult> Deleted);

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
 using Patchwork.DbSchema;
-using Patchwork.SqlDialects.Sqlite;
 
 namespace Patchwork.Tests.Sqlite_tests;
 public class SchemaDiscovery_Tests

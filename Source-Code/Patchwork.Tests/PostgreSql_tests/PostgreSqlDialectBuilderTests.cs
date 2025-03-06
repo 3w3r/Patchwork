@@ -1,6 +1,4 @@
 ﻿using Dapper;
-using Patchwork.Authorization;
-using Patchwork.Repository;
 using Patchwork.SqlDialects.PostgreSql;
 
 namespace Patchwork.Tests.PostgreSql_tests;
