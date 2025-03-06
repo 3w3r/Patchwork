@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 using Json.Patch;
 using Microsoft.AspNetCore.Mvc;
 using Patchwork.Authorization;
@@ -71,7 +65,7 @@ public abstract class PatchworkControllerBase : Controller
     {
       PostResult found = Repository.PostResource(schemaName, entityName, jsonResourceRequestBody);
 
-      return Created($"api/{schemaName}/v{version}/{entityName}/{found.id}", found.Resource);
+      return Created($"api/{schemaName}/v{version}/{entityName}/{found.Id}", found.Resource);
     }
     catch (Exception ex)
     {

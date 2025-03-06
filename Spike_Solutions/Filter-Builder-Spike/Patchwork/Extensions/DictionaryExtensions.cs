@@ -1,5 +1,8 @@
 ﻿using System.Text.Json;
+using Json.Patch;
+using Microsoft.AspNetCore.Http;
 using Patchwork.DbSchema;
+using Patchwork.Repository;
 
 namespace Patchwork.Extensions;
 
@@ -62,6 +65,23 @@ public static class DictionaryExtensions
       if (obj != null)
         keyValuePairs[prop.Name] = obj;
     }
+  }
+
+  public static void AddContentRangeHeader(this IHeaderDictionary headers, GetListResult found)
+  {
+    int pageSize = found.Limit != found.Count ? found.Count : found.Limit;
+    headers.Append("Content-Range", $"items {found.Offset}-{found.Offset + pageSize}/{found.TotalCount}");
+  }
+
+  public static void AddPatchChangesHeader(this IHeaderDictionary headers, JsonPatch changes)
+  {
+    headers.Append("X-Json-Patch-Changes", JsonSerializer.Serialize(changes));
+  }
+
+  public static void AddDateAndResourceVersionHeader(this IHeaderDictionary headers, GetResourceAsOfResult result)
+  {
+    headers.Append("Date", result.AsOf.ToUniversalTime().ToString("O"));
+    headers.Append("X-Resource-Version", result.Version.ToString());
   }
 
   private static object? ConvertJsonElement(JsonElement element)

@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Json.Patch;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Patchwork.Extensions;
 

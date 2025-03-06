@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Patchwork.Authorization;
 using Patchwork.Repository;
 using Patchwork.SqlDialects;
+using Patchwork.Extensions;
 
 namespace Patchwork.Api.Controllers;
 
@@ -55,11 +56,23 @@ public class PatchworkEndpoints : Controller
   {
     // if (!authorization.GetPermissionToResource(schemaName, entityName, id, this.User).HasFlag(Permission.Get)) return this.Unauthorized();
     schemaName = NormalizeSchemaName(schemaName);
-    GetResourceResult found = Repository.GetResource(schemaName, entityName, id, fields, include, asOf);
+    if (asOf == null)
+    {
+      GetResourceResult found = Repository.GetResource(schemaName, entityName, id, fields, include);
 
-    if (found.Resource == null)
-      return NotFound();
-    return Json(found.Resource);
+      if (found.Resource == null)
+        return NotFound();
+      return Json(found.Resource);
+
+    }
+    else
+    {
+      GetResourceAsOfResult found = Repository.GetResourceAsOf(schemaName, entityName, id, asOf.Value);
+
+      if (found.Resource == null)
+        return NotFound();
+      return Json(found.Resource);
+    }
   }
 
   [HttpPost]
@@ -144,17 +157,17 @@ public class PatchworkEndpoints : Controller
   {
     // if (!authorization.GetPermissionToCollection(schemaName, entityName, this.User).HasFlag(Permission.Patch)) return this.Unauthorized();
     schemaName = NormalizeSchemaName(schemaName);
-        try
-        {
-            PatchListResult result = this.Repository.PatchList(schemaName, entityName, jsonPatchRequestBody);
-            //Add header w/ changes
-            return this.Json(result);
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine(ex.Message);
-            return BadRequest(ex.Message);
-        }
+    try
+    {
+      PatchListResult result = this.Repository.PatchList(schemaName, entityName, jsonPatchRequestBody);
+      //Add header w/ changes
+      return this.Json(result);
+    }
+    catch (Exception ex)
+    {
+      System.Diagnostics.Debug.WriteLine(ex.Message);
+      return BadRequest(ex.Message);
+    }
   }
 
   [HttpPatch]
@@ -181,18 +194,5 @@ public class PatchworkEndpoints : Controller
     if (schemaName.Equals("surveys", StringComparison.OrdinalIgnoreCase))
       schemaName = sqlDialect.DefaultSchemaName;
     return schemaName;
-  }
-}
-
-public static class ControllerExtensions
-{
-  public static void AddContentRangeHeader(this IHeaderDictionary headers, GetListResult found)
-  {
-    int pageSize = found.Limit != found.Count ? found.Count : found.Limit;
-    headers.Append("Content-Range", $"items {found.Offset}-{found.Offset + pageSize}/{found.TotalCount}");
-  }
-  public static void AddPatchChangesHeader(this IHeaderDictionary headers, JsonPatch changes)
-  {
-    headers.Append("X-Json-Patch-Changes", JsonSerializer.Serialize(changes));
   }
 }
