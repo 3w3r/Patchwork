@@ -6,7 +6,6 @@ namespace Patchwork.Tests;
 
 public class BuildSelectStatement_Tests
 {
-
   [Fact]
   public void BuildSelectStatement_MsSql()
   {

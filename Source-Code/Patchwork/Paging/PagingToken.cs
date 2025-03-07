@@ -18,22 +18,33 @@ public class PagingToken
       Offset = 0; // Default offset to 0 if not provided
     }
   }
+
+  /// <summary>
+  /// Parses the limit value for the paging token.
+  /// </summary>
+  /// <param name="limit">The limit value to be parsed.</param>
+  /// <returns>The parsed limit value.</returns>
   public static int ParseLimit(int limit)
   {
+    // Check if the limit is greater than zero
     if (limit > 0)
     {
+      // Check if the limit is less than or equal to the maximum record limit
       if (limit <= PatchworkConfig.MaxRecordLimit)
       {
-        return limit; // Value between 0 and 5000 so use it
+        // If the limit is within the valid range, return the limit value
+        return limit;
       }
       else
       {
-        return PatchworkConfig.MaxRecordLimit; // Default limit to 5000 if greater than 5000
+        // If the limit is greater than the maximum record limit, return the maximum record limit
+        return PatchworkConfig.MaxRecordLimit;
       }
     }
     else
     {
-      return PatchworkConfig.MinRecordLimit; // Default limit to 25 if not provided or less than zero
+      // If the limit is not provided or less than zero, return the minimum record limit
+      return PatchworkConfig.MinRecordLimit;
     }
   }
 }

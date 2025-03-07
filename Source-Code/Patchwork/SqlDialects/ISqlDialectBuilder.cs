@@ -24,9 +24,6 @@ public interface ISqlDialectBuilder
   UpdateStatement BuildPutSingleSql(string schemaName, string entityName, string id, JsonDocument jsonResourceRequestBody);
   DeleteStatement BuildDeleteSingleSql(string schemaName, string entityName, string id);
 
-  PatchStatement BuildPatchListSql(string schemaName, string entityName, JsonPatch jsonPatchRequestBody);
-  PatchStatement BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatch jsonPatchRequestBody);
-
   JsonPatch BuildDiffAsJsonPatch(string original, string modified);
   JsonPatch BuildDiffAsJsonPatch(JsonDocument original, JsonDocument modified);
 

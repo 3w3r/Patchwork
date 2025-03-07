@@ -14,4 +14,4 @@ public record PutResult(dynamic Resource, JsonPatch Changes);
 public record DeleteResult(bool Success, string Id, JsonPatch? Changes);
 public record PatchResourceResult(string Id, dynamic Resource, JsonPatch Changes);
 public record PatchDeleteResult(string Id, JsonPatch Changes);
-public record PatchListResult(List<PatchResourceResult> Inserted, List<PatchResourceResult> Updated, List<PatchDeleteResult> Deleted);
+public record PatchListResult(List<PatchResourceResult> Created, List<PatchResourceResult> Updated, List<PatchDeleteResult> Deleted);

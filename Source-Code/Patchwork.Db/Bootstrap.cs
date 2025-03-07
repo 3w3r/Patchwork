@@ -5,7 +5,6 @@ namespace Patchwork.Db;
 [Migration(202501120930)]
 public class Bootstrap : Migration
 {
-
   public override void Up()
   {
     IfDatabase(t => t != ProcessorId.SQLite)
@@ -18,4 +17,3 @@ public class Bootstrap : Migration
               .Delete.Schema("patchwork");
   }
 }
-

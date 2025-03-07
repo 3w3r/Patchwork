@@ -156,6 +156,8 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
       throw new ArgumentException("JsonResourceRequestBody name is required.", nameof(jsonResourceRequestBody));
 
     Entity entity = FindEntity(schemaName, entityName);
+    if (entity.IsReadOnly)
+      throw new UnauthorizedAccessException($"Cannot create records in {entity.Name}");
     string insert = BuildInsertClause(entity);
 
     Dictionary<string, object> parameters = new Dictionary<string, object>();
@@ -165,10 +167,8 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     string columnList = BuildColumnListForInsert(entity, parameters);
     string paramsList = BuildParameterListForInsert(entity, parameters);
 
-
     return new InsertStatement($"{insert} {columnList} {paramsList}", parameters);
   }
-
   public virtual UpdateStatement BuildPutSingleSql(string schemaName, string entityName, string id, JsonDocument jsonResourceRequestBody)
   {
     if (string.IsNullOrEmpty(schemaName))
@@ -181,6 +181,8 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
       throw new ArgumentException("JsonResourceRequestBody name is required.", nameof(jsonResourceRequestBody));
 
     Entity entity = FindEntity(schemaName, entityName);
+    if (entity.IsReadOnly)
+      throw new UnauthorizedAccessException($"Cannot updated records in {entity.Name}");
     string update = BuildUpdateClause(entity);
     string where = BuildWherePkForUpdateClause(entity);
 
@@ -201,6 +203,8 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
       throw new ArgumentException("Entity Id name is required.", nameof(id));
 
     Entity entity = FindEntity(schemaName, entityName);
+    if (entity.IsReadOnly)
+      throw new UnauthorizedAccessException($"Cannot delete records from {entity.Name}");
     string delete = BuildDeleteClause(entity);
     string where = BuildWherePkForDeleteClause(entity);
     Dictionary<string, object> parameters = new Dictionary<string, object>() { { "id", id } };
@@ -209,13 +213,11 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     return new DeleteStatement($"{delete} {where}", parameters);
   }
 
-  public virtual PatchStatement BuildPatchListSql(string schemaName, string entityName, JsonPatch jsonPatchRequestBody) { throw new NotImplementedException(); }
-  public virtual PatchStatement BuildPatchSingleSql(string schemaName, string entityName, string id, JsonPatch jsonPatchRequestBody) { throw new NotImplementedException(); }
-
   public virtual JsonPatch BuildDiffAsJsonPatch(string original, string modified)
   {
     return BuildDiffAsJsonPatch(JsonDocument.Parse(original), JsonDocument.Parse(modified));
   }
+
   public virtual JsonPatch BuildDiffAsJsonPatch(JsonDocument original, JsonDocument modified)
   {
     JsonPatch patch = original.CreatePatch(modified);
@@ -308,5 +310,4 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
   {
     return new PagingToken(limit, offset);
   }
-
 }

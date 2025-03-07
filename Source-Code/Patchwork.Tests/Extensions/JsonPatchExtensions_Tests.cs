@@ -72,7 +72,6 @@ public class JsonPatchExtensions_Tests
     Assert.Equal("Remove", output["ME_9997"].Operations[0].Op.ToString());
     Assert.Equal("Remove", output["ME_9998"].Operations[0].Op.ToString());
     Assert.Equal("Remove", output["ME_9999"].Operations[0].Op.ToString());
-
   }
 
     [Fact]
@@ -100,14 +99,12 @@ public class JsonPatchExtensions_Tests
     Assert.Equal(1, output["-1"].Operations?.Count);
     Assert.Equal(1, output["-2"].Operations?.Count);
 
-
     IEnumerable<string> ME_2997Paths = output["ME_2997"].Operations.Select(a => { return a.Path.ToString(); });
     Assert.Contains<string>("/productName", ME_2997Paths);
 
     IEnumerable<string> ME_2999Paths = output["ME_2999"].Operations.Select(a => { return a.Path.ToString(); });
     Assert.Contains<string>("/productScale", ME_2999Paths);
     Assert.Contains<string>("/productVendor", ME_2999Paths);
-
 
     IEnumerable<string> ME_1997Operations = output["ME_1997"].Operations.Select(a => { return a.Op.ToString(); });
     Assert.Contains<string>("Remove", ME_1997Operations);
@@ -137,6 +134,5 @@ public class JsonPatchExtensions_Tests
     Assert.Equal("2025 Factory 5 MK2 Roadster", output["-0"].Operations[0]?.Value!.ToString());
     Assert.Equal("1:15", output["-1"].Operations[0]?.Value!.ToString());
     Assert.Equal("Autoart Studio Design", output["-2"].Operations[0]?.Value!.ToString());
-
   }
 }

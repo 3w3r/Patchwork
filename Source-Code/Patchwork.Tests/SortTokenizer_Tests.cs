@@ -51,7 +51,6 @@ public class SortTokenizer_Tests
   [InlineData("A,But_I_Think_This_Column_Name_Is_Really_Long:desc", "ORDER BY t_sorttest.a, t_sorttest.but_i_think_this_column_name_is_really_long desc")]
   public void Parse_ReturnsOrderByClause_PostgreSqlSuccessCases(string sort, string expected)
   {
-
     // Arrange
     PostgreSqlDialectBuilder sut = new PostgreSqlDialectBuilder(TestSampleData.DB);
 
@@ -72,13 +71,11 @@ public class SortTokenizer_Tests
   [InlineData("A,Bad;character", "Invalid sort expression: Invalid column names")]
   public void Parse_ThrowsArgumentException_ForInvalidSortExpression(string sort, string errorMessage)
   {
-
     MsSqlDialectBuilder sut = new MsSqlDialectBuilder(TestSampleData.DB);
 
     ArgumentException ex = Assert.ThrowsAny<ArgumentException>(() =>
     {
       string result = sut.BuildOrderByClause(sort, sut.FindEntity("dbo", "SortTest"));
-
     });
     if (ex == null)
       throw new Exception(errorMessage);

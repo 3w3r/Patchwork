@@ -7,7 +7,6 @@ public static class JsonPatchExtensions
 {
   public static Dictionary<string, JsonPatch> SplitById(this JsonPatch patch)
   {
-
     Dictionary<string, List<string>> patchDictionary = new Dictionary<string, List<string>>();
     int insertCounter = 0;
 
@@ -21,7 +20,6 @@ public static class JsonPatchExtensions
                 id = $"-{insertCounter++}";
                 newOperation = $"\"op\": \"add\",";
                 newOperation += $"\"path\": \"/-\",";
-
             }
             else if (pathList.First() != "-" && operation.Op.ToString() != "Add")
             {
@@ -35,7 +33,6 @@ public static class JsonPatchExtensions
             {
                 throw new ArgumentException($"Invalid path + operation combination! Operation \"{operation.Op.ToString()}\" not applicable to path \"{pathList.First()}\"");
             }
-
 
       if (!string.IsNullOrEmpty(operation.From?.ToString()))
       {
@@ -52,7 +49,6 @@ public static class JsonPatchExtensions
         patchDictionary.Add(id, new List<string>());
       }
       patchDictionary[id].Add(newOperation);
-
     }
 
     Dictionary<string, JsonPatch> returnableDictionary = new Dictionary<string, JsonPatch>();
@@ -67,10 +63,8 @@ public static class JsonPatchExtensions
         throw new ArgumentException($"Invalid patch! Patches including \"Add\" or \"Remove\" operations cannot have any other operations");
         returnableDictionary.Add(x.Key, asPatch);
       }
-
     }
 
     return returnableDictionary;
   }
-
 }

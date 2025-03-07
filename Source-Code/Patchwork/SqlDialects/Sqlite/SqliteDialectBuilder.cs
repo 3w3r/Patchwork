@@ -11,7 +11,6 @@ using Patchwork.SqlStatements;
 
 namespace Patchwork.SqlDialects.Sqlite;
 
-
 public class SqliteDialectBuilder : SqlDialectBuilderBase
 {
   public SqliteDialectBuilder(string connectionString) : base(connectionString, "") { }
@@ -56,7 +55,6 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
       "AND event_date <= @as_of " +
       "ORDER BY event_date ",
       parameters);
-    
   }
 
   internal override string BuildSelectClause(string fields, Entity entity)

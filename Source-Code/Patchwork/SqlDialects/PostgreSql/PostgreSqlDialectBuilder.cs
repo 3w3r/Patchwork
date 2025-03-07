@@ -171,7 +171,6 @@ public class PostgreSqlDialectBuilder : SqlDialectBuilderBase
     return $"VALUES ({string.Join(", ", list)}) RETURNING *";
   }
 
-
   internal override string BuildUpdateClause(Entity entity)
   {
     string schema = string.IsNullOrEmpty(entity.SchemaName) ? "" : $"{entity.SchemaName.ToLower()}.";

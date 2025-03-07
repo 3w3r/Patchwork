@@ -4,7 +4,6 @@ using Patchwork.SqlDialects.MySql;
 namespace Patchwork.Tests.MySql_tests;
 public class MySqlDialectBuilder_GetListTests
 {
-
   [Fact]
   public void BuildGetListSql_ShouldBuildSelectStatement_ForGetListEndpointWithStartsWith()
   {

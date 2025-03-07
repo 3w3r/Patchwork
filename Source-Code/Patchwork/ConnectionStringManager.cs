@@ -64,5 +64,4 @@ public static class ConnectionStringManager
       throw new KeyNotFoundException("Sqlite not found in configuration file.");
     return connectionString;
   }
-
 }

@@ -73,7 +73,9 @@ public class SqliteFilterTokenParser : FilterTokenParserBase
       throw new ArgumentException("Expected open paren to begin list of acceptable values");
     }
     else if (op.Value != "in" && !FilterTokenType.Value.HasFlag(value.Type))
+    {
       throw new ArgumentException("Expected value");
+    }
 
     sb.Append($"t_{identifier.EntityName}.{identifier.Value} {ConvertOperator(op.Value)} ");
 
