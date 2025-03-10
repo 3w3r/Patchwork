@@ -1,0 +1,109 @@
+@Patchwork.Api_HostAddress = https://localhost:56850
+
+GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/employees?filter=firstName%20eq%20'Leslie'
+Accept: application/json
+
+###
+
+
+GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/employees?filter=jobTitle%20eq%20'Sales%20Rep'
+Accept: application/json
+
+###
+
+
+GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products?filter=quantityInStock%20gt%20100&limit=10&offset=50
+Accept: application/json
+
+###
+
+
+GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/employees/1625
+Accept: application/json
+
+
+###
+
+GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/employees/1625?include=offices
+Accept: application/json
+
+
+###
+
+GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/productlines/Planes?include=products
+Accept: application/json
+
+
+###
+
+GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products?filter=productLine%20eq%20'Classic%20Cars'
+Accept: application/json
+
+###
+
+GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products?offset=25&filter=productLine%20eq%20'Classic%20Cars'
+Accept: application/json
+
+###
+
+POST {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products
+Content-Type: application/json
+Accept: application/json
+
+{
+  "productcode": "ME_9999",
+  "productname": "2024 Factory 5 MK2 Roadster",
+  "productline": "Classic Cars",
+  "productscale": "1:10",
+  "productvendor": "Motor City Art Classics",
+  "productdescription": "Features include: Turnable front wheels; steering function; detailed interior; detailed engine; opening hood; opening trunk; opening doors; and detailed chassis.",
+  "quantityinstock": 19,
+  "buyprice": 45.68,
+  "msrp": 64.99
+}
+
+###
+
+GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products/ME_9999
+Accept: applicaiton/json
+
+###
+
+PUT {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products/ME_9999
+Content-Type: application/json
+Accept: applicaiton/json
+
+{
+  "productCode": "ME_9999",
+  "productName": "2025 Factory 5 MK2 Roadster",
+  "productLine": "Classic Cars",
+  "productScale": "1:15",
+  "productVendor": "Autoart Studio Design",
+  "productDescription": "Features include: Turnable front wheels; steering function; detailed interior; detailed engine; opening hood; opening trunk; opening doors; and detailed chassis.",
+  "quantityInStock": 19,
+  "buyPrice": 45.68,
+  "MSRP": 64.99
+}
+
+###
+
+PUT {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products/ME_9999
+Content-Type: application/json
+Accept: applicaiton/json
+
+{
+  "productcode": "ME_9999",
+  "productname": "2024 Factory 5 MK2 Roadster",
+  "productline": "Classic Cars",
+  "productscale": "1:10",
+  "productvendor": "Motor City Art Classics",
+  "productdescription": "Features include: Turnable front wheels; steering function; detailed interior; detailed engine; opening hood; opening trunk; opening doors; and detailed chassis.",
+  "quantityinstock": 19,
+  "buyprice": 45.68,
+  "msrp": 64.99
+}
+
+###
+
+DELETE {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products/ME_9999
+Accept: applicaiton/json

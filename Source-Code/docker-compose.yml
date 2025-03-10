@@ -1,0 +1,120 @@
+name: Patchwork-Containers
+services:
+
+  patchwork.api:
+    image: ${DOCKER_REGISTRY-}patchworkapi
+    container_name: patchwork-api
+    build:
+      context: .
+      dockerfile: Patchwork.Api/Dockerfile
+    networks:
+      - pctynetwork
+
+  patchwork.mysql:
+    image: ${DOCKER_REGISTRY-}patchworkdb
+    container_name: patchwork-mysql-migrations
+    build:
+      context: .
+      dockerfile: Patchwork.Db/Dockerfile
+    environment:
+      DBTYPE: MySql
+    networks:
+      - pctynetwork
+
+  patchwork.mssql:
+    image: ${DOCKER_REGISTRY-}patchworkdb
+    container_name: patchwork-mssql-migrations
+    build:
+      context: .
+      dockerfile: Patchwork.Db/Dockerfile
+    environment:
+      DBTYPE: MsSql
+    networks:
+      - pctynetwork  
+
+  patchwork.npgsql:
+    image: ${DOCKER_REGISTRY-}patchworkdb
+    container_name: patchwork-npgsql-migrations
+    build:
+      context: .
+      dockerfile: Patchwork.Db/Dockerfile
+    environment:
+      DBTYPE: Postgres
+    networks:
+      - pctynetwork
+
+#  npgsql:
+#    image: postgres:15
+#    hostname: npgsql
+#    container_name: postgresql-server
+#    environment:
+#      POSTGRES_USER: admin
+#      POSTGRES_PASSWORD: LocalNpgSql
+#      PGDATA: /data/postgres
+#    volumes:
+#      - npgsql-db:/data/postgres
+#    ports:
+#      - "5432:5432"
+#    networks:
+#      - pctynetwork
+#
+#  mssql:
+#    image: mcr.microsoft.com/mssql/server:2022-latest
+#    hostname: mssql
+#    container_name: microsoft-sql-server
+#    environment:
+#      ACCEPT_EULA: Y
+#      MSSQL_PID: Developer
+#      MSSQL_SA_PASSWORD: local-ms-sql-2022-pass-phrase
+#      MSSQL_ENABLE_HADR: 1
+#      MSSQL_TCP_PORT: 1433
+#      MSSQL_AGENT_ENABLED: true
+#      MSSQL_DATA_DIR: var/opt/mssql/data
+#      MSSQL_DUMP_DIR: /var/opt/mssql/dump
+#      MSSQL_LOG_DIR: /var/opt/mssql/log_data
+#      MSSQL_BACKUP_DIR: /var/opt/mssql/backup_data
+#      MSSQL_ERROR_LOG_FILE: /var/opt/mssql/log/errorlog
+#    ports:
+#      - "1433:1433"
+#    volumes:
+#      - ./mssql-data:/var/opt/mssql/data
+#      - ./mssql-log_data:/var/opt/mssql/log_data
+#      - ./mssql-backup_data:/var/opt/mssql/backup_data
+#      - ./mssql-dump:/var/opt/mssql/dump
+#      - ./mssql-secrets:/var/opt/mssql/secrets
+#      - ./mssql-logs:/var/opt/mssql/log
+#    networks:
+#      - pctynetwork
+#  
+#  mysql:
+#    image: mysql:latest
+#    container_name: my-sql-server
+#    hostname: mysql
+#    environment:
+#      MYSQL_ROOT_PASSWORD: local-my-sql-pass-phrase
+#      MYSQL_DATABASE: patchwork
+#      MYSQL_USER: mysqluser
+#      MYSQL_PASSWORD: local-my-sql-9-pass-phrase
+#    ports:
+#      - "3306:3306"
+#    volumes:
+#      - mysql-data:/var/lib/mysql
+#    networks:
+#      - pctynetwork
+#
+#volumes:
+#  npgsql-db:
+#
+#  mysql-data:
+#
+#  mssql-data:
+#  mssql-log_data:
+#  mssql-backup_data:
+#  mssql-dump:
+#  mssql-secrets:
+#  mssql-logs:
+
+networks:
+  pctynetwork:
+    external: true
+    

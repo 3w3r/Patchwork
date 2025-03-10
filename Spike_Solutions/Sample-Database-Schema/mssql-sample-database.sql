@@ -1,17 +1,18 @@
--- Create the schema
-CREATE SCHEMA classicmodels;
-GO
-
--- Switch to the classicmodels schema
-USE classicmodels;
-GO
+﻿-- Create the schema
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'classicmodels')
+BEGIN
+    EXEC('CREATE SCHEMA classicmodels');
+END
 
 -- Drop existing tables if they exist
-IF OBJECT_ID('classicmodels.productlines', 'U') IS NOT NULL 
-  DROP TABLE classicmodels.productlines;
+IF OBJECT_ID('classicmodels.orderdetails', 'U') IS NOT NULL 
+  DROP TABLE classicmodels.orderdetails;
 
-IF OBJECT_ID('classicmodels.products', 'U') IS NOT NULL 
-  DROP TABLE classicmodels.products;
+IF OBJECT_ID('classicmodels.payments', 'U') IS NOT NULL 
+  DROP TABLE classicmodels.payments;
+
+IF OBJECT_ID('classicmodels.orders', 'U') IS NOT NULL 
+  DROP TABLE classicmodels.orders;
 
 IF OBJECT_ID('classicmodels.offices', 'U') IS NOT NULL 
   DROP TABLE classicmodels.offices;
@@ -22,14 +23,12 @@ IF OBJECT_ID('classicmodels.employees', 'U') IS NOT NULL
 IF OBJECT_ID('classicmodels.customers', 'U') IS NOT NULL 
   DROP TABLE classicmodels.customers;
 
-IF OBJECT_ID('classicmodels.payments', 'U') IS NOT NULL 
-  DROP TABLE classicmodels.payments;
+IF OBJECT_ID('classicmodels.products', 'U') IS NOT NULL 
+  DROP TABLE classicmodels.products;
 
-IF OBJECT_ID('classicmodels.orders', 'U') IS NOT NULL 
-  DROP TABLE classicmodels.orders;
+IF OBJECT_ID('classicmodels.productlines', 'U') IS NOT NULL 
+  DROP TABLE classicmodels.productlines;
 
-IF OBJECT_ID('classicmodels.orderdetails', 'U') IS NOT NULL 
-  DROP TABLE classicmodels.orderdetails;
 
 -- Create the tables
 CREATE TABLE classicmodels.productlines (
@@ -67,7 +66,7 @@ CREATE TABLE classicmodels.offices (
 );
 
 CREATE TABLE classicmodels.employees (
-    employeeNumber INT,
+    employeeNumber INT IDENTITY(1,1) PRIMARY KEY,
     lastName VARCHAR(50) NOT NULL,
     firstName VARCHAR(50) NOT NULL,
     extension VARCHAR(10) NOT NULL,
@@ -75,13 +74,12 @@ CREATE TABLE classicmodels.employees (
     officeCode VARCHAR(10) NOT NULL,
     reportsTo INT NULL,
     jobTitle VARCHAR(50) NOT NULL,
-    PRIMARY KEY (employeeNumber),
     FOREIGN KEY (reportsTo) REFERENCES classicmodels.employees(employeeNumber),
     FOREIGN KEY (officeCode) REFERENCES classicmodels.offices(officeCode)
 );
 
 CREATE TABLE classicmodels.customers (
-    customerNumber INT,
+    customerNumber INT IDENTITY(1,1) PRIMARY KEY,
     customerName VARCHAR(50) NOT NULL,
     contactLastName VARCHAR(50) NOT NULL,
     contactFirstName VARCHAR(50) NOT NULL,
@@ -94,7 +92,6 @@ CREATE TABLE classicmodels.customers (
     country VARCHAR(50) NOT NULL,
     salesRepEmployeeNumber INT NULL,
     creditLimit DECIMAL(10,2) NULL,
-    PRIMARY KEY (customerNumber),
     FOREIGN KEY (salesRepEmployeeNumber) REFERENCES classicmodels.employees(employeeNumber)
 );
 
@@ -108,14 +105,13 @@ CREATE TABLE classicmodels.payments (
 );
 
 CREATE TABLE classicmodels.orders (
-    orderNumber INT,
+    orderNumber INT IDENTITY(1,1) PRIMARY KEY,
     orderDate DATE NOT NULL,
     requiredDate DATE NOT NULL,
     shippedDate DATE NULL,
     status VARCHAR(15) NOT NULL,
     comments VARCHAR(MAX),
     customerNumber INT NOT NULL,
-    PRIMARY KEY (orderNumber),
     FOREIGN KEY (customerNumber) REFERENCES classicmodels.customers(customerNumber)
 );
 
@@ -130,10 +126,10 @@ CREATE TABLE classicmodels.orderdetails (
     FOREIGN KEY (productCode) REFERENCES classicmodels.products(productCode)
 );
 
-GO; 
+GO
 
 -- Views
-CREATE VIEW classicmodels.CustomerSpendingByProductLine AS
+CREATE OR ALTER VIEW classicmodels.CustomerSpendingByProductLine AS
 SELECT
     c.contactFirstName,
     c.contactLastName,
@@ -151,16 +147,16 @@ GROUP BY
     c.contactFirstName,
     c.contactLastName,
     p.productLine
-ORDER BY
-    c.contactLastName,
-    c.contactFirstName,
-    p.productLine;
-	
+
+GO
+  
 -----------------------------------------------------------------------------------------------------
 
-
-
 /* Inserting data  */
+SET IDENTITY_INSERT classicmodels.employees ON;
+SET IDENTITY_INSERT classicmodels.customers ON;
+SET IDENTITY_INSERT classicmodels.orders ON;
+
 insert  into classicmodels.productlines(productLine,textDescription,htmlDescription,image) values 
 ('Classic Cars','Attention car enthusiasts: Make your wildest car ownership dreams come true. Whether you are looking for classic muscle cars, dream sports cars or movie-inspired miniatures, you will find great choices in this category. These replicas feature superb attention to detail and craftsmanship and offer features such as working steering system, opening forward compartment, opening rear trunk with removable spare wheel, 4-wheel independent spring suspension, and so on. The models range in size from 1:10 to 1:24 scale and include numerous limited edition and several out-of-production vehicles. All models include a certificate of authenticity from their manufacturers and come fully assembled and ready for display in the home or office.',NULL,NULL),('Motorcycles','Our motorcycles are state of the art replicas of classic as well as contemporary motorcycle legends such as Harley Davidson, Ducati and Vespa. Models contain stunning details such as official logos, rotating wheels, working kickstand, front suspension, gear-shift lever, footbrake lever, and drive chain. Materials used include diecast and plastic. The models range in size from 1:10 to 1:50 scale and include numerous limited edition and several out-of-production vehicles. All models come fully assembled and ready for display in the home or office. Most include a certificate of authenticity.',NULL,NULL),('Planes','Unique, diecast airplane and helicopter replicas suitable for collections, as well as home, office or classroom decorations. Models contain stunning details such as official logos and insignias, rotating jet engines and propellers, retractable wheels, and so on. Most come fully assembled and with a certificate of authenticity from their manufacturers.',NULL,NULL),('Ships','The perfect holiday or anniversary gift for executives, clients, friends, and family. These handcrafted model ships are unique, stunning works of art that will be treasured for generations! They come fully assembled and ready for display in the home or office. We guarantee the highest quality, and best value.',NULL,NULL),('Trains','Model trains are a rewarding hobby for enthusiasts of all ages. Whether you’re looking for collectible wooden trains, electric streetcars or locomotives, you’ll find a number of great choices for any budget within this category. The interactive aspect of trains makes toy trains perfect for young children. The wooden train sets are ideal for children under the age of 5.',NULL,NULL),('Trucks and Buses','The Truck and Bus models are realistic replicas of buses and specialized trucks produced from the early 1920s to present. The models range in size from 1:12 to 1:50 scale and include numerous limited edition and several out-of-production vehicles. Materials used include tin, diecast and plastic. All models include a certificate of authenticity from their manufacturers and are a perfect ornament for the home and office.',NULL,NULL),('Vintage Cars','Our Vintage Car models realistically portray automobiles produced from the early 1900s through the 1940s. Materials used include Bakelite, diecast, plastic and wood. Most of the replicas are in the 1:18 and 1:24 scale sizes, which provide the optimum in detail and accuracy. Prices range from $30.00 up to $180.00 for some special limited edition replicas. All models include a certificate of authenticity from their manufacturers and come fully assembled and ready for display in the home or office.',NULL,NULL);
 
