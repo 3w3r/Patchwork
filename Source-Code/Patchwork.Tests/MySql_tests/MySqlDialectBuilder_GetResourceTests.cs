@@ -5,19 +5,19 @@ namespace Patchwork.Tests.MySql_tests;
 
 public class MySqlDialectBuilder_GetResourceTests
 {
-  [Fact]
+  [Fact, Trait("Category", "LocalOnly")]
   public void BuildGetSingleSql_ShouldBuildSelectStatement_IncludeParentTable()
   {
     // Arrange
     MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
 
     // Act
-    var sql = sut.BuildGetSingleSql("Taskboard", "Products", "S24_1937", "*", "productlines");
+    var sql = sut.BuildGetSingleSql("classicmodels", "Products", "S24_1937", "*", "productlines");
 
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
-    Assert.Contains("FROM taskboard.products", sql.Sql);
+    Assert.Contains("FROM classicmodels.products", sql.Sql);
 
     using var connect = sut.GetWriterConnection();
 
@@ -29,19 +29,19 @@ public class MySqlDialectBuilder_GetResourceTests
     Assert.False(string.IsNullOrEmpty(found.textDescription));
   }
 
-  [Fact]
+  [Fact, Trait("Category", "LocalOnly")]
   public void BuildGetSingleSql_ShouldBuildSelectStatement_IncludeChildCollection()
   {
     // Arrange
     MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
 
     // Act
-    var sql = sut.BuildGetSingleSql("Taskboard", "Products", "S24_1937", "*", "orderdetails");
+    var sql = sut.BuildGetSingleSql("classicmodels", "Products", "S24_1937", "*", "orderdetails");
 
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
-    Assert.Contains("FROM taskboard.products", sql.Sql);
+    Assert.Contains("FROM classicmodels.products", sql.Sql);
 
     using var connect = sut.GetWriterConnection();
 
@@ -53,19 +53,19 @@ public class MySqlDialectBuilder_GetResourceTests
     Assert.True(found.quantityOrdered > 0);
   }
 
-  [Fact]
+  [Fact, Trait("Category", "LocalOnly")]
   public void BuildGetSingleSql_ShouldBuildSelectStatement_IncludeChildRelationshipChain()
   {
     // Arrange
     MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
 
     // Act
-    var sql = sut.BuildGetSingleSql("Taskboard", "Products", "S24_1937", "*", "orderdetails,orders");
+    var sql = sut.BuildGetSingleSql("classicmodels", "Products", "S24_1937", "*", "orderdetails,orders");
 
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
-    Assert.Contains("FROM taskboard.products", sql.Sql);
+    Assert.Contains("FROM classicmodels.products", sql.Sql);
 
     using var connect = sut.GetWriterConnection();
 

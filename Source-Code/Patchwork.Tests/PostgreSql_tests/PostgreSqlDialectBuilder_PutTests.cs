@@ -29,7 +29,7 @@ public class PostgreSqlDialectBuilder_PutTests
                                                                     "  \"jobTitle\": \"Sales Rep\" \n" +
                                                                     "}");
 
-  [Fact]
+  [Fact, Trait("Category", "LocalOnly")]
   public void BuildPutSql_ShouldUpdateResource_WhenJsonIsChanged()
   {
     // Arrange

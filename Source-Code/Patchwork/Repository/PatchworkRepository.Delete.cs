@@ -86,7 +86,7 @@ public partial class PatchworkRepository : IPatchworkRepository
     if (this.sqlDialect.HasPatchTrackingEnabled())
     {
       patch = new JsonPatch(PatchOperation.Remove(JsonPointer.Parse($"/{schemaName}/{entityName}/{id}")));
-      AddPatchToLog(connect, schemaName, entityName, id, patch);
+      AddPatchToLog(connect, HttpMethodsEnum.Delete, schemaName, entityName, id, patch);
     }
 
     // Returning a DeleteResult object indicating a successful deletion operation,

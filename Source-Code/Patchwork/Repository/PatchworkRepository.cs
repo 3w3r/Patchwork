@@ -20,9 +20,9 @@ public partial class PatchworkRepository : IPatchworkRepository
     this.sqlDialect = sql;
   }
 
-  public bool AddPatchToLog(WriterConnection connect, string schemaName, string entityName, string id, JsonPatch patch)
+  public bool AddPatchToLog(WriterConnection connect, HttpMethodsEnum httpMethod, string schemaName, string entityName, string id, JsonPatch patch)
   {
-    InsertStatement insertPatch = this.sqlDialect.GetInsertStatementForPatchworkLog(schemaName, entityName, id.ToString(), patch);
+    InsertStatement insertPatch = this.sqlDialect.GetInsertStatementForPatchworkLog(httpMethod, schemaName, entityName, id.ToString(), patch);
     int patchedCount = connect.Connection.Execute(insertPatch.Sql, insertPatch.Parameters, connect.Transaction);
     return patchedCount > 0;
   }

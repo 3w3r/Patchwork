@@ -5,7 +5,7 @@ namespace Patchwork.Tests.PostgreSql_tests;
 
 public class PostgreSqlDialectBuilder_GetListTests
 {
-  [Fact]
+  [Fact, Trait("Category", "LocalOnly")]
   public void BuildGetListSql_ShouldBuildSelectStatement_ForGetListWithLongFilter()
   {
     // Arrange

@@ -17,17 +17,17 @@ public class MySqlDialectBuilder_PostTests
                                                               "  \"reportsTo\": \"1621\", \n" +
                                                               "  \"jobTitle\": \"Sales Rep\" \n" +
                                                               "}");
-  [Fact]
+  [Fact, Trait("Category", "LocalOnly")]
   public void BuildPostSql_ShouldInsertResource()
   {
     // Arrange
     MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
 
     // Act
-    InsertStatement sql = sut.BuildPostSingleSql("Taskboard", "employees", cageJson);
+    InsertStatement sql = sut.BuildPostSingleSql("classicmodels", "employees", cageJson);
     // Assert
     Assert.NotEmpty(sql.Sql);
-    Assert.Contains("INSERT INTO taskboard.employees", sql.Sql);
+    Assert.Contains("INSERT INTO classicmodels.employees", sql.Sql);
     Assert.Contains("VALUES (", sql.Sql);
     Assert.DoesNotContain("employeeNumber", sql.Sql);
     Assert.Contains("lastName", sql.Sql);
@@ -44,7 +44,7 @@ public class MySqlDialectBuilder_PostTests
     try
     {
       int changeCount = connect.Connection.Execute(sql.Sql, sql.Parameters, connect.Transaction);
-      dynamic found = connect.Connection.QueryFirst("SELECT * FROM taskboard.employees WHERE lastName = @lastName AND firstName = @firstName",
+      dynamic found = connect.Connection.QueryFirst("SELECT * FROM classicmodels.employees WHERE lastName = @lastName AND firstName = @firstName",
                                                     sql.Parameters, connect.Transaction);
 
       Assert.Equal(1, changeCount);

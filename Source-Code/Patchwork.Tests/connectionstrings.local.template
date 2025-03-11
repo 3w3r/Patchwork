@@ -1,0 +1,14 @@
+{
+  "ConnectionStrings": {
+    "Sqlite": "Data Source=./Test-Data/Products.db",
+
+    "MySql": "Server=localhost;User ID=UserAccount;Password=Db_Password;Database=classicmodels;",
+    "MySql_Docker": "Server=mysql;User ID=UserAccount;Password=Db_Password;Database=classicmodels;",
+
+    "PostgreSql": "Host=localhost;Port=5432;Database=classicmodels;User ID=UserAccount;Password=Db_Password;Pooling=true;SearchPath=public;",
+    "PostgreSql_Docker": "Host=npgsql;Port=5432;Database=classicmodels;User ID=UserAccount;Password=Db_Password;Pooling=true;SearchPath=public;",
+
+    "MsSql": "Data Source=localhost;User ID=UserAccount;Password=Db_Password;Initial Catalog=classicmodels;Persist Security Info=True;TrustServerCertificate=true",
+    "MsSql_Docker": "Data Source=mssql;User ID=UserAccount;Password=Db_Password;Initial Catalog=classicmodels;Persist Security Info=True;TrustServerCertificate=true"
+  }
+}

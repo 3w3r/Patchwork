@@ -6,7 +6,7 @@ namespace Patchwork.Tests.PostgreSql_tests;
 
 public class PostgreSqlDialectBuilder_DeleteTests
 {
-  [Fact]
+  [Fact, Trait("Category", "LocalOnly")]
   public void BuildDeleteSql_ShouldRemoveResource()
   {
     // Arrange

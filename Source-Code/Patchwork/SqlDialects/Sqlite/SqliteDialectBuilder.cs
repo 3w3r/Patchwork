@@ -44,9 +44,11 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
       "SELECT " +
       "pk as \"Pk\", " +
       "event_date as \"EventDate\", " +
+      "http_method as \"HttpMethod\", " +
       "domain as \"Domain\", " +
       "entity as \"Entity\", " +
       "id as \"Id\", " +
+      "status as \"Status\", " +
       "patch as \"Patch\" " +
       "FROM patchwork.patchwork_event_log " +
       "WHERE domain = @schema_name " +
@@ -196,6 +198,6 @@ public class SqliteDialectBuilder : SqlDialectBuilderBase
   internal override string BuildWherePkForDeleteClause(Entity entity) => BuildWherePkForUpdateClause(entity);
 
   protected override string GetInsertPatchTemplate() =>
-    "INSERT INTO patchwork_event_log (event_date, domain, entity, id, patch) " +
-    "VALUES (CURRENT_TIMESTAMP, @schemaname, @entityname, @id, @patch)";
+    "INSERT INTO patchwork_event_log (event_date, http_method, domain, entity, id, status, patch) " +
+    "VALUES (CURRENT_TIMESTAMP, @httpmethod, @schemaname, @entityname, @id, @status, @patch)";
 }

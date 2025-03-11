@@ -27,11 +27,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="appsettings.local.json" />
+    <Content Remove="connectionstrings.local.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="appsettings.local.json">
+    <None Include="connectionstrings.local.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

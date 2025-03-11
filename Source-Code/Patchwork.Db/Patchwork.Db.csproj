@@ -43,8 +43,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="appsettings.local.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="connectionstrings.local.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Test-Data\Products.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

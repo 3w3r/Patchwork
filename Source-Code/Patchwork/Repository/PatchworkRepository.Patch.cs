@@ -83,7 +83,7 @@ public partial class PatchworkRepository : IPatchworkRepository
 
     // Adding the JSON Patch to the patch tracking log if patch tracking is enabled
     if (this.sqlDialect.HasPatchTrackingEnabled())
-      AddPatchToLog(connect, schemaName, entityName, id, patch);
+      AddPatchToLog(connect, HttpMethodsEnum.Patch, schemaName, entityName, id, patch);
 
     // Creating a PatchResourceResult object and returning it
     PatchResourceResult result = new PatchResourceResult(id, afterObject, patch);
