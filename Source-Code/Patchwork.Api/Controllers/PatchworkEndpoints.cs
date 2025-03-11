@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Patchwork.Authorization;
 using Patchwork.Repository;
 using Patchwork.SqlDialects;
-using Patchwork.Extensions;
+using Patchwork.Controllers;
 
 namespace Patchwork.Api.Controllers;
 
