@@ -4,19 +4,19 @@ using Patchwork.SqlDialects.MySql;
 namespace Patchwork.Tests.MySql_tests;
 public class MySqlDialectBuilder_GetListTests
 {
-  [Fact]
+  [Fact, Trait("Category", "LocalOnly")]
   public void BuildGetListSql_ShouldBuildSelectStatement_ForGetListEndpointWithStartsWith()
   {
     // Arrange
     MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
 
     // Act
-    var sql = sut.BuildGetListSql("Taskboard", "Products", "*", "productName sw '197'", "productName", 10, 0);
+    var sql = sut.BuildGetListSql("classicmodels", "Products", "*", "productName sw '197'", "productName", 10, 0);
 
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
-    Assert.Contains("FROM taskboard.products", sql.Sql);
+    Assert.Contains("FROM classicmodels.products", sql.Sql);
     Assert.Contains("WHERE t_products.productName LIKE @V0", sql.Sql);
     Assert.Contains("LIMIT 10", sql.Sql);
     Assert.Contains("OFFSET 0", sql.Sql);
@@ -32,19 +32,19 @@ public class MySqlDialectBuilder_GetListTests
     }
   }
 
-  [Fact]
+  [Fact, Trait("Category", "LocalOnly")]
   public void BuildGetListSql_ShouldBuildSelectStatement_ForGetListEndpointWithContains()
   {
     // Arrange
     MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
 
     // Act
-    var sql = sut.BuildGetListSql("Taskboard", "Products", "*", "productName ct 'Chevy'", "productName", 10, 0);
+    var sql = sut.BuildGetListSql("classicmodels", "Products", "*", "productName ct 'Chevy'", "productName", 10, 0);
 
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
-    Assert.Contains("FROM taskboard.products", sql.Sql);
+    Assert.Contains("FROM classicmodels.products", sql.Sql);
     Assert.Contains("WHERE t_products.productName LIKE @V0", sql.Sql);
     Assert.Contains("LIMIT 10", sql.Sql);
     Assert.Contains("OFFSET 0", sql.Sql);
@@ -60,14 +60,14 @@ public class MySqlDialectBuilder_GetListTests
     }
   }
 
-  [Fact]
+  [Fact, Trait("Category", "LocalOnly")]
   public void BuildGetListSql_ShouldBuildSelectStatement_ForGetListWithLongFilter()
   {
     // Arrange
     MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
 
     // Act
-    var sql = sut.BuildGetListSql("Taskboard", "Products", "*",
+    var sql = sut.BuildGetListSql("classicmodels", "Products", "*",
       "productName ct 'Chevy' OR productName sw '1978' OR (ProductName ct 'Alpine') OR productName ct 'Roadster' OR productName ct 'Benz' " +
       "OR productName ct 'Moto' OR productName ct 'Pickup' OR (pRoductName ct 'Hawk' AND productName ct 'Black') OR productName ct 'Ford' " +
       "OR productName ct 'Hemi' OR productName ct 'Honda' OR produCtName sw '1952' ",
@@ -76,7 +76,7 @@ public class MySqlDialectBuilder_GetListTests
     // Assert
     Assert.NotEmpty(sql.Sql);
     Assert.Contains("SELECT *", sql.Sql);
-    Assert.Contains("FROM taskboard.products", sql.Sql);
+    Assert.Contains("FROM classicmodels.products", sql.Sql);
     Assert.Contains("t_products.productName LIKE @V0", sql.Sql);
     Assert.Contains("t_products.productName LIKE @V1", sql.Sql);
     Assert.Contains("t_products.productName LIKE @V2", sql.Sql);
@@ -101,20 +101,20 @@ public class MySqlDialectBuilder_GetListTests
     Assert.Equal(20, found.Count());
   }
 
-  [Fact]
+  [Fact, Trait("Category", "LocalOnly")]
   public void BuildGetListSql_ShouldBuildSelectStatement_ForGetListEndpointWithOffset()
   {
     // Arrange
     MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
 
     // Act
-    var sql1 = sut.BuildGetListSql("Taskboard", "Orders", "orderNumber, shippedDate, status", "StAtUs eq 'shipped'", "", 10, 0);
-    var sql2 = sut.BuildGetListSql("Taskboard", "Orders", "orderNumber, shippedDate, status", "Status eq 'shipped'", "", 5, 5);
+    var sql1 = sut.BuildGetListSql("classicmodels", "Orders", "orderNumber, shippedDate, status", "StAtUs eq 'shipped'", "", 10, 0);
+    var sql2 = sut.BuildGetListSql("classicmodels", "Orders", "orderNumber, shippedDate, status", "Status eq 'shipped'", "", 5, 5);
 
     // Assert
     Assert.NotEmpty(sql1.Sql);
     Assert.Contains("SELECT t_orders.orderNumber, t_orders.shippedDate, t_orders.status", sql1.Sql);
-    Assert.Contains("FROM taskboard.orders", sql1.Sql);
+    Assert.Contains("FROM classicmodels.orders", sql1.Sql);
     Assert.Contains("WHERE t_orders.status = @V0", sql1.Sql);
     Assert.Contains("LIMIT 10", sql1.Sql);
     Assert.Contains("OFFSET 0", sql1.Sql);
@@ -122,7 +122,7 @@ public class MySqlDialectBuilder_GetListTests
 
     Assert.NotEmpty(sql2.Sql);
     Assert.Contains("SELECT t_orders.orderNumber, t_orders.shippedDate, t_orders.status", sql2.Sql);
-    Assert.Contains("FROM taskboard.orders", sql2.Sql);
+    Assert.Contains("FROM classicmodels.orders", sql2.Sql);
     Assert.Contains("WHERE t_orders.status = @V0", sql2.Sql);
     Assert.Contains("LIMIT 5", sql2.Sql);
     Assert.Contains("OFFSET 5", sql2.Sql);
@@ -148,7 +148,7 @@ public class MySqlDialectBuilder_GetListTests
     }
   }
 
-  [Fact]
+  [Fact, Trait("Category", "LocalOnly")]
   public void BuildGetListSql_ThrowsArgumentException_WhenSchemaNameIsNull()
   {
     // Arrange
@@ -170,7 +170,7 @@ public class MySqlDialectBuilder_GetListTests
     Assert.StartsWith("Schema name is required.", ex1.Message);
   }
 
-  [Fact]
+  [Fact, Trait("Category", "LocalOnly")]
   public void BuildGetListSql_ThrowsArgumentException_WhenEntityNameIsNull()
   {
     // Arrange

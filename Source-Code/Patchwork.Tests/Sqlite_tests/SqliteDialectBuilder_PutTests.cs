@@ -1,10 +1,13 @@
-﻿using System.Text.Json;
-using Dapper;
+﻿using Dapper;
+
 using Json.Patch;
+
 using Patchwork.Authorization;
 using Patchwork.Repository;
 using Patchwork.SqlDialects.Sqlite;
 using Patchwork.SqlStatements;
+
+using System.Text.Json;
 
 namespace Patchwork.Tests.Sqlite_tests;
 
@@ -29,15 +32,17 @@ public class SqliteDialectBuilder_PatchworkLogTests
     using var connect = sql.GetWriterConnection();
 
     // Act
-    InsertStatement insert = sql.GetInsertStatementForPatchworkLog("classicmodels", "products", "ME_9999", patch);
-    var success = sut.AddPatchToLog(connect, "classicmodels", "products", "ME_9999", patch);
+    InsertStatement insert = sql.GetInsertStatementForPatchworkLog(HttpMethodsEnum.Put, "classicmodels", "products", "ME_9999", patch);
+    var success = sut.AddPatchToLog(connect, HttpMethodsEnum.Put, "classicmodels", "products", "ME_9999", patch);
 
     // Assert
     Assert.NotNull(insert);
-    Assert.Equal(4, insert.Parameters.Count);
+    Assert.Equal(6, insert.Parameters.Count);
+    Assert.Equal(((int)HttpMethodsEnum.Put).ToString(), insert.Parameters["httpmethod"].ToString());
     Assert.Equal("classicmodels", insert.Parameters["schemaname"].ToString());
     Assert.Equal("products", insert.Parameters["entityname"].ToString());
     Assert.Equal("ME_9999", insert.Parameters["id"].ToString());
+    Assert.Equal("0", insert.Parameters["status"].ToString());
 
     var found = connect.Connection.Query("Select * from patchwork_event_log", connect.Transaction);
     Assert.NotNull(found);

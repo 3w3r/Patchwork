@@ -29,18 +29,18 @@ public class MySqlDialectBuilder_PutTests
                                                                     "  \"jobTitle\": \"Sales Rep\" \n" +
                                                                     "}");
 
-  [Fact]
+  [Fact, Trait("Category", "LocalOnly")]
   public void BuildPutSql_ShouldUpdateResource_WhenJsonIsChanged()
   {
     // Arrange
     ISqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
 
     // Act
-    SqlStatements.UpdateStatement sql = sut.BuildPutSingleSql("taskboard", "employees", "1625", katoJsonUpdate);
+    SqlStatements.UpdateStatement sql = sut.BuildPutSingleSql("classicmodels", "employees", "1625", katoJsonUpdate);
 
     // Assert
     Assert.NotEmpty(sql.Sql);
-    Assert.Contains("UPDATE taskboard.employees", sql.Sql);
+    Assert.Contains("UPDATE classicmodels.employees", sql.Sql);
     Assert.Contains("SET", sql.Sql);
     Assert.DoesNotContain("employeeNumber = @employeeNumber", sql.Sql);
     Assert.Contains("lastName = @lastName", sql.Sql);
@@ -52,7 +52,7 @@ public class MySqlDialectBuilder_PutTests
     try
     {
       int changeCount = connect.Connection.Execute(sql.Sql, sql.Parameters, connect.Transaction);
-      dynamic found = connect.Connection.QueryFirst("SELECT * FROM taskboard.employees WHERE employeeNumber = @id", sql.Parameters, connect.Transaction);
+      dynamic found = connect.Connection.QueryFirst("SELECT * FROM classicmodels.employees WHERE employeeNumber = @id", sql.Parameters, connect.Transaction);
 
       Assert.Equal(1, changeCount);
       Assert.Equal("Kato", found.lastName);

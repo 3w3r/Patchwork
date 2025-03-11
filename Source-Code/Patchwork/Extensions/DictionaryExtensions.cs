@@ -99,49 +99,6 @@ public static class DictionaryExtensions
     }
   }
 
-  /// <summary>
-  /// Adds the Content-Range header to the HTTP headers based on the provided GetListResult.
-  /// </summary>
-  /// <param name="headers">The HTTP headers to add the Content-Range header to.</param>
-  /// <param name="found">The GetListResult containing the information to calculate the Content-Range header value.</param>
-  public static void AddContentRangeHeader(this IHeaderDictionary headers, GetListResult found)
-  {
-    // Calculate the page size based on the limit and count properties of the GetListResult
-    int pageSize = found.Limit != found.Count ? found.Count : found.Limit;
-
-    // Add the Content-Range header to the HTTP headers with the calculated value
-    headers.Append("Content-Range", $"items {found.Offset}-{found.Offset + pageSize}/{found.TotalCount}");
-  }
-
-  /// <summary>
-  /// Adds the X-Json-Patch-Changes header to the HTTP headers based on the provided JsonPatch.
-  /// </summary>
-  /// <param name="headers">The HTTP headers to add the X-Json-Patch-Changes header to.</param>
-  /// <param name="changes">The JsonPatch containing the changes to be applied.</param>
-  public static void AddPatchChangesHeader(this IHeaderDictionary headers, JsonPatch changes)
-  {
-    //TODO: We may want to change this so it has the URL to access the JSON Patch instead of the
-    //      actual patch document since this document could be large when there are many changes
-    //      in the entity.
-
-    // Serialize the JsonPatch to a JSON string and add it to the HTTP headers with the X-Json-Patch-Changes key
-    headers.Append("X-Json-Patch-Changes", JsonSerializer.Serialize(changes));
-  }
-
-  /// <summary>
-  /// Adds the Date and X-Resource-Version headers to the HTTP headers based on the provided GetResourceAsOfResult.
-  /// </summary>
-  /// <param name="headers">The HTTP headers to add the headers to.</param>
-  /// <param name="result">The GetResourceAsOfResult containing the information to populate the headers.</param>
-  public static void AddDateAndResourceVersionHeader(this IHeaderDictionary headers, GetResourceAsOfResult result)
-  {
-    // Add the Date header to the HTTP headers with the current date and time in UTC format
-    headers.Append("Date", result.AsOf.ToUniversalTime().ToString("O"));
-
-    // Add the X-Resource-Version header to the HTTP headers with the version of the resource
-    headers.Append("X-Resource-Version", result.Version.ToString());
-  }
-
   private static object? ConvertJsonElement(JsonElement element)
   {
     // Switch statement to handle different JSON value kinds

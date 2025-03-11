@@ -79,7 +79,7 @@ public partial class PatchworkRepository : IPatchworkRepository
       patch = this.sqlDialect.BuildDiffAsJsonPatch(empty, jsonResourceRequestBody);
 
       // Adding the patch to the patch log using the appropriate method of the SQL dialect
-      AddPatchToLog(connect, schemaName, entityName, id, patch);
+      AddPatchToLog(connect, HttpMethodsEnum.Post, schemaName, entityName, id, patch);
     }
     else
     {

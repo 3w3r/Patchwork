@@ -5,7 +5,7 @@ namespace Patchwork.Tests.MsSql_tests;
 
 public class MsSqlDialectBuilder_GetListTests
 {
-  [Fact]
+  [Fact, Trait("Category", "LocalOnly")]
   public void BuildGetListSql_ShouldBuildSelectStatement_ForGetListWithLongFilter()
   {
     // Arrange

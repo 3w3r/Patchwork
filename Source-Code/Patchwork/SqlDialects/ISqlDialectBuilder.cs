@@ -27,7 +27,7 @@ public interface ISqlDialectBuilder
   JsonPatch BuildDiffAsJsonPatch(string original, string modified);
   JsonPatch BuildDiffAsJsonPatch(JsonDocument original, JsonDocument modified);
 
-  InsertStatement GetInsertStatementForPatchworkLog(string schemaName, string entityName, string id, JsonPatch jsonPatchRequestBody);
+  InsertStatement GetInsertStatementForPatchworkLog(HttpMethodsEnum httpMethod, string schemaName, string entityName, string id, JsonPatch jsonPatchRequestBody);
 
   // TODO: Add OPTIONS command for security discovery
   // Not sure how we do this one yet. This will return the current user's access to the requested resource.

@@ -6,7 +6,7 @@ namespace Patchwork.Tests.MsSql_tests;
 
 public class MsSqlDialectBuilder_DeleteTests
 {
-  [Fact]
+  [Fact, Trait("Category", "LocalOnly")]
   public void BuildDeleteSql_ShouldRemoveResource()
   {
     // Arrange

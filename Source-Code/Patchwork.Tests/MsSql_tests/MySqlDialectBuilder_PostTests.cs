@@ -17,7 +17,7 @@ public class MsSqlDialectBuilder_PostTests
                                                               "  \"reportsTo\": \"1621\", \n" +
                                                               "  \"jobTitle\": \"Sales Rep\" \n" +
                                                               "}");
-  [Fact]
+  [Fact, Trait("Category", "LocalOnly")]
   public void BuildPostSql_ShouldInsertResource()
   {
     // Arrange

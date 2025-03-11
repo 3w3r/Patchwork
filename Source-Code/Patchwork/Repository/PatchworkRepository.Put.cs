@@ -59,7 +59,7 @@ public partial class PatchworkRepository : IPatchworkRepository
       // Checking if patch tracking is enabled for the SQL dialect
       if (this.sqlDialect.HasPatchTrackingEnabled())
         // Adding the patch to the patch log
-        AddPatchToLog(connect, schemaName, entityName, id, patch);
+        AddPatchToLog(connect, HttpMethodsEnum.Put, schemaName, entityName, id, patch);
 
       // Committing the transaction
       connect.Transaction.Commit();
