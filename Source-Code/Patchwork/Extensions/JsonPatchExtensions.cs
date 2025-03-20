@@ -15,32 +15,33 @@ public static class JsonPatchExtensions
       List<string> pathList = operation.Path.ToString().Split("/").Where(x => !string.IsNullOrEmpty(x)).ToList();
             string newOperation;
             string id;
-            if (pathList.First() == "-" && operation.Op.ToString() == "Add" && pathList.Count == 1)
+            if (pathList.First() == "-" && operation.Op.ToString() == "Add")
             {
                 id = $"-{insertCounter++}";
                 newOperation = $"\"op\": \"add\",";
-                newOperation += $"\"path\": \"/-\",";
             }
             else if (pathList.First() != "-" && operation.Op.ToString() != "Add")
             {
                 id = pathList.First();
                 newOperation = $"\"op\": \"{operation.Op.ToString().ToLower()}\",";
-                pathList.Remove(id);
-                string destination = string.Join('/', pathList.ToArray());
-                newOperation += $"\"path\": \"/{destination}\",";
             }
             else
             {
                 throw new ArgumentException($"Invalid path + operation combination! Operation \"{operation.Op.ToString()}\" not applicable to path \"{pathList.First()}\"");
             }
 
+            pathList.Remove(pathList.First());
+            string destination = string.Join('/', pathList.ToArray());
+            newOperation += $"\"path\": \"/{destination}\",";
+
       if (!string.IsNullOrEmpty(operation.From?.ToString()))
       {
         newOperation += $"\"from\": \"{operation.From.ToString()}\",";
       }
+
       if (!string.IsNullOrEmpty(operation.Value?.ToString()))
       {
-        newOperation += $"\"value\": \"{operation.Value.ToString()}\",";
+        newOperation += $"\"value\": \"{operation.Value.ToJsonString().Trim('"').Replace("\"", "\\\"")}\",";
       }
       newOperation = "{" + newOperation.TrimEnd(',') + "}";
 
