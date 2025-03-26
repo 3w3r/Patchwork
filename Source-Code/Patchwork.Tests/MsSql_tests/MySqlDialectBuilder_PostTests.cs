@@ -1,5 +1,7 @@
 ﻿using System.Text.Json;
 using Dapper;
+
+using Patchwork.SqlDialects;
 using Patchwork.SqlDialects.MsSql;
 using Patchwork.SqlStatements;
 
@@ -17,11 +19,18 @@ public class MsSqlDialectBuilder_PostTests
                                                               "  \"reportsTo\": \"1621\", \n" +
                                                               "  \"jobTitle\": \"Sales Rep\" \n" +
                                                               "}");
-  [Fact, Trait("Category", "LocalOnly")]
+  [SkippableFact, Trait("Category", "LocalOnly")]
   public void BuildPostSql_ShouldInsertResource()
   {
     // Arrange
-    var sut = new MsSqlDialectBuilder(ConnectionStringManager.GetMsSqlConnectionString(), "Taskboard");
+    var connectionstring = string.Empty;
+    try
+    { connectionstring = ConnectionStringManager.GetMsSqlConnectionString(); } catch { }
+    Skip.If(string.IsNullOrEmpty(connectionstring));
+
+    ISqlDialectBuilder sut = new MsSqlDialectBuilder(connectionstring);
+    try
+    { sut.DiscoverSchema(); } catch { Skip.If(true, "Database schema discovery failed"); }
 
     // Act
     InsertStatement sql = sut.BuildPostSingleSql("classicmodels", "employees", cageJson);

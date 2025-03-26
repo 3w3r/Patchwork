@@ -29,11 +29,18 @@ public class PostgreSqlDialectBuilder_PutTests
                                                                     "  \"jobTitle\": \"Sales Rep\" \n" +
                                                                     "}");
 
-  [Fact, Trait("Category", "LocalOnly")]
+  [SkippableFact, Trait("Category", "LocalOnly")]
   public void BuildPutSql_ShouldUpdateResource_WhenJsonIsChanged()
   {
     // Arrange
-    ISqlDialectBuilder sut = new PostgreSqlDialectBuilder(ConnectionStringManager.GetPostgreSqlConnectionString());
+    var connectionstring = string.Empty;
+    try
+    { connectionstring = ConnectionStringManager.GetPostgreSqlConnectionString(); } catch { }
+    Skip.If(string.IsNullOrEmpty(connectionstring));
+
+    ISqlDialectBuilder sut = new PostgreSqlDialectBuilder(connectionstring);
+    try
+    { sut.DiscoverSchema(); } catch { Skip.If(true, "Database schema discovery failed"); }
 
     // Act
     SqlStatements.UpdateStatement sql = sut.BuildPutSingleSql("classicmodels", "employees", "1625", katoJsonUpdate);

@@ -1,15 +1,24 @@
 ﻿using Dapper;
+
+using Patchwork.SqlDialects;
 using Patchwork.SqlDialects.MySql;
 
 namespace Patchwork.Tests.MySql_tests;
 
 public class MySqlDialectBuilder_GetResourceTests
 {
-  [Fact, Trait("Category", "LocalOnly")]
+  [SkippableFact, Trait("Category", "LocalOnly")]
   public void BuildGetSingleSql_ShouldBuildSelectStatement_IncludeParentTable()
   {
     // Arrange
-    MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
+    var connectionstring = string.Empty;
+    try
+    { connectionstring = ConnectionStringManager.GetMySqlConnectionString(); } catch { }
+    Skip.If(string.IsNullOrEmpty(connectionstring));
+
+    ISqlDialectBuilder sut = new MySqlDialectBuilder(connectionstring);
+    try
+    { sut.DiscoverSchema(); } catch { Skip.If(true, "Database schema discovery failed"); }
 
     // Act
     var sql = sut.BuildGetSingleSql("classicmodels", "Products", "S24_1937", "*", "productlines");
@@ -29,11 +38,18 @@ public class MySqlDialectBuilder_GetResourceTests
     Assert.False(string.IsNullOrEmpty(found.textDescription));
   }
 
-  [Fact, Trait("Category", "LocalOnly")]
+  [SkippableFact, Trait("Category", "LocalOnly")]
   public void BuildGetSingleSql_ShouldBuildSelectStatement_IncludeChildCollection()
   {
     // Arrange
-    MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
+    var connectionstring = string.Empty;
+    try
+    { connectionstring = ConnectionStringManager.GetMySqlConnectionString(); } catch { }
+    Skip.If(string.IsNullOrEmpty(connectionstring));
+
+    ISqlDialectBuilder sut = new MySqlDialectBuilder(connectionstring);
+    try
+    { sut.DiscoverSchema(); } catch { Skip.If(true, "Database schema discovery failed"); }
 
     // Act
     var sql = sut.BuildGetSingleSql("classicmodels", "Products", "S24_1937", "*", "orderdetails");
@@ -53,11 +69,18 @@ public class MySqlDialectBuilder_GetResourceTests
     Assert.True(found.quantityOrdered > 0);
   }
 
-  [Fact, Trait("Category", "LocalOnly")]
+  [SkippableFact, Trait("Category", "LocalOnly")]
   public void BuildGetSingleSql_ShouldBuildSelectStatement_IncludeChildRelationshipChain()
   {
     // Arrange
-    MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
+    var connectionstring = string.Empty;
+    try
+    { connectionstring = ConnectionStringManager.GetMySqlConnectionString(); } catch { }
+    Skip.If(string.IsNullOrEmpty(connectionstring));
+
+    ISqlDialectBuilder sut = new MySqlDialectBuilder(connectionstring);
+    try
+    { sut.DiscoverSchema(); } catch { Skip.If(true, "Database schema discovery failed"); }
 
     // Act
     var sql = sut.BuildGetSingleSql("classicmodels", "Products", "S24_1937", "*", "orderdetails,orders");

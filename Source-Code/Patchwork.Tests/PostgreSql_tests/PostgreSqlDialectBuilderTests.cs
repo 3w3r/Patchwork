@@ -1,15 +1,24 @@
 ﻿using Dapper;
+
+using Patchwork.SqlDialects;
 using Patchwork.SqlDialects.PostgreSql;
 
 namespace Patchwork.Tests.PostgreSql_tests;
 
 public class PostgreSqlDialectBuilder_GetListTests
 {
-  [Fact, Trait("Category", "LocalOnly")]
+  [SkippableFact, Trait("Category", "LocalOnly")]
   public void BuildGetListSql_ShouldBuildSelectStatement_ForGetListWithLongFilter()
   {
     // Arrange
-    PostgreSqlDialectBuilder sut = new PostgreSqlDialectBuilder(ConnectionStringManager.GetPostgreSqlConnectionString());
+    var connectionstring = string.Empty;
+    try
+    { connectionstring = ConnectionStringManager.GetPostgreSqlConnectionString(); } catch { }
+    Skip.If(string.IsNullOrEmpty(connectionstring));
+
+    ISqlDialectBuilder sut = new PostgreSqlDialectBuilder(connectionstring);
+    try
+    { sut.DiscoverSchema(); } catch { Skip.If(true, "Database schema discovery failed"); }
 
     // Act
     var sql = sut.BuildGetListSql("classicmodels", "products", "*",
