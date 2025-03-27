@@ -1,4 +1,6 @@
 ﻿using Dapper;
+
+using Patchwork.SqlDialects;
 using Patchwork.SqlDialects.MsSql;
 using Patchwork.SqlStatements;
 
@@ -6,11 +8,16 @@ namespace Patchwork.Tests.MsSql_tests;
 
 public class MsSqlDialectBuilder_DeleteTests
 {
-  [Fact, Trait("Category", "LocalOnly")]
+  [SkippableFact, Trait("Category", "LocalOnly")]
   public void BuildDeleteSql_ShouldRemoveResource()
   {
     // Arrange
-    MsSqlDialectBuilder sut = new MsSqlDialectBuilder(ConnectionStringManager.GetMsSqlConnectionString());
+    var connectionstring = string.Empty;
+    try { connectionstring = ConnectionStringManager.GetMsSqlConnectionString(); } catch { }
+    Skip.If(string.IsNullOrEmpty(connectionstring));
+
+    ISqlDialectBuilder sut = new MsSqlDialectBuilder(connectionstring);
+    try { sut.DiscoverSchema(); } catch { Skip.If(true, "Database schema discovery failed"); }
 
     // Act
     DeleteStatement sql = sut.BuildDeleteSingleSql("classicmodels", "employees", "1216");

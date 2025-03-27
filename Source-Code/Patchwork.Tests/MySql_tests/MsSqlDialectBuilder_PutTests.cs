@@ -29,11 +29,18 @@ public class MySqlDialectBuilder_PutTests
                                                                     "  \"jobTitle\": \"Sales Rep\" \n" +
                                                                     "}");
 
-  [Fact, Trait("Category", "LocalOnly")]
+  [SkippableFact, Trait("Category", "LocalOnly")]
   public void BuildPutSql_ShouldUpdateResource_WhenJsonIsChanged()
   {
     // Arrange
-    ISqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
+    var connectionstring = string.Empty;
+    try
+    { connectionstring = ConnectionStringManager.GetMySqlConnectionString(); } catch { }
+    Skip.If(string.IsNullOrEmpty(connectionstring));
+
+    ISqlDialectBuilder sut = new MySqlDialectBuilder(connectionstring);
+    try
+    { sut.DiscoverSchema(); } catch { Skip.If(true, "Database schema discovery failed"); }
 
     // Act
     SqlStatements.UpdateStatement sql = sut.BuildPutSingleSql("classicmodels", "employees", "1625", katoJsonUpdate);

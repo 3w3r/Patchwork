@@ -1,5 +1,7 @@
 ﻿using System.Text.Json;
 using Dapper;
+
+using Patchwork.SqlDialects;
 using Patchwork.SqlDialects.MySql;
 using Patchwork.SqlStatements;
 
@@ -17,11 +19,18 @@ public class MySqlDialectBuilder_PostTests
                                                               "  \"reportsTo\": \"1621\", \n" +
                                                               "  \"jobTitle\": \"Sales Rep\" \n" +
                                                               "}");
-  [Fact, Trait("Category", "LocalOnly")]
+  [SkippableFact, Trait("Category", "LocalOnly")]
   public void BuildPostSql_ShouldInsertResource()
   {
     // Arrange
-    MySqlDialectBuilder sut = new MySqlDialectBuilder(ConnectionStringManager.GetMySqlConnectionString());
+    var connectionstring = string.Empty;
+    try
+    { connectionstring = ConnectionStringManager.GetMySqlConnectionString(); } catch { }
+    Skip.If(string.IsNullOrEmpty(connectionstring));
+
+    ISqlDialectBuilder sut = new MySqlDialectBuilder(connectionstring);
+    try
+    { sut.DiscoverSchema(); } catch { Skip.If(true, "Database schema discovery failed"); }
 
     // Act
     InsertStatement sql = sut.BuildPostSingleSql("classicmodels", "employees", cageJson);

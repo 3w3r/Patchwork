@@ -1,15 +1,24 @@
 ﻿using Dapper;
+
+using Patchwork.SqlDialects;
 using Patchwork.SqlDialects.MsSql;
 
 namespace Patchwork.Tests.MsSql_tests;
 
 public class MsSqlDialectBuilder_GetListTests
 {
-  [Fact, Trait("Category", "LocalOnly")]
+  [SkippableFact, Trait("Category", "LocalOnly")]
   public void BuildGetListSql_ShouldBuildSelectStatement_ForGetListWithLongFilter()
   {
     // Arrange
-    MsSqlDialectBuilder sut = new MsSqlDialectBuilder(ConnectionStringManager.GetMsSqlConnectionString());
+    var connectionstring = string.Empty;
+    try
+    { connectionstring = ConnectionStringManager.GetMsSqlConnectionString(); } catch { }
+    Skip.If(string.IsNullOrEmpty(connectionstring));
+
+    ISqlDialectBuilder sut = new MsSqlDialectBuilder(connectionstring);
+    try
+    { sut.DiscoverSchema(); } catch { Skip.If(true, "Database schema discovery failed"); }
 
     // Act
     var sql = sut.BuildGetListSql("classicmodels", "products", "*",

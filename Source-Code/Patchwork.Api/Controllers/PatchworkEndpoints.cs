@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Patchwork.Authorization;
 using Patchwork.Repository;
 using Patchwork.SqlDialects;
-using Patchwork.Extensions;
+using Patchwork.Controllers;
 
 namespace Patchwork.Api.Controllers;
 
-// [Authorize]
+[Route("repo/{schemaName}/v{version}/{entityName}")]
 public class PatchworkEndpoints : Controller
 {
   protected readonly IPatchworkAuthorization authorization;
@@ -23,7 +23,6 @@ public class PatchworkEndpoints : Controller
   }
 
   [HttpGet]
-  [Route("api/{schemaName}/v{version}/{entityName}")]
   public IActionResult GetListEndpoint(
     [FromRoute] string schemaName,
     [FromRoute] int version,
@@ -44,7 +43,7 @@ public class PatchworkEndpoints : Controller
   }
 
   [HttpGet]
-  [Route("api/{schemaName}/v{version}/{entityName}/{id}")]
+  [Route("{id}")]
   public IActionResult GetResourceEndpoint(
     [FromRoute] string schemaName,
     [FromRoute] int version,
@@ -76,7 +75,6 @@ public class PatchworkEndpoints : Controller
   }
 
   [HttpPost]
-  [Route("api/{schemaName}/v{version}/{entityName}")]
   public IActionResult PostResourceEndpoint(
     [FromRoute] string schemaName,
     [FromRoute] int version,
@@ -99,7 +97,7 @@ public class PatchworkEndpoints : Controller
   }
 
   [HttpPut]
-  [Route("api/{schemaName}/v{version}/{entityName}/{id}")]
+  [Route("{id}")]
   public IActionResult PutResourceEndpoint(
     [FromRoute] string schemaName,
     [FromRoute] int version,
@@ -123,7 +121,7 @@ public class PatchworkEndpoints : Controller
   }
 
   [HttpDelete]
-  [Route("api/{schemaName}/v{version}/{entityName}/{id}")]
+  [Route("{id}")]
   public IActionResult DeleteResourceEndpoint(
     [FromRoute] string schemaName,
     [FromRoute] int version,
@@ -148,7 +146,6 @@ public class PatchworkEndpoints : Controller
   }
 
   [HttpPatch]
-  [Route("api/{schemaName}/v{version}/{entityName}")]
   public IActionResult PatchListEndpoint(
     [FromRoute] string schemaName,
     [FromRoute] int version,
@@ -171,7 +168,7 @@ public class PatchworkEndpoints : Controller
   }
 
   [HttpPatch]
-  [Route("api/{schemaName}/v{version}/{entityName}/{id}")]
+  [Route("{id}")]
   public IActionResult PatchResourceEndpoint(
     [FromRoute] string schemaName,
     [FromRoute] int version,

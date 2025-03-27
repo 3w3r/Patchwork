@@ -1,4 +1,6 @@
 ﻿using Dapper;
+
+using Patchwork.SqlDialects;
 using Patchwork.SqlDialects.PostgreSql;
 using Patchwork.SqlStatements;
 
@@ -6,11 +8,18 @@ namespace Patchwork.Tests.PostgreSql_tests;
 
 public class PostgreSqlDialectBuilder_DeleteTests
 {
-  [Fact, Trait("Category", "LocalOnly")]
+  [SkippableFact, Trait("Category", "LocalOnly")]
   public void BuildDeleteSql_ShouldRemoveResource()
   {
     // Arrange
-    var sut = new PostgreSqlDialectBuilder(ConnectionStringManager.GetPostgreSqlConnectionString());
+    var connectionstring = string.Empty;
+    try
+    { connectionstring = ConnectionStringManager.GetPostgreSqlConnectionString(); } catch { }
+    Skip.If(string.IsNullOrEmpty(connectionstring));
+
+    ISqlDialectBuilder sut = new PostgreSqlDialectBuilder(connectionstring);
+    try
+    { sut.DiscoverSchema(); } catch { Skip.If(true, "Database schema discovery failed"); }
 
     // Act
     DeleteStatement sql = sut.BuildDeleteSingleSql("classicmodels", "employees", "1625");

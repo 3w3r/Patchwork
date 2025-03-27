@@ -1,4 +1,11 @@
-@Patchwork.Api_HostAddress = https://localhost:56850
+@Patchwork.Api_HostAddress = https://localhost:55012
+
+###
+
+GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products
+Accept: application/json
+
+###
 
 GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/employees?filter=firstName%20eq%20'Leslie'
 Accept: application/json
@@ -12,7 +19,7 @@ Accept: application/json
 ###
 
 
-GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products?filter=quantityInStock%20gt%20100&limit=10&offset=50
+GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products?filter=quantityInStock%20gt%20100&limit=3&offset=50
 Accept: application/json
 
 ###
@@ -64,7 +71,7 @@ Accept: application/json
 
 ###
 
-GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products/ME_9999
+GET {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products/ME_9999?AsOf=2025-03-12T19:49:48.409009
 Accept: applicaiton/json
 
 ###
@@ -84,6 +91,14 @@ Accept: applicaiton/json
   "buyPrice": 45.68,
   "MSRP": 64.99
 }
+
+###
+
+PATCH {{Patchwork.Api_HostAddress}}/api/classicmodels/v1/products/ME_9999
+Content-Type: application/json
+Accept: applicaiton/json
+
+[{"op":"replace","path":"/productname","value":"2025 Factory 5 MK2 Roadster Updated"}]
 
 ###
 
