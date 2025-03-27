@@ -17,6 +17,7 @@ public static class Program
       new SqliteDialectBuilder(ConnectionStringManager.GetSqliteConnectionString())
       );
     builder.Services.AddScoped<IPatchworkRepository, PatchworkRepository>();
+    builder.Services.AddHttpContextAccessor();
 
     builder.Services.AddControllers();
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

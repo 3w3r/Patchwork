@@ -31,7 +31,9 @@ namespace Patchwork.Api.Controllers
       ILogger<PatchworkController> logger,
       IPatchworkRepository repo,
       IPatchworkAuthorization auth,
-      ISqlDialectBuilder sql) : base(repo, auth, sql)
+      ISqlDialectBuilder sql,
+      IHttpContextAccessor context
+      ) : base(repo, auth, sql, context)
     {
       Log = logger;
     }

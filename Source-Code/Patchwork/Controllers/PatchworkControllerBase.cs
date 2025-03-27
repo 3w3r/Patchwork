@@ -13,12 +13,14 @@ public abstract class PatchworkControllerBase : Controller
   protected readonly IPatchworkAuthorization authorization;
   protected readonly ISqlDialectBuilder sqlDialect;
   protected readonly IPatchworkRepository Repository;
+  protected readonly IHttpContextAccessor contextAccessor;
 
-  protected PatchworkControllerBase(IPatchworkRepository repo, IPatchworkAuthorization auth, ISqlDialectBuilder sql)
+  protected PatchworkControllerBase(IPatchworkRepository repo, IPatchworkAuthorization auth, ISqlDialectBuilder sql, IHttpContextAccessor context)
   {
     this.Repository = repo;
     this.authorization = auth;
     this.sqlDialect = sql;
+    this.contextAccessor = context;
   }
 
   /// <summary>
@@ -38,17 +40,17 @@ public abstract class PatchworkControllerBase : Controller
   {
     // If the limit is not provided, retrieve it from the Range header
     if (limit == 0)
-      limit = this.Request.Headers.GetLimitFromRangeHeader();
+      limit = contextAccessor.HttpContext.Request.Headers.GetLimitFromRangeHeader();
 
     // If the offset is not provided, retrieve it from the Range header
     if (offset == 0)
-      offset = this.Request.Headers.GetOffsetFromRangeHeader();
+      offset = contextAccessor.HttpContext.Request.Headers.GetOffsetFromRangeHeader();
 
     // Retrieve the list of resources from the repository
     GetListResult found = Repository.GetList(schemaName, entityName, fields, filter, sort, limit, offset);
 
     // Add the Content-Range header to the response
-    this.Response.Headers.AddContentRangeHeader(found);
+    contextAccessor.HttpContext.Response.Headers.AddContentRangeHeader(found);
 
     // Return the list of resources as a JSON response
     return Json(found.Resources);
@@ -76,7 +78,7 @@ public abstract class PatchworkControllerBase : Controller
       //       just getting the current version of the entity. Also, includes and field projections are 
       //       not available when querying older versions of entities.
       GetResourceAsOfResult found = Repository.GetResourceAsOf(schemaName, entityName, id, asOf.Value);
-      this.Response.Headers.AddDateAndRevisionHeader(found);
+      contextAccessor.HttpContext.Response.Headers.AddDateAndRevisionHeader(found);
 
       // If the resource was not found at the specified point in time, return a 'Not Found' response.
       if (found.Resource == null)
@@ -143,7 +145,7 @@ public abstract class PatchworkControllerBase : Controller
       PutResult updated = this.Repository.PutResource(schemaName, entityName, id, jsonResourceRequestBody);
 
       // Add a Patch-Changes header to the response indicating the changes made
-      this.Response.Headers.AddPatchChangesHeader(updated.Changes);
+      contextAccessor.HttpContext.Response.Headers.AddPatchChangesHeader(updated.Changes);
 
       // Return a JSON response with the updated resource
       return Json(updated.Resource);
@@ -214,9 +216,9 @@ public abstract class PatchworkControllerBase : Controller
     // Create a custom response with a 207 status code
 
     // Extract the details about the created, updated, and deleted resources from the result
-    var created = result.Created.Select(x => new { id = x.Id, href = $"{this.Request.Path}/{x.Id}", status = 201, description = "Created" });
-    var updated = result.Updated.Select(x => new { id = x.Id, href = $"{this.Request.Path}/{x.Id}", status = 200, description = "Updated" });
-    var deleted = result.Deleted.Select(x => new { id = x.Id, href = $"{this.Request.Path}/{x.Id}", status = 204, description = "Deleted" });
+    var created = result.Created.Select(x => new { id = x.Id, href = $"{contextAccessor.HttpContext.Request.Path}/{x.Id}", status = 201, description = "Created" });
+    var updated = result.Updated.Select(x => new { id = x.Id, href = $"{contextAccessor.HttpContext.Request.Path}/{x.Id}", status = 200, description = "Updated" });
+    var deleted = result.Deleted.Select(x => new { id = x.Id, href = $"{contextAccessor.HttpContext.Request.Path}/{x.Id}", status = 204, description = "Deleted" });
 
     // Combine all the results into a single multi-status response
     return new ObjectResult(created.Concat(updated).Concat(deleted).ToList())
@@ -240,7 +242,7 @@ public abstract class PatchworkControllerBase : Controller
     PatchResourceResult result = this.Repository.PatchResource(schemaName, entityName, id, jsonPatchRequestBody);
 
     // Add the Patch-Changes header to the response with the changes made during the PATCH operation
-    this.Response.Headers.AddPatchChangesHeader(result.Changes);
+    contextAccessor.HttpContext.Response.Headers.AddPatchChangesHeader(result.Changes);
 
     // Return the patched resource as a JSON response
     return this.Json(result.Resource);
