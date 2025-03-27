@@ -27,10 +27,13 @@ namespace Patchwork.Api.Controllers
     /// <param name="repo">An instance of IPatchworkRepository for interacting with the data repository.</param>
     /// <param name="auth">An instance of IPatchworkAuthorization for managing authorization rules.</param>
     /// <param name="sql">An instance of ISqlDialectBuilder for building SQL queries.</param>
-    public PatchworkController(ILogger<PatchworkController> logger,
+    public PatchworkController(
+      ILogger<PatchworkController> logger,
       IPatchworkRepository repo,
       IPatchworkAuthorization auth,
-      ISqlDialectBuilder sql) : base(repo, auth, sql)
+      ISqlDialectBuilder sql,
+      IHttpContextAccessor context
+      ) : base(repo, auth, sql, context)
     {
       Log = logger;
     }
