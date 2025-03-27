@@ -27,7 +27,8 @@ namespace Patchwork.Api.Controllers
     /// <param name="repo">An instance of IPatchworkRepository for interacting with the data repository.</param>
     /// <param name="auth">An instance of IPatchworkAuthorization for managing authorization rules.</param>
     /// <param name="sql">An instance of ISqlDialectBuilder for building SQL queries.</param>
-    public PatchworkController(ILogger<PatchworkController> logger,
+    public PatchworkController(
+      ILogger<PatchworkController> logger,
       IPatchworkRepository repo,
       IPatchworkAuthorization auth,
       ISqlDialectBuilder sql) : base(repo, auth, sql)
@@ -50,7 +51,7 @@ namespace Patchwork.Api.Controllers
     ///   authenticated or a client.
     /// </returns>
     [HttpGet]
-    public Task<IActionResult> GetList(
+    public IActionResult GetList(
       [FromRoute] string schemaName,
       [FromRoute] string entityName,
       [FromQuery] string fields = "",
@@ -63,7 +64,7 @@ namespace Patchwork.Api.Controllers
       schemaName = NormalizeSchemaName(schemaName);
 
       IActionResult result = GetListEndpoint(schemaName, Version, entityName, fields, filter, sort, limit, offset);
-      return (Task<IActionResult>)result;
+      return result;
     }
 
     /// <summary>
@@ -77,7 +78,7 @@ namespace Patchwork.Api.Controllers
     /// <param name="asOf">A timestamp indicating the point in time from which to retrieve the resource. If not provided, the current state of the resource will be returned.</param>
     /// <returns>An IActionResult containing the requested resource or an Unauthorized result if the user is not authenticated or a client.</returns>
     [HttpGet, Route("{id}")]
-    public Task<IActionResult> GetResource(
+    public IActionResult GetResource(
       [FromRoute] string schemaName,
       [FromRoute] string entityName,
       [FromRoute] string id,
@@ -89,7 +90,7 @@ namespace Patchwork.Api.Controllers
       schemaName = NormalizeSchemaName(schemaName);
 
       IActionResult result = GetResourceEndpoint(schemaName, Version, entityName, id, fields, include, asOf);
-      return (Task<IActionResult>)result;
+      return result;
     }
 
     /// <summary>
@@ -100,7 +101,7 @@ namespace Patchwork.Api.Controllers
     /// <param name="jsonResourceRequestBody">The JSON representation of the resource to be created.</param>
     /// <returns>An IActionResult containing the created resource or an Unauthorized result if the user is not authenticated or a client.</returns>
     [HttpPost]
-    public Task<IActionResult> PostResource(
+    public IActionResult Resource(
       [FromRoute] string schemaName,
       [FromRoute] string entityName,
       JsonDocument jsonResourceRequestBody
@@ -109,7 +110,7 @@ namespace Patchwork.Api.Controllers
       schemaName = NormalizeSchemaName(schemaName);
 
       IActionResult result = PostResourceEndpoint(schemaName, Version, entityName, jsonResourceRequestBody);
-      return (Task<IActionResult>)result;
+      return result;
     }
 
     /// <summary>
@@ -121,7 +122,7 @@ namespace Patchwork.Api.Controllers
     /// <param name="jsonResourceRequestBody">The JSON representation of the updated resource.</param>
     /// <returns>An IActionResult indicating the outcome of the operation.</returns>
     [HttpPut, Route("{id}")]
-    public Task<IActionResult> PutResource(
+    public IActionResult PutResource(
       [FromRoute] string schemaName,
       [FromRoute] string entityName,
       [FromRoute] string id,
@@ -131,7 +132,7 @@ namespace Patchwork.Api.Controllers
       schemaName = NormalizeSchemaName(schemaName);
 
       IActionResult result = PutResourceEndpoint(schemaName, Version, entityName, id, jsonResourceRequestBody);
-      return (Task<IActionResult>)result;
+      return result;
     }
 
     /// <summary>
@@ -142,14 +143,14 @@ namespace Patchwork.Api.Controllers
     /// <param name="id">The unique identifier of the resource to delete.</param>
     /// <returns>An IActionResult indicating the outcome of the operation.</returns>
     [HttpDelete, Route("{id}")]
-    public Task<IActionResult> DeleteResource(
+    public IActionResult DeleteResource(
       string schemaName, string entityName, string id
       )
     {
       schemaName = NormalizeSchemaName(schemaName);
 
       IActionResult result = DeleteResourceEndpoint(schemaName, Version, entityName, id);
-      return (Task<IActionResult>)result;
+      return result;
     }
 
     /// <summary>
@@ -160,7 +161,7 @@ namespace Patchwork.Api.Controllers
     /// <param name="jsonPatchRequestBody">The JSON Patch document containing the operations to apply.</param>
     /// <returns>An IActionResult indicating the outcome of the operation.</returns>
     [HttpPatch]
-    public Task<IActionResult> PatchList(
+    public IActionResult PatchList(
       [FromRoute] string schemaName,
       [FromRoute] string entityName,
       JsonPatch jsonPatchRequestBody
@@ -169,7 +170,7 @@ namespace Patchwork.Api.Controllers
       schemaName = NormalizeSchemaName(schemaName);
 
       IActionResult result = PatchListEndpoint(schemaName, Version, entityName, jsonPatchRequestBody);
-      return (Task<IActionResult>)result;
+      return result;
     }
 
     /// <summary>
@@ -181,7 +182,7 @@ namespace Patchwork.Api.Controllers
     /// <param name="jsonPatchRequestBody">The JSON Patch document containing the operations to apply.</param>
     /// <returns>An IActionResult indicating the outcome of the operation.</returns>
     [HttpPatch, Route("{id}")]
-    public Task<IActionResult> PatchResource(
+    public IActionResult PatchResource(
       [FromRoute] string schemaName,
       [FromRoute] string entityName,
       [FromRoute] string id,
@@ -191,7 +192,7 @@ namespace Patchwork.Api.Controllers
       schemaName = NormalizeSchemaName(schemaName);
 
       IActionResult result = PatchResourceEndpoint(schemaName, Version, entityName, id, jsonPatchRequestBody);
-      return (Task<IActionResult>)result;
+      return result;
     }
 
     private string NormalizeSchemaName(string schemaName)

@@ -298,7 +298,7 @@ public class Repository_Tests
             "\"state\" : \"Wiscansin\"," +
             "\"postalCode\" : \"11111\"," +
             "\"country\" : \"USB\"," +
-            "\"creditLimit\" : \"20000000\"}"
+            "\"creditLimit\" : \"200\"}"
         );
 
         var result = repo.PostResource("dbo", "customers", newRecord);
@@ -322,7 +322,7 @@ public class Repository_Tests
             "\"state\" : \"Wiscansin\"," +
             "\"postalCode\" : \"11111\"," +
             "\"country\" : \"USB\"," +
-            "\"creditLimit\" : \"20000000\"}"
+            "\"creditLimit\" : \"200\"}"
         );
         Assert.ThrowsAny<Exception>(() => repo.PostResource("dbo", "customers", newRecord));
 

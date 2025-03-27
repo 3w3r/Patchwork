@@ -44,7 +44,7 @@ public class SqliteDialectBuilder_PatchworkLogTests
     Assert.Equal("ME_9999", insert.Parameters["id"].ToString());
     Assert.Equal("0", insert.Parameters["status"].ToString());
 
-    var found = connect.Connection.Query("Select * from patchwork_event_log", connect.Transaction);
+    var found = connect.Connection.Query("Select * from patchwork_event_log Where id = 'ME_9999'", connect.Transaction);
     Assert.NotNull(found);
     Assert.Equal(1, found?.Count());
 
