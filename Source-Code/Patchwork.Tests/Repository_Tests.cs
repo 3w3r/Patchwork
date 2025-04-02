@@ -191,13 +191,10 @@ public class Repository_Tests
         Assert.Equal(before.Resource, after.Resource);
 
         var PatchWrongDataType = JsonSerializer.Deserialize<JsonPatch>(
-            $"[{{\"op\": \"replace\",\"path\": \"/state\",\"value\": 11}}]"
+            $"[{{\"op\": \"replace\",\"path\": \"/creditLimit\",\"value\": \"unlimited\"}}]"
             ) ?? new JsonPatch();
 
-        //What is intended behavior here? crash / cast number to string / ignore attempted change
-        //Currently assuming ignore attempted change
-        result = repo.PatchResource("dbo", "customers", "450", PatchWrongDataType);
-        Assert.Empty(result.Changes.Operations);
+        Assert.ThrowsAny<Exception>(()=>repo.PatchResource("dbo", "customers", "450", PatchWrongDataType));
         after = repo.GetResource("dbo", "customers", "450");
         Assert.Equal(before.Resource, after.Resource);
     }
@@ -263,7 +260,7 @@ public class Repository_Tests
 
         Assert.True(result.Success);
         Assert.Equal(125, before.Resource.customerNumber);
-        Assert.Empty(after.Resource);
+        Assert.Null(after.Resource);
     }
 
     [Fact]

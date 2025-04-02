@@ -35,7 +35,7 @@ public partial class PatchworkRepository : IPatchworkRepository
     IEnumerable<dynamic> found = connect.Connection.Query(select.Sql, select.Parameters);
 
     // If a single resource is found, return it as a GetResourceResult
-    if (found.Count() == 1)
+    if (found.Count() <= 1)
     {
       return new GetResourceResult(found.FirstOrDefault());
     }

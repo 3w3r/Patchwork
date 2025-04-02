@@ -44,6 +44,7 @@ public class FilterTokenizer_MsSql_Tests
   }
 
   // Filters that contain dates and times
+  [Theory]
   [InlineData("skillKey eq 'cdl' AND effectiveStartDate le '2023-11-11T22:00:00-0400' AND effectiveEndDate gt '2023-11-12T06:00:00-0400'",
               "WHERE [t_MonkeyTable].[skillKey] = @V0 AND [t_MonkeyTable].[effectiveStartDate] <= @V1 AND [t_MonkeyTable].[effectiveEndDate] > @V2",
               "cdl", "2023-11-12T10:00:00.0000000Z", 3)]

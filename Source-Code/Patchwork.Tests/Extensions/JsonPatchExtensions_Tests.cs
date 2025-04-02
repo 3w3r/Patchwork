@@ -15,7 +15,7 @@ public class JsonPatchExtensions_Tests
   public JsonPatchExtensions_Tests()
   {
     updates = JsonSerializer.Deserialize<JsonPatch>("[{\"op\": \"replace\",\"path\": \"/ME_9997/productName\",\"value\": \"2025 Factory 5 MK2 Roadster\"},{\"op\": \"replace\",\"path\": \"/ME_9999/productScale\",\"value\": \"1:15\"},{\"op\": \"replace\",\"path\": \"/ME_9999/productVendor\",\"value\": \"Autoart Studio Design\"}]") ?? new JsonPatch();
-    inserts = JsonSerializer.Deserialize<JsonPatch>("[{\"op\": \"add\",\"path\": \"/-\",\"value\": \"2025 Factory 5 MK2 Roadster\"},{\"op\": \"add\",\"path\": \"/-\",\"value\": \"1:15\"},{\"op\": \"add\",\"path\": \"/-\",\"value\": \"Autoart Studio Design\"}]") ?? new JsonPatch();
+    inserts = JsonSerializer.Deserialize<JsonPatch>("[{\"op\": \"add\",\"path\": \"/-\",\"value\": {\"productName\": \"2025 Factory 5 MK2 Roadster\"}},{\"op\": \"add\",\"path\": \"/-\",\"value\": \"1:15\"},{\"op\": \"add\",\"path\": \"/-\",\"value\": \"Autoart Studio Design\"}]") ?? new JsonPatch();
     deletes = JsonSerializer.Deserialize<JsonPatch>("[{\"op\": \"remove\",\"path\": \"/ME_9997\"},{\"op\": \"remove\", \"path\": \"/ME_9998\"},{\"op\": \"remove\",\"path\": \"/ME_9999\"}]") ?? new JsonPatch();
     brokenOne = JsonSerializer.Deserialize<JsonPatch>("[{\"op\": \"remove\",\"path\": \"/ME_9999\"}, {\"op\": \"remove\",\"path\": \"/ME_9999\"}, {\"op\": \"add\", \"value\": \"Autoart Studio Design\", \"path\": \"/-\"}, {\"op\": \"remove\",\"path\": \"/ME_9995\"}]") ?? new JsonPatch();
     brokenTwo = JsonSerializer.Deserialize<JsonPatch>("[{\"op\": \"add\",\"path\": \"/ME_9997\",\"value\": \"2025 Factory 5 MK2 Roadster\"}]") ?? new JsonPatch();
@@ -58,7 +58,7 @@ public class JsonPatchExtensions_Tests
 
     Assert.Equal(3, output.Count);
 
-    Assert.Equal("2025 Factory 5 MK2 Roadster", output["-0"].Operations[0]?.Value!.ToString());
+    Assert.Equal("{\"productName\":\"2025 Factory 5 MK2 Roadster\"}", output["-0"].Operations[0]?.Value!.ToString());
     Assert.Equal("1:15", output["-1"].Operations[0]?.Value!.ToString());
     Assert.Equal("Autoart Studio Design", output["-2"]?.Operations[0].Value!.ToString());
   }

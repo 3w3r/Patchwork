@@ -18,4 +18,11 @@ public class SqlDialectBuilderBase_Tests
     Assert.NotNull(pk);    
     Assert.Equal(42, int.Parse(pk));
   }
+
+
+  [Theory]
+  public void Does_BuildGetEventLog_ReturnBuiltRecord()
+  {
+
+  }
 }

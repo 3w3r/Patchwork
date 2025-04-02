@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using DatabaseSchemaReader.Filters;
 using Microsoft.AspNetCore.Http;
@@ -24,7 +25,8 @@ namespace Patchwork.Tests.Controllers
         private ILogger<PatchworkController> log;
         private ISqlDialectBuilder sql;
         private IPatchworkAuthorization auth;
-        private IPatchworkRepository repo;
+        private Mock<IHttpContextAccessor> accessor;
+    private Mock<IPatchworkRepository> RepositoryMock;
 
         public ControllerTests()
         {
@@ -34,69 +36,108 @@ namespace Patchwork.Tests.Controllers
             var SqlMock = new Mock<ISqlDialectBuilder>();
             sql = SqlMock.Object;
 
+            accessor = new Mock<IHttpContextAccessor>();
+
             auth = new DefaultPatchworkAuthorization();
 
-            var RepositoryMock = new Mock<IPatchworkRepository>();
-            RepositoryMock
-                .Setup(a => a.GetList(
-                    It.IsAny<string>(), //schemaName
-                    It.Is<string>(b => b == "DefaultLimitOffsetTest"), //entityName
-                    It.IsAny<string>(), //fields
-                    It.IsAny<string>(), //filter
-                    It.IsAny<string>(), //sort
-                    It.IsAny<int>(), //limit
-                    It.IsAny<int>() //offset
-                    ))
-                .Returns((
-                    string schemaName,
-                    string entityName,
-                    string fields,
-                    string filter,
-                    string sort,
-                    int limit,
-                    int offset
-                    ) =>
-                new GetListResult(
-                    new List<dynamic>(), 42, "LastId", limit, offset)
-                );
-
-            repo = RepositoryMock.Object;
+            RepositoryMock = new Mock<IPatchworkRepository>();
         }
 
         [Fact]
         public void Does_GetListEndpoint_SupplyDefaultLimitAndOffset()
         {
-            //Arrange
-            PatchworkController SUT = new PatchworkController(log, repo, auth, sql);
-            SUT.ControllerContext = GetMockContext();
+      //Arrange
+
+      RepositoryMock
+        .Setup(a => a.GetList(
+          It.IsAny<string>(), //schemaName
+          It.IsAny<string>(), //entityName
+          It.IsAny<string>(), //fields
+          It.IsAny<string>(), //filter
+          It.IsAny<string>(), //sort
+          It.IsAny<int>(), //limit
+          It.IsAny<int>() //offset
+        ))
+        .Returns((
+          string schemaName,
+          string entityName,
+          string fields,
+          string filter,
+          string sort,
+          int limit,
+          int offset
+        ) =>
+    new GetListResult(
+        new List<dynamic>() { "item", "item", "item" }, 52, "LastId", limit, offset)
+    );
+
+      var MockHttpContext = new DefaultHttpContext();
+            var request = MockHttpContext.Request;
+            request.Headers["Range"] = "items=40-50";
+            accessor.Setup(x => x.HttpContext).Returns(MockHttpContext);
+
+            PatchworkController SUT = new PatchworkController(log, RepositoryMock.Object, auth, sql, accessor.Object);
             
 
             //Act
-            var output = SUT.GetList("", "DefaultLimitOffsetTest", "", "", "");
+            var output = SUT.GetList("", "Does_GetListEndpoint_SupplyDefaultLimitAndOffset", "", "", "");
 
             //Assert
             Assert.NotNull(output);
+            var json = output as JsonResult;
+            Assert.NotNull(json);
+            Assert.Equal(3, (json.Value as List<object>)?.Count);
+
+            Assert.Equal("items 40-43/52", MockHttpContext.Response.Headers["Content-Range"]);
         }
 
+        [Fact]
+        public void Does_GetResourceEndpoint_ReturnNotFoundOnNoRecordsFound()
+        {
 
+      //Arrange
+      RepositoryMock
+    .Setup(a => a.GetResource(
+        It.IsAny<string>(), //schemaName
+        It.IsAny<string>(), //entityName
+        It.IsAny<string>(), //id
+        It.IsAny<string>(), //fields
+        It.IsAny<string>() //include
+        ))
+    .Returns((
+        string schemaName,
+        string entityName,
+        string id,
+        string filter,
+        string include
+        ) =>
+    new GetResourceResult(null)
+    );
 
-        public static ControllerContext GetMockContext(PatchworkController controller) {
-            var request = new Mock<HttpRequest>();
-            request.SetupGet(x => x.Headers["X-Requested-With"]).Returns("XMLHttpRequest");
+      var MockHttpContext = new DefaultHttpContext();
+            accessor.Setup(x => x.HttpContext).Returns(MockHttpContext);
 
-            var response = new Mock<HttpResponse>();
-            response.Setup(r => r.Headers).Returns(new HeaderDictionary());
+            PatchworkController SUT = new PatchworkController(log, RepositoryMock.Object, auth, sql, accessor.Object);
 
-            var context = new Mock<HttpContext>();
-            context.Setup(x => x.Request).Returns(request.Object);
-            context.Setup(x => x.Response).Returns(response.Object);
+            //Act
+            var output = SUT.GetResource("", "Does_GetResourceEndpoint_ReturnNotFoundOnNoRecordsFound", "");
 
-            var actionContext = new Mock<ActionContext>();
-            actionContext.Setup(x => x.HttpContext).Returns(context.Object);
-            actionContext.Setup(x => x.RouteData).Returns();
-            actionContext.Setup(x => x.ActionDescriptor).Returns();
-
-            return new ControllerContext(actionContext.Object);
+            //Assert
+            Assert.IsType<NotFoundResult>(output);
         }
+
+    [Fact]
+    public void Does_GetResourceEndpoint_ReturnHistoricalRecord()
+    {
+      //Arrange
+      var MockHttpContext = new DefaultHttpContext();
+      var request = MockHttpContext.Request;
+      accessor.Setup(x => x.HttpContext).Returns(MockHttpContext);
+
+      PatchworkController SUT = new PatchworkController(log, RepositoryMock.Object, auth, sql, accessor.Object);
+
+      //Act
+      var output = SUT.GetResource("", "", "", "", "", new DateTimeOffset(2025, 6, 5, 25, 11, 0, new TimeSpan(3, 0, 0)));
     }
+  }
 }

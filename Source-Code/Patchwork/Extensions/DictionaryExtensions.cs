@@ -25,7 +25,10 @@ public static class DictionaryExtensions
 
       // Skip the current column if the key is not found in the dictionary
       if (string.IsNullOrEmpty(key))
+      {
+        keyValuePairs.Add(col.Name, null);
         continue;
+      }
 
       // TODO: We may be able to expand this method to handle more complex data types. For example, if the column is
       // a string we may be able to convert it to a Dapper DbType with the appropriate maximum character length. This

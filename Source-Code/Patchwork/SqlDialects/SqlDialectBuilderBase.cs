@@ -359,7 +359,9 @@ public abstract class SqlDialectBuilderBase : ISqlDialectBuilder
     var where = BuildWherePkForUpdateClause(entity);
 
     // Create a dictionary of parameters for the SQL statement
-    var parameters = new Dictionary<string, object>() { { "id", id } };
+    var parameters = new Dictionary<string, object>() {
+      { "id", id }
+    };
 
     // Add the JSON resource body to the parameters dictionary
     parameters.AddJsonResourceToDictionary(jsonResourceRequestBody);
